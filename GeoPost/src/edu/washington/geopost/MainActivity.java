@@ -1,15 +1,24 @@
 package edu.washington.geopost;
 
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
 import android.os.Bundle;
 import android.app.Activity;
 import android.view.Menu;
 
 public class MainActivity extends Activity {
-
+	
+	GoogleMap map;
+	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setUpMapIfNeeded(); 
+        addPin("TEST", 47.5, 122.3);
     }
 
 
@@ -20,4 +29,28 @@ public class MainActivity extends Activity {
         return true;
     }
     
+    private void addPin(String title, double lat, double lng){
+    	map.addMarker(new MarkerOptions()
+    	.title(title)
+    	.position(new LatLng(lat, lng)));
+    }
+    
+    
+    
+    
+    /**
+     * Initialize the map if possible
+     */
+    private void setUpMapIfNeeded() {
+        // Do a null check to confirm that we have not already instantiated the map.
+        if (map == null) {
+            map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map))
+                                .getMap();
+            // Check if we were successful in obtaining the map.
+            if (map != null) {
+                // The Map is verified. It is now safe to manipulate the map.
+
+            }
+        }
+    }
 }
