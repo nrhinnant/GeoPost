@@ -1,15 +1,18 @@
 package edu.washington.geopost;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.util.Log;
 import android.view.Menu;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements OnMarkerClickListener {
 	
 	GoogleMap map;
 	
@@ -18,9 +21,10 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setUpMapIfNeeded(); 
+        map.setMyLocationEnabled(true);
+        map.setOnMarkerClickListener(this);
         addPin("TEST", 47.5, 122.3);
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -53,4 +57,11 @@ public class MainActivity extends Activity {
             }
         }
     }
+
+	@Override
+	public boolean onMarkerClick(Marker marker) {
+		// TODO Auto-generated method stub
+		Log.d("Pin message", "clicked");
+		return true;
+	}
 }
