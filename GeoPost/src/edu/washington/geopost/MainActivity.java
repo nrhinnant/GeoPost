@@ -1,5 +1,7 @@
 package edu.washington.geopost;
 
+import java.util.List;
+
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.MapFragment;
@@ -7,23 +9,74 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.Context;
 import android.util.Log;
 import android.view.Menu;
 
-public class MainActivity extends Activity implements OnMarkerClickListener {
-	
-	GoogleMap map;
+public class MainActivity extends Activity implements OnMarkerClickListener, 
+													LocationListener {
+	private LocationManager locationManager;
+	private String provider;
+	private GoogleMap map;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setUpMapIfNeeded(); 
+        locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+        
+        // Initialize provider (this provider doesn't always work)
+        Criteria criteria = new Criteria();
+        provider = locationManager.getBestProvider(criteria, false);
+        
+        Location l = getLastKnownLocation();
         map.setMyLocationEnabled(true);
         map.setOnMarkerClickListener(this);
-        addPin("TEST", 47.5, 122.3);
+        addPin("TEST", l.getLatitude(), l.getLongitude());
+    }
+    
+    // Loops through available providers and finds one that is not null with the best accuracy
+    // Uses this provider to get the current location
+    private Location getLastKnownLocation() {
+    	List<String> providers = locationManager.getProviders(true);
+    	Location bestLocation = null;
+    	for (String provider : providers) {
+    		Location l = locationManager.getLastKnownLocation(provider);
+
+    		if (l == null) {
+    			continue;
+    		}
+    		if (bestLocation == null
+    				|| l.getAccuracy() < bestLocation.getAccuracy()) {
+    			bestLocation = l;
+    			this.provider = provider;
+    		}
+    	}
+    	if (bestLocation == null) {
+    		return null;
+    	}
+    	return bestLocation;
+    }
+    
+    /* Request updates at startup */
+    @Override
+    protected void onResume() {
+      super.onResume();
+      locationManager.requestLocationUpdates(provider, 400, 1, this);
+    }
+
+    /* Remove the locationlistener updates when Activity is paused */
+    @Override
+    protected void onPause() {
+      super.onPause();
+      locationManager.removeUpdates(this);
     }
 
     @Override
@@ -63,5 +116,33 @@ public class MainActivity extends Activity implements OnMarkerClickListener {
 		// TODO Auto-generated method stub
 		Log.d("Pin message", "clicked");
 		return true;
+	}
+
+	// Inherited by LocationListener 
+	@Override
+	public void onLocationChanged(Location location) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	// Inherited by LocationListener 
+	@Override
+	public void onStatusChanged(String provider, int status, Bundle extras) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	// Inherited by LocationListener 
+	@Override
+	public void onProviderEnabled(String provider) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	// Inherited by LocationListener 
+	@Override
+	public void onProviderDisabled(String provider) {
+		// TODO Auto-generated method stub
+		
 	}
 }
