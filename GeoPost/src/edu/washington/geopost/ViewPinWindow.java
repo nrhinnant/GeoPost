@@ -12,6 +12,12 @@ public class ViewPinWindow implements InfoWindowAdapter {
 	
 	private final View myContentsView;
 	
+	/**
+	 * Constructor for a ViewPinWindow
+	 * 
+	 * @param context the layout to put the ViewPinWindow on
+	 * 		(for this project, this should be MainActivity)
+	 */
 	public ViewPinWindow(Context context){
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
 		myContentsView = inflater.inflate(R.layout.view_pin_window, null);
@@ -22,11 +28,19 @@ public class ViewPinWindow implements InfoWindowAdapter {
 	 * Sets an author text field and a message text field
 	 */
 	@Override
-	public View getInfoContents(Marker arg0) {
+	public View getInfoContents(Marker marker) {
 		TextView author = (TextView) myContentsView.findViewById(R.id.author);
+		
+		// this field should be filled with the user who posted the pin
+		// DBQuery.getUser(marker.getId())
 		author.setText("anonymous");
+		
 		TextView message = (TextView) myContentsView.findViewById(R.id.message);
+		
+		// this field should be filled with the message of the pin
+		// DBQuery.getMessage(marker.getId())
 		message.setText("this is a sample message");
+		
 		return myContentsView;
 	}
 

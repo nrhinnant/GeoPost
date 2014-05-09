@@ -31,7 +31,10 @@ public class MainActivity extends Activity implements OnMarkerClickListener,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setUpMapIfNeeded(); 
+        
+        // Set the pin pop up windows to use the ViewPinWindow class
         map.setInfoWindowAdapter(new ViewPinWindow(this));
+        
         markerWindowShown = false;
         locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
         
