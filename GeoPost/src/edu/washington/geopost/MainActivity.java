@@ -24,12 +24,14 @@ public class MainActivity extends Activity implements OnMarkerClickListener,
 	private LocationManager locationManager;
 	private String provider;
 	private GoogleMap map;
+	private boolean markerWindowShown;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setUpMapIfNeeded(); 
+        markerWindowShown = false;
         locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
         
         // Initialize provider (this provider doesn't always work)
@@ -39,7 +41,8 @@ public class MainActivity extends Activity implements OnMarkerClickListener,
         Location l = getLastKnownLocation();
         map.setMyLocationEnabled(true);
         map.setOnMarkerClickListener(this);
-        addPin("TEST", l.getLatitude(), l.getLongitude());
+        addPin("TEST", 0, 0);
+        //addPin("TEST", l.getLatitude(), l.getLongitude());
     }
     
     // Loops through available providers and finds one that is not null with the best accuracy
@@ -111,10 +114,19 @@ public class MainActivity extends Activity implements OnMarkerClickListener,
         }
     }
 
+    /**
+     * On clicking a marker, show a window if there is not already one shown. 
+     * Otherwise, hide the current window being shown. 
+     */
 	@Override
 	public boolean onMarkerClick(Marker marker) {
-		// TODO Auto-generated method stub
-		Log.d("Pin message", "clicked");
+		if (markerWindowShown) {
+			marker.hideInfoWindow();
+			markerWindowShown = false;
+		} else {
+			marker.showInfoWindow();
+			markerWindowShown = true;
+		}
 		return true;
 	}
 
