@@ -66,9 +66,6 @@ public class MainActivity extends Activity implements OnMarkerClickListener,
     			this.provider = provider;
     		}
     	}
-    	if (bestLocation == null) {
-    		return null;
-    	}
     	return bestLocation;
     }
     
