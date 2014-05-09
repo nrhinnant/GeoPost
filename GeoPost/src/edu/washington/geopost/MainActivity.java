@@ -31,6 +31,7 @@ public class MainActivity extends Activity implements OnMarkerClickListener,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setUpMapIfNeeded(); 
+        map.setInfoWindowAdapter(new ViewPinWindow(this));
         markerWindowShown = false;
         locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
         
@@ -115,8 +116,8 @@ public class MainActivity extends Activity implements OnMarkerClickListener,
     }
 
     /**
-     * On clicking a marker, show a window if there is not already one shown. 
-     * Otherwise, hide the current window being shown. 
+     * On clicking a marker, show the marker window if there is not already one shown. 
+     * Otherwise, hide the marker window. 
      */
 	@Override
 	public boolean onMarkerClick(Marker marker) {
