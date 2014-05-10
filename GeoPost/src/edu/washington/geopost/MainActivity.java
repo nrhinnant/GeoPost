@@ -189,7 +189,7 @@ public class MainActivity extends FragmentActivity
 	public void onPostButtonClick(View view) {
 		Location l = getLastKnownLocation();
 		if (l == null) {
-			Toast toast = Toast.makeText(getApplicationContext(), "Could not find your location", 
+			Toast toast = Toast.makeText(getApplicationContext(), "Unable to find your location", 
 										Toast.LENGTH_SHORT);
 			toast.show();
 		} else {	
