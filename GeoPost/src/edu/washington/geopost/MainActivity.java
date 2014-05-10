@@ -1,10 +1,19 @@
 package edu.washington.geopost;
 
+import java.util.Map;
+
+import com.google.android.gms.maps.model.MarkerOptions;
+
 import android.os.Bundle;
 import android.app.Activity;
 import android.view.Menu;
 
 public class MainActivity extends Activity {
+	
+	// Maps from the markers on the map to the Pin object to display
+	private Map<MarkerOptions, Pin> myPins;
+	// The user ID
+	private String userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
