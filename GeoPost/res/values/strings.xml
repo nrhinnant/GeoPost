@@ -3,6 +3,6 @@
 
     <string name="app_name">GeoPost</string>
     <string name="action_settings">Settings</string>
-    <string name="sample_greeting">Welcome to the GeoPost App!</string>
+    <string name="button_message">Post</string>
 
 </resources>
