@@ -27,6 +27,7 @@ public class MainActivity extends FragmentActivity
 									 LocationListener, 
 									 PostFragment.PostDialogListener {
 	
+	private final double RANGE_RADIUS = 1.0;
 	private LocationManager locationManager;
 	private String provider;
 	private GoogleMap map;
@@ -140,9 +141,23 @@ public class MainActivity extends FragmentActivity
 			marker.hideInfoWindow();
 			markerWindowShown = false;
 		} else {
-			marker.showInfoWindow();
-			markerWindowShown = true;
+			if (isInRange(marker)) {
+				marker.showInfoWindow();
+				markerWindowShown = true;
+			}
 		}
+		return true;
+	}
+	
+	/**
+	 * Returns whether the marker is in range of the user's GPS position. 
+	 * The user must be RANGE_RADIUS coordinates or less away from the marker
+	 * to be in range. 
+	 * @param marker the marker to verify
+	 * @return true if the marker is in range, false otherwise
+	 */
+	private boolean isInRange(Marker marker) {
+		// TODO this
 		return true;
 	}
 	
