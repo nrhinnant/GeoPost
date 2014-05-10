@@ -21,6 +21,7 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.Toast;
 
 public class MainActivity extends FragmentActivity 
 						  implements OnMarkerClickListener, 
@@ -49,14 +50,12 @@ public class MainActivity extends FragmentActivity
         Criteria criteria = new Criteria();
         provider = locationManager.getBestProvider(criteria, false);
         
-        Location l = getLastKnownLocation();
         map.setMyLocationEnabled(true);
         map.setOnMarkerClickListener(this);
-        addPin("TEST", 0, 0);
-        //addPin("TEST", l.getLatitude(), l.getLongitude());
     }
     
-    // Loops through available providers and finds one that is not null with the best accuracy
+    // Loops through available providers and finds one that returns a location which
+    // is not null with the best accuracy
     // Uses this provider to get the current location
     private Location getLastKnownLocation() {
     	List<String> providers = locationManager.getProviders(true);
@@ -153,11 +152,28 @@ public class MainActivity extends FragmentActivity
 	 * Returns whether the marker is in range of the user's GPS position. 
 	 * The user must be RANGE_RADIUS coordinates or less away from the marker
 	 * to be in range. 
+	 * If the user's location cannot be found, displays a message saying so. 
 	 * @param marker the marker to verify
 	 * @return true if the marker is in range, false otherwise
 	 */
 	private boolean isInRange(Marker marker) {
 		// TODO this
+		/*
+		Location l = getLastKnownLocation();
+		if (l == null) {
+			Toast toast = Toast.makeText(getApplicationContext(), "Could not find your location", 
+										Toast.LENGTH_SHORT);
+			toast.show();
+			return false;
+		}
+		double userLat = l.getLatitude();
+		double userLng = l.getLongitude();
+		double pinLat = 
+		double pinLng = 
+		double res = Math.sqrt(Math.pow(userLat - pinLat, 2) + Math.pow(userLng - pinLng, 2.0);
+		return res <= RANGE_RADIUS;
+		*/
+		
 		return true;
 	}
 	
@@ -166,21 +182,29 @@ public class MainActivity extends FragmentActivity
 	 * Creates and displays a new PostFragment,
 	 * passing it the current latitude and longitude of the
 	 * user's location. 
+	 * It the current location cannot be found, displays a 
+	 * message saying so. 
 	 * @param view the clicked post button
 	 */
 	public void onPostButtonClick(View view) {
-		DialogFragment newFragment = new PostFragment();
-		
-		// Pass the current coordinates to the PostFragment
-		Bundle args = new Bundle();
 		Location l = getLastKnownLocation();
-		//double lat = l.getLatitude();
-		//double lng = l.getLongitude();
-	    args.putDouble("lat", -100.0);
-	    args.putDouble("lng", 50.0);
-	    newFragment.setArguments(args);
-	    
-	    newFragment.show(getSupportFragmentManager(), "post");
+		if (l == null) {
+			Toast toast = Toast.makeText(getApplicationContext(), "Could not find your location", 
+										Toast.LENGTH_SHORT);
+			toast.show();
+		} else {	
+			DialogFragment newFragment = new PostFragment();
+			
+			// Pass the current coordinates to the PostFragment
+			Bundle args = new Bundle();
+			double lat = l.getLatitude();
+			double lng = l.getLongitude();
+		    args.putDouble("lat", lat);
+		    args.putDouble("lng", lng);
+		    newFragment.setArguments(args);
+		    
+		    newFragment.show(getSupportFragmentManager(), "post");
+		}
 	}
 	
 	/**
