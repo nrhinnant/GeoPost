@@ -1,5 +1,6 @@
 package edu.washington.geopost;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -24,30 +25,48 @@ public class DBQuery {
 											 southWest.getLongitude());
 		ParseGeoPoint ne = new ParseGeoPoint(northEast.getLatitude(),
 											 northEast.getLongitude());
-		ParseQuery<ParseObject> pinQuery = ParseQuery.getQuery("ParseQuery"); // TODO: Switch this to ParsePin.class
+		ParseQuery<ParsePin> pinQuery = ParseQuery.getQuery("ParsePin");
 		pinQuery.whereWithinGeoBox("location", sw, ne);
 		
-		List<ParseObject> queryResults = null;
+		List<ParsePin> queryResults = null;
 		try {
 			queryResults = pinQuery.find();
 		} catch (ParseException e) { // TODO: Make this more robust
 			System.out.println("fetching pins had an error");
 		}
 		
+		Set<Pin> pinsToDisplay = null;
 		if (queryResults != null) {
 			// TODO: Process ParsePins, convert to Pins (including setting
 			// locked status), add to Set
+			pinsToDisplay = new HashSet<Pin>();
+			for (ParsePin pin : queryResults) {
+				boolean locked = true; // TODO: determine how to get using pin.getUser().getUsername();
+
+				// Set up the location.
+				// TODO: Do we need to set bearing and accuracy???
+				Location location = new Location("");
+		        location.setLatitude(pin.getLocation().getLatitude());
+		        location.setLongitude(pin.getLocation().getLongitude());
+
+				Pin newPin = new Pin(locked,
+						location,
+						pin.getUser().getUsername(),
+						pin.getObjectId(),
+						pin.getMessage());
+
+				pinsToDisplay.add(newPin);
+			}
 		}
-		return null;
+		return pinsToDisplay;
 	}
 	
 	/**
 	 * Returns a User object containing information about the current user of
 	 * the app.
-	 * @param userId The user ID of the user we want information about
 	 * @return The User that we want information about
 	 */
-	public User getUser(String userId) {
+	public User getCurrentUser() {
 		String name = null;
 		int viewedNum = 0;
 		int postedNum = 0;
