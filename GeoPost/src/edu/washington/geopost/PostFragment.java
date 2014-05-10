@@ -6,7 +6,10 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
 
 public class PostFragment extends DialogFragment {
 	
@@ -14,7 +17,7 @@ public class PostFragment extends DialogFragment {
      * implement this interface in order to receive event callbacks.
      * Each method passes the DialogFragment in case the host needs to query it. */
     public interface PostDialogListener {
-        public void onDialogPositiveClick(DialogFragment dialog);
+        public void onDialogPositiveClick(DialogFragment dialog, double lat, double lng);
     }
     
     // Use this instance of the interface to deliver action events
@@ -48,8 +51,10 @@ public class PostFragment extends DialogFragment {
         builder.setView(inflater.inflate(R.layout.dialog_post, null))
                .setPositiveButton(R.string.button_message, new DialogInterface.OnClickListener() {
                    public void onClick(DialogInterface dialog, int id) {
-                       storePinInfo();
-                       listener.onDialogPositiveClick(PostFragment.this);
+                	   double lat = getArguments().getDouble("lat");
+                	   double lng = getArguments().getDouble("lng");
+                       storePinInfo(lat, lng);
+                       listener.onDialogPositiveClick(PostFragment.this, lat, lng);
                    }
                })
                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -64,7 +69,10 @@ public class PostFragment extends DialogFragment {
 	/**
 	 * Store the information about the pin
 	 */
-	private void storePinInfo() {
+	private void storePinInfo(double lat, double lng) {
 		
+		// get the message entered by the user
+		EditText e = (EditText) getDialog().findViewById(R.id.post_text);
+		String message = e.getText().toString();
 	}
 }

@@ -139,12 +139,24 @@ public class MainActivity extends FragmentActivity
 	
 	/**
 	 * Method called when the post button is clicked
-	 * Creates and displays a new PostFragment
+	 * Creates and displays a new PostFragment,
+	 * passing it the current latitude and longitude of the
+	 * user's location. 
 	 * @param view the clicked post button
 	 */
 	public void onPostButtonClick(View view) {
 		DialogFragment newFragment = new PostFragment();
-	    newFragment.show(getSupportFragmentManager(), "missiles");
+		
+		// Pass the current coordinates to the PostFragment
+		Bundle args = new Bundle();
+		Location l = getLastKnownLocation();
+		//double lat = l.getLatitude();
+		//double lng = l.getLongitude();
+	    args.putDouble("lat", -100.0);
+	    args.putDouble("lng", 50.0);
+	    newFragment.setArguments(args);
+	    
+	    newFragment.show(getSupportFragmentManager(), "post");
 	}
 	
 	// The dialog fragment receives a reference to this Activity through the
@@ -152,8 +164,8 @@ public class MainActivity extends FragmentActivity
     // defined by the PostFragment.PostDialogListener interface
 	// This method is called on a click of the "Post" button from a PostFragment
     @Override
-    public void onDialogPositiveClick(DialogFragment dialog) {
-        // Show a new pin on the map
+    public void onDialogPositiveClick(DialogFragment dialog, double lat, double lng) {
+        addPin("TEST", lat, lng);
     }
 
 	// Inherited by LocationListener 
