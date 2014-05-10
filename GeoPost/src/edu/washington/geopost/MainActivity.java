@@ -96,6 +96,12 @@ public class MainActivity extends FragmentActivity
         return true;
     }
     
+    /**
+     * Add a pin to the map
+     * @param title the title of the string (this doesn't show up on the map)
+     * @param lat the latitude to put the pin
+     * @param lng the longitude to put the pin
+     */
     private void addPin(String title, double lat, double lng){
     	map.addMarker(new MarkerOptions()
     	.title(title)
@@ -124,9 +130,12 @@ public class MainActivity extends FragmentActivity
     /**
      * On clicking a marker, show the marker window if there is not already one shown. 
      * Otherwise, hide the marker window. 
+     * 
+     * @param marker the clicked marker (or pin)
      */
 	@Override
 	public boolean onMarkerClick(Marker marker) {
+		// Note: marker.isInfoWindowShown() has a bug, don't use it
 		if (markerWindowShown) {
 			marker.hideInfoWindow();
 			markerWindowShown = false;
@@ -159,10 +168,17 @@ public class MainActivity extends FragmentActivity
 	    newFragment.show(getSupportFragmentManager(), "post");
 	}
 	
-	// The dialog fragment receives a reference to this Activity through the
-    // Fragment.onAttach() callback, which it uses to call the following methods
-    // defined by the PostFragment.PostDialogListener interface
-	// This method is called on a click of the "Post" button from a PostFragment
+	/**
+	 * The dialog fragment receives a reference to this Activity through the
+     * Fragment.onAttach() callback, which it uses to call the following methods
+     * defined by the PostFragment.PostDialogListener interface
+	 * This method is called on a click of the "Post" button from a PostFragment
+	 * Adds a pin to the map at the coordinates given
+	 * 
+	 * @param dialog a reference to the fragment this is listening on
+	 * @param lat the latitude to put the pin
+	 * @param lng the longitude to put the pin
+	 */
     @Override
     public void onDialogPositiveClick(DialogFragment dialog, double lat, double lng) {
         addPin("TEST", lat, lng);
