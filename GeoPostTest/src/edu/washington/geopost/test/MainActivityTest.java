@@ -18,8 +18,7 @@ public class MainActivityTest extends AndroidTestCase {
 		super.tearDown();
 	}
 	
-	public void sampleTest() {
-		System.out.println("IN sampleTest");
+	public void testSampleTest() {
 		assertTrue(false);
 	}
 }
