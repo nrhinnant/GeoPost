@@ -136,6 +136,7 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 	
 	/**
 	 * Method called when the post button is clicked
+	 * Creates and displays a new PostFragment
 	 * @param view the clicked post button
 	 */
 	public void onPostButtonClick(View view) {

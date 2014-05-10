@@ -4,6 +4,7 @@
     <string name="app_name">GeoPost</string>
     <string name="action_settings">Settings</string>
     <string name="button_message">Post</string>
+    <string name="post_message">Enter a message:</string>
     <string name="cancel">Cancel</string>
 
 </resources>
