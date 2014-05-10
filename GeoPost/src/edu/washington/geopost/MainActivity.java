@@ -22,8 +22,11 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 
-public class MainActivity extends FragmentActivity implements OnMarkerClickListener, 
-													LocationListener {
+public class MainActivity extends FragmentActivity 
+						  implements OnMarkerClickListener, 
+									 LocationListener, 
+									 PostFragment.PostDialogListener {
+	
 	private LocationManager locationManager;
 	private String provider;
 	private GoogleMap map;
@@ -143,6 +146,15 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 		DialogFragment newFragment = new PostFragment();
 	    newFragment.show(getSupportFragmentManager(), "missiles");
 	}
+	
+	// The dialog fragment receives a reference to this Activity through the
+    // Fragment.onAttach() callback, which it uses to call the following methods
+    // defined by the PostFragment.PostDialogListener interface
+	// This method is called on a click of the "Post" button from a PostFragment
+    @Override
+    public void onDialogPositiveClick(DialogFragment dialog) {
+        // Show a new pin on the map
+    }
 
 	// Inherited by LocationListener 
 	@Override
