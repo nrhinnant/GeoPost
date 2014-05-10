@@ -16,10 +16,13 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Context;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
+import android.view.View;
 
-public class MainActivity extends Activity implements OnMarkerClickListener, 
+public class MainActivity extends FragmentActivity implements OnMarkerClickListener, 
 													LocationListener {
 	private LocationManager locationManager;
 	private String provider;
@@ -129,6 +132,15 @@ public class MainActivity extends Activity implements OnMarkerClickListener,
 			markerWindowShown = true;
 		}
 		return true;
+	}
+	
+	/**
+	 * Method called when the post button is clicked
+	 * @param view the clicked post button
+	 */
+	public void onPostButtonClick(View view) {
+		DialogFragment newFragment = new PostFragment();
+	    newFragment.show(getSupportFragmentManager(), "missiles");
 	}
 
 	// Inherited by LocationListener 

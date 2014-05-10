@@ -16,6 +16,7 @@
         android:text="@string/button_message"
         android:layout_width="fill_parent"
         android:layout_height="50dip"
-        android:layout_alignParentBottom="true" />"
+        android:layout_alignParentBottom="true"
+        android:onClick="onPostButtonClick" />
 
 </RelativeLayout>
