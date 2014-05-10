@@ -14,7 +14,7 @@ import android.location.Location;
 
 public class DBQuery {
 	/**
-	 * 
+	 * Returns all the pins located within the box bounded by the given corners.
 	 * @param southWest The lower left corner of the user's screen on the map
 	 * @param northEast The upper right corner of the user's screen on the map
 	 * @return A set of the pins within the given box made with passed coordinates
@@ -35,7 +35,8 @@ public class DBQuery {
 		}
 		
 		if (queryResults != null) {
-			// TODO: Process ParsePins, convert to Pins, add to Set
+			// TODO: Process ParsePins, convert to Pins (including setting
+			// locked status), add to Set
 		}
 		return null;
 	}
@@ -48,29 +49,32 @@ public class DBQuery {
 	 */
 	public User getUser(String userId) {
 		String name = null;
-		int viewedPosts = 0;
-		int postedPosts = 0;
+		int viewedNum = 0;
+		int postedNum = 0;
 		
-		// Fetch the current user and get the number of pins they've viewed and
-		// posted
+		// Fetch the current user
 		ParseUser user = ParseUser.getCurrentUser();
+		
+		// TODO: Connect with Facebook to get user name. We will need to set up
+		// Facebook for our app. Right now it just returns the Parse username.
+		name = user.getUsername();
+		
+		// Get the number of pins they've viewed
 		ParseRelation<ParseObject> viewedRelation = user.getRelation("viewed");
 		try {
-			viewedPosts = viewedRelation.getQuery().count();
+			viewedNum = viewedRelation.getQuery().count();
 		} catch (ParseException e) { // TODO: Make this more robust
 			System.out.println("fetching viewed had an error");
 		}
+		
+		// Get the number of pins they've posted
 		ParseRelation<ParseObject> postedRelation = user.getRelation("posted");
 		try {
-			postedPosts = postedRelation.getQuery().count();
+			postedNum = postedRelation.getQuery().count();
 		} catch (ParseException e) { // TODO: Make this more robust
 			System.out.println("error fetching posted");
 		}
 		
-		// TODO: Connect with Facebook to get user name. We will need to set up
-		// Facebook for our app.
-		
-		// TODO: Create and return new User object
-		return null;
+		return new User(viewedNum, postedNum, name);
 	}
 }
