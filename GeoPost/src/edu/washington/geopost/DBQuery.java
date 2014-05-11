@@ -14,8 +14,8 @@ import com.parse.ParseUser;
 import android.location.Location;
 
 /**
- * DBQuery is a class that retrieves information from the Parse database using
- * parameterized queries.
+ * DBQuery retrieves information from the Parse database using parameterized
+ * queries.
  * @authors Katie Madonna, Andrew Repp
  */
 
@@ -49,7 +49,7 @@ public class DBQuery {
 		try {
 			queryResults = pinQuery.find();
 		} catch (ParseException e) { // TODO: Make this more robust
-			System.out.println("fetching pins had an error");
+			System.err.println("fetching pins had an error");
 		}
 		
 		if (queryResults != null) { // The query was successful
@@ -65,7 +65,7 @@ public class DBQuery {
 			try {
 				viewed = viewedQuery.find();
 			} catch (ParseException e) { // TODO: Make this more robust
-				System.out.println("fetching viewed had an error");
+				System.err.println("fetching viewed had an error");
 			}
 			
 			for (ParsePin pin : queryResults) {
@@ -116,7 +116,7 @@ public class DBQuery {
 		try {
 			viewedNum = viewedRelation.getQuery().count();
 		} catch (ParseException e) { // TODO: Make this more robust
-			System.out.println("fetching viewed had an error");
+			System.err.println("fetching viewed had an error");
 		}
 		
 		// Get the number of pins they've posted
@@ -124,7 +124,7 @@ public class DBQuery {
 		try {
 			postedNum = postedRelation.getQuery().count();
 		} catch (ParseException e) { // TODO: Make this more robust
-			System.out.println("error fetching posted");
+			System.err.println("error fetching posted");
 		}
 		
 		return new User(viewedNum, postedNum, name);
