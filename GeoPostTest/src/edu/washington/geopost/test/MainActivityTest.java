@@ -3,11 +3,7 @@ package edu.washington.geopost.test;
 import org.junit.Test;
 
 import edu.washington.geopost.MainActivity;
-import android.app.Activity;
-import android.content.Intent;
 import android.test.ActivityInstrumentationTestCase2;
-import android.test.ActivityUnitTestCase;
-import android.test.AndroidTestCase;
 import android.widget.Button;
 
 public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActivity> {
