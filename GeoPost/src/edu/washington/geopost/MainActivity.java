@@ -4,19 +4,14 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.view.Menu;
 
-import com.parse.Parse;
-import com.parse.ParseObject;
-
 public class MainActivity extends Activity {
 
-	private final String appID = ""; 		// change this to your Parse application id
-	private final String clientKey = ""; 	// change this to your Parse client key
+	static final String TAG = "GeoPost";	
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Parse.initialize(this, appID, clientKey);
     }
 
 

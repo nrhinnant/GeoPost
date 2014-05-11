@@ -4,5 +4,8 @@
     <string name="app_name">GeoPost</string>
     <string name="action_settings">Settings</string>
     <string name="sample_greeting">Welcome to the GeoPost App!</string>
+    <string name="app_id">Your Facebook App ID</string>
+    <string name="login_intro">Welcome to GeoPost!</string>
+    <string name="login">Log In</string>
 
 </resources>
