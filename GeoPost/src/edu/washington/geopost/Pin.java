@@ -18,10 +18,10 @@ public class Pin {
 	/**
 	 * Creates a new Pin.
 	 * @param locked True if the pin is locked.
-	 * @param coord The pin's coordinates.
-	 * @param userId The userId of the pin's author.
-	 * @param pinId The pin's Id.
-	 * @param message The message that the pin will display.
+	 * @param coord The pin's location.
+	 * @param userId The user who posted the pin.
+	 * @param pinId The pin's ID.
+	 * @param message The pin's message.
 	 */
 	public Pin(boolean locked, Location coord, String userId, String pinId, String message) {
 		this.locked = locked;
@@ -32,27 +32,57 @@ public class Pin {
 	}
 
 	/**
-	 * Returns true if the pin is locked.
-	 * @return true if the pin is locked.
+	 * Returns <tt>true</tt> if the pin is locked.
+	 * @return <tt>true</tt> if the pin is locked.
 	 */
 	public boolean isLocked() {
 		return locked;
 	}
 	
 	/**
-	 * Returns the pin's Location.
-	 * @return The pin's Location.
+	 * Locks the pin.
 	 */
-	public Location getCoordinates() {
+	public void lock() {
+		locked = true;
+	}
+	
+	/**
+	 * Unlocks the pin.
+	 */
+	public void unlock() {
+		locked = false;
+	}
+	
+	/**
+	 * Returns the pin's location.
+	 * @return The pin's location.
+	 */
+	public Location getLocation() {
 		return coord;
 	}
 	
 	/**
-	 * Returns the userId of the pin's Author.
-	 * @return The userId of the pin's Author.
+	 * Sets the pin's location.
+	 * @param coord The pin's location.
 	 */
-	public String getPinAuthor() {
+	public void setLocation(Location coord) {
+		this.coord = coord;
+	}
+	
+	/**
+	 * Returns the userId of the user who posted the pin.
+	 * @return The userId of the user who posted the pin.
+	 */
+	public String getUser() {
 		return userId;
+	}
+	
+	/**
+	 * Sets the user who posted the pin.
+	 * @param userId The user who posted the pin.
+	 */
+	public void setUser(String userId) {
+		this.userId = userId;
 	}
 	
 	/**
@@ -64,39 +94,6 @@ public class Pin {
 	}
 	
 	/**
-	 * Returns the message that the pin will display.
-	 * @return The message that the pin will display.
-	 */
-	public String getMessage() {
-		return message;
-	}
-	
-	
-	/**
-	 * Sets the pin's locked status.
-	 * @param locked True if the pin is locked. 
-	 */
-	public void setLocked(boolean locked) {
-		this.locked = locked;
-	}
-	
-	/**
-	 * Sets the pin's location.
-	 * @param coord The location of the pin.
-	 */
-	public void setLocation(Location coord) {
-		this.coord = coord;
-	}
-	
-	/**
-	 * Sets the author of the pin.
-	 * @param userId The author's userId.
-	 */
-	public void setPinAuthor(String userId) {
-		this.userId = userId;
-	}
-	
-	/**
 	 * Sets the pin's ID.
 	 * @param pinId The pin's ID.
 	 */
@@ -105,8 +102,16 @@ public class Pin {
 	}
 	
 	/**
-	 * Sets the message the pin will display.
-	 * @param message The message the pin will display.
+	 * Returns the pin's message.
+	 * @return The pin's message.
+	 */
+	public String getMessage() {
+		return message;
+	}
+	
+	/**
+	 * Sets the pin's message.
+	 * @param message The pin's message.
 	 */
 	public void setMessage(String message) {
 		this.message = message;
