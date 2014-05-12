@@ -1,6 +1,10 @@
 package edu.washington.geopost;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
@@ -103,11 +107,23 @@ public class MainActivity extends FragmentActivity
      * @param lng the longitude to put the pin
      */
     private void addPin(String id, double lat, double lng){
-    	map.addMarker(new MarkerOptions()
+    	Marker m = map.addMarker(new MarkerOptions()
     	.title(id)
     	.position(new LatLng(lat, lng)));
     }
     
+    /**
+     * Add a pin to the map
+     * @param pin
+     */
+    private Marker addPin(Pin pin){
+    	//TODO real values
+    	Marker m = map.addMarker(new MarkerOptions()
+    	.title("")
+    	.position(new LatLng(0, 0)));
+    	
+    	return m;
+    }
     
     
     
@@ -249,5 +265,31 @@ public class MainActivity extends FragmentActivity
 	public void onProviderDisabled(String provider) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	
+	public void drawMarkers(Set<Pin> pins){
+		HashMap<Marker, Pin> pinsbyid = null;
+		
+		for(Iterator<Marker> iter = pinsbyid.keySet().iterator(); iter.hasNext(); ){
+			Marker m = iter.next();
+			
+			// build psedo pin by id
+			Pin temp = new Pin();
+			if (!pins.contains(temp)){
+				m.remove();
+				pinsbyid.remove(m);
+			}
+		}
+		
+		Collection<Pin> pinvalues = pinsbyid.values();
+		for (Pin p : pins){
+			if (!pinvalues.contains(p)){
+				Marker m = addPin(p);
+				
+				pinsbyid.put(m, p);
+				
+			}
+		}
 	}
 }
