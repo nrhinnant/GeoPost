@@ -1,5 +1,13 @@
 package edu.washington.geopost;
 
+/**
+ * 
+ * A User object represents a user of the GeoPost app.
+ * 
+ * @author Megan Drasnin
+ * 
+ */
+
 public class User {
 	// Number of pins the user has viewed
 	private int viewedNum;

@@ -2,6 +2,14 @@ package edu.washington.geopost;
 
 import android.location.Location;
 
+/**
+ * 
+ * A Pin object represents a post on the map.
+ * 
+ * @author Megan Drasnin
+ * 
+ */
+
 public class Pin {
 	// Whether or not the pin is locked for the user
 	private boolean locked;
@@ -14,7 +22,6 @@ public class Pin {
 	// The message that the pin will display
 	private String message;
 	
-	
 	/**
 	 * Creates a new Pin.
 	 * @param locked True if the pin is locked.
@@ -23,7 +30,8 @@ public class Pin {
 	 * @param pinId The pin's ID.
 	 * @param message The pin's message.
 	 */
-	public Pin(boolean locked, Location coord, String userId, String pinId, String message) {
+	public Pin(boolean locked, Location coord, String userId, String pinId,
+			String message) {
 		this.locked = locked;
 		this.coord = coord;
 		this.userId = userId;

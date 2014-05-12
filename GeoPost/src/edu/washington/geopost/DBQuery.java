@@ -14,9 +14,12 @@ import com.parse.ParseUser;
 import android.location.Location;
 
 /**
+ * 
  * DBQuery retrieves information from the Parse database using parameterized
  * queries.
+ * 
  * @authors Katie Madonna, Andrew Repp
+ * 
  */
 
 public class DBQuery {
@@ -96,7 +99,7 @@ public class DBQuery {
 	/**
 	 * Returns a User object containing information about the current user of
 	 * the app.
-	 * @return The User that we want information about
+	 * @return The User about which information is desired
 	 */
 	public User getCurrentUser() {
 		String name = null;
