@@ -98,13 +98,13 @@ public class MainActivity extends FragmentActivity
     
     /**
      * Add a pin to the map
-     * @param title the title of the string (this doesn't show up on the map)
+     * @param id the id of the marker (stored in marker.title)
      * @param lat the latitude to put the pin
      * @param lng the longitude to put the pin
      */
-    private void addPin(String title, double lat, double lng){
+    private void addPin(String id, double lat, double lng){
     	map.addMarker(new MarkerOptions()
-    	.title(title)
+    	.title(id)
     	.position(new LatLng(lat, lng)));
     }
     
@@ -219,8 +219,8 @@ public class MainActivity extends FragmentActivity
 	 * @param lng the longitude to put the pin
 	 */
     @Override
-    public void onDialogPositiveClick(DialogFragment dialog, double lat, double lng) {
-        addPin("TEST", lat, lng);
+    public void onDialogPositiveClick(DialogFragment dialog, double lat, double lng, String id) {
+        addPin(id, lat, lng);
     }
 
 	// Inherited by LocationListener 
