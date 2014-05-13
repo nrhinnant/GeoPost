@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
+import java.util.Map;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
@@ -31,6 +31,9 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.Toast;
 
+import com.parse.Parse;
+import com.parse.ParseObject;
+
 public class MainActivity extends FragmentActivity 
 						  implements OnMarkerClickListener, 
 									 LocationListener, 
@@ -43,11 +46,14 @@ public class MainActivity extends FragmentActivity
 	private String provider;
 	private GoogleMap map;
 	private boolean markerWindowShown;
+	private Map<String, Pin> pinIdToPin;
 	
 	/*
 	 * A map of all pins currently drawn in the app
 	 */
 	private HashMap<Marker, Pin> geoposts;
+	private final String appID = ""; 		// change this to your Parse application id
+	private final String clientKey = ""; 	// change this to your Parse client key
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +77,7 @@ public class MainActivity extends FragmentActivity
 
 		map.setMyLocationEnabled(true);
 		map.setOnMarkerClickListener(this);
+		Parse.initialize(this, appID, clientKey);
 		
 		// Make the app open up to your current location 
 		Location currentLocation = getLastKnownLocation();
@@ -127,18 +134,6 @@ public class MainActivity extends FragmentActivity
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
-    }
-    
-    /**
-     * Add a pin to the map
-     * @param id the id of the marker (stored in marker.title)
-     * @param lat the latitude to put the pin
-     * @param lng the longitude to put the pin
-     */
-    private void addPin(String id, double lat, double lng){
-    	Marker m = map.addMarker(new MarkerOptions()
-    	.title(id)
-    	.position(new LatLng(lat, lng)));
     }
     
     /**

@@ -79,4 +79,5 @@ public class PostFragment extends DialogFragment {
 		
 		return new Pin(new LatLng(lat, lng), null, message);
 	}
+	
 }
