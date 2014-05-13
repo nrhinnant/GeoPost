@@ -77,6 +77,7 @@ public class MainActivity extends FragmentActivity
 
 		map.setMyLocationEnabled(true);
 		map.setOnMarkerClickListener(this);
+		map.getUiSettings().setRotateGesturesEnabled(false);
 		Parse.initialize(this, appID, clientKey);
 		
 		// Make the app open up to your current location 
