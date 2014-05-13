@@ -52,8 +52,8 @@ public class MainActivity extends FragmentActivity
 	 * A map of all pins currently drawn in the app
 	 */
 	private HashMap<Marker, Pin> geoposts;
-	private final String appID = "GlrWxWCu5mnGFKUeeQIFg9Upt9AwomBDk3t0OKHa"; 		// change this to your Parse application id
-	private final String clientKey = "HRRt6k8GzTclufgMCW8RES8LZgQLTTvKBJAnbD5c"; 	// change this to your Parse client key
+	private final String appID = ""; 		// change this to your Parse application id
+	private final String clientKey = ""; 	// change this to your Parse client key
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
