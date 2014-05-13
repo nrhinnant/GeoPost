@@ -53,6 +53,8 @@ public class MainActivity extends FragmentActivity
         provider = locationManager.getBestProvider(criteria, false);
         
         map.setMyLocationEnabled(true);
+        // Turn off the rotation capability of the map
+        map.getUiSettings().setRotateGesturesEnabled(false);
         map.setOnMarkerClickListener(this);
     }
     
