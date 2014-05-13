@@ -124,4 +124,26 @@ public class Pin {
 	public void setMessage(String message) {
 		this.message = message;
 	}
+	
+	/**
+	 * Standard hashcode function for pin.
+	 * @return int hashcode for the pin.
+	 */
+	@Override
+	public int hashCode() {
+		return pinId.hashCode();		
+	}
+	
+	/**
+	 * Two pins are equal iff they have the same pinID
+	 * @param other object to compare
+	 * @return boolean describing if this and o are equal
+	 */
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof Pin))
+			return false;
+		Pin p = (Pin) o;
+		return pinId.equals(p.pinId);
+	}
 }
