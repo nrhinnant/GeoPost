@@ -34,7 +34,7 @@ public class DBQuery {
 	 * @return A set of the Pins within the given box. The set will be empty if
 	 *         no such Pins are found or there is an error fetching data.
 	 */
-	public Set<Pin> getPins(Location southWest, Location northEast) {
+	public static Set<Pin> getPins(Location southWest, Location northEast) {
 		// The returned set
 		Set<Pin> pinsToDisplay = new HashSet<Pin>();
 		
@@ -52,8 +52,9 @@ public class DBQuery {
 		List<ParsePin> queryResults = null;
 		try {
 			queryResults = pinQuery.find();
-		} catch (ParseException e) { // TODO: Make this more robust
-			System.err.println("fetching pins had an error");
+		} catch (ParseException e) {
+			// Fetching pins had an error
+			return null;
 		}
 		
 		if (queryResults != null) { // The query was successful
@@ -68,8 +69,9 @@ public class DBQuery {
 			List<ParsePin> viewed = new ArrayList<ParsePin>();
 			try {
 				viewed = viewedQuery.find();
-			} catch (ParseException e) { // TODO: Make this more robust
-				System.err.println("fetching viewed had an error");
+			} catch (ParseException e) {
+				// Fetching viewed had an error
+				return null;
 			}
 			
 			for (ParsePin pin : queryResults) {
@@ -100,7 +102,7 @@ public class DBQuery {
 	 * the app.
 	 * @return The User about which information is desired
 	 */
-	public User getCurrentUser() {
+	public static User getCurrentUser() {
 		String name = null;
 		int viewedNum = 0;
 		int postedNum = 0;
@@ -117,16 +119,18 @@ public class DBQuery {
 		ParseRelation<ParsePin> viewedRelation = user.getRelation("viewed");
 		try {
 			viewedNum = viewedRelation.getQuery().count();
-		} catch (ParseException e) { // TODO: Make this more robust
-			System.err.println("fetching viewed had an error");
+		} catch (ParseException e) {
+			// Error fetching viewed
+			return null;
 		}
 		
 		// Get the number of pins they've posted
 		ParseRelation<ParsePin> postedRelation = user.getRelation("posted");
 		try {
 			postedNum = postedRelation.getQuery().count();
-		} catch (ParseException e) { // TODO: Make this more robust
-			System.err.println("error fetching posted");
+		} catch (ParseException e) {
+			// Error fetching posted
+			return null;
 		}
 		
 		return new User(viewedNum, postedNum, name);

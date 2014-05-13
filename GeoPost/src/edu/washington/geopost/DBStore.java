@@ -1,14 +1,11 @@
 package edu.washington.geopost;
 
-import android.location.Location;
-
 import com.google.android.gms.maps.model.LatLng;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseQuery;
 import com.parse.ParseRelation;
 import com.parse.ParseUser;
-import com.parse.SaveCallback;
 
 /**
  * 
@@ -26,31 +23,26 @@ public class DBStore {
 	 * @return True if the pin was stored in the database successfully, false
 	 *         otherwise
 	 */
-	public boolean postPin(Pin pin) {
-		boolean success = true; // TODO: right now this is always true
-		
+	public static Pin postPin(LatLng coord, String message) {
 		// Make the ParsePin to save to the database and set its fields
 		// TODO: Write ParsePin constructor to do this?
 		ParsePin dbPin = new ParsePin();
 		
-		dbPin.setUser(ParseUser.getCurrentUser());
+		ParseUser user = ParseUser.getCurrentUser();
+		dbPin.setUser(user);
 		
-		LatLng pinLocation = pin.getLocation();
+		LatLng pinLocation = coord;
 		ParseGeoPoint location = new ParseGeoPoint(pinLocation.latitude,
 												   pinLocation.longitude);
 		dbPin.setLocation(location);
 		
-		dbPin.setMessage(pin.getMessage());
+		dbPin.setMessage(message);
 		
 		// Save the ParsePin to the database
-		dbPin.saveInBackground(new SaveCallback() {
-			public void done(ParseException e) {
-				if (e != null) { // error TODO: Make this more robust
-					System.err.println("error saving pin");
-				}
-			}
-		});
-		return success;
+		dbPin.saveEventually();
+		
+		Pin newPin = new Pin(false, coord, user.getUsername(), dbPin.getObjectId(), message);
+		return newPin;
 	}
 	
 	/**
@@ -60,7 +52,7 @@ public class DBStore {
 	 * @param userId The user ID of the user that is trying to unlock the pin
 	 * @return True if the pin was unlocked successfully, false otherwise
 	 */
-	public boolean unlockPin(Pin pin, String userId) {
+	public static boolean unlockPin(Pin pin, String userId) {
 		boolean success = true;
 		
 		// Get the ParsePin corresponding to the given Pin.
@@ -68,9 +60,9 @@ public class DBStore {
 		ParsePin dbPin = null;
 		try {
 			dbPin = query.get(pin.getPinId());
-		} catch (ParseException e) { // TODO: Make this more robust
-			success = false;
-			System.err.println("error fetching pin");
+		} catch (ParseException e) {
+			// Error fetching pin
+			return false;
 		}
 		
 		// If we successfully got the ParsePin, get the current user, add the
@@ -80,13 +72,7 @@ public class DBStore {
 			ParseUser user = ParseUser.getCurrentUser();
 			ParseRelation<ParsePin> viewedPins = user.getRelation("viewed");
 			viewedPins.add(dbPin);
-			user.saveInBackground(new SaveCallback() {
-				public void done(ParseException e) {
-					if (e != null) { // error TODO: Make this more robust
-						System.err.println("err saving relation");
-					}
-				}
-			});
+			user.saveEventually();
 		}
 		return success;
 	}

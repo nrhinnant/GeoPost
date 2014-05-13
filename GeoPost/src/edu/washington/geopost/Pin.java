@@ -2,8 +2,6 @@ package edu.washington.geopost;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import android.location.Location;
-
 /**
  * 
  * A Pin object represents a post on the map.
