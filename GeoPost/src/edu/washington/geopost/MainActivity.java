@@ -12,6 +12,7 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.VisibleRegion;
 
 import android.location.Criteria;
 import android.location.Location;
@@ -38,26 +39,35 @@ public class MainActivity extends FragmentActivity
 	private GoogleMap map;
 	private boolean markerWindowShown;
 	
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        setUpMapIfNeeded(); 
-        
-        // Set the pin pop up windows to use the ViewPinWindow class
-        map.setInfoWindowAdapter(new ViewPinWindow(this));
-        
-        markerWindowShown = false;
-        locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
-        
-        // Initialize provider (this provider doesn't always work)
-        Criteria criteria = new Criteria();
-        provider = locationManager.getBestProvider(criteria, false);
-        
-        map.setMyLocationEnabled(true);
-        map.setOnMarkerClickListener(this);
-    }
-    
+	/*
+	 * A map of all pins currently drawn in the app
+	 */
+	private HashMap<Marker, Pin> geoposts;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+		setUpMapIfNeeded();
+
+		// Setup collection
+		geoposts = new HashMap<Marker, Pin>();
+
+		// Set the pin pop up windows to use the ViewPinWindow class
+		map.setInfoWindowAdapter(new ViewPinWindow(this));
+
+		markerWindowShown = false;
+		locationManager = (LocationManager) getApplicationContext()
+				.getSystemService(Context.LOCATION_SERVICE);
+
+		// Initialize provider (this provider doesn't always work)
+		Criteria criteria = new Criteria();
+		provider = locationManager.getBestProvider(criteria, false);
+
+		map.setMyLocationEnabled(true);
+		map.setOnMarkerClickListener(this);
+	}
+
     // Loops through available providers and finds one that returns a location which
     // is not null with the best accuracy
     // Uses this provider to get the current location
@@ -79,19 +89,19 @@ public class MainActivity extends FragmentActivity
     	return bestLocation;
     }
     
-    /* Request updates at startup */
-    @Override
-    protected void onResume() {
-      super.onResume();
-      locationManager.requestLocationUpdates(provider, 400, 1, this);
-    }
+	/* Request updates at startup */
+	@Override
+	protected void onResume() {
+		super.onResume();
+		locationManager.requestLocationUpdates(provider, 400, 1, this);
+	}
 
-    /* Remove the locationlistener updates when Activity is paused */
-    @Override
-    protected void onPause() {
-      super.onPause();
-      locationManager.removeUpdates(this);
-    }
+	/* Remove the locationlistener updates when Activity is paused */
+	@Override
+	protected void onPause() {
+		super.onPause();
+		locationManager.removeUpdates(this);
+	}
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -267,29 +277,47 @@ public class MainActivity extends FragmentActivity
 		
 	}
 	
-	
+	/**
+	 * Takes a set of Pin objects and ensures that they are displayed on the map,
+	 * removes any pins that are currently displayed if they are not also in the 
+	 * supplied set.
+	 * @param pins, set of pins to draw onto the map
+	 */
 	public void drawMarkers(Set<Pin> pins){
-		HashMap<Marker, Pin> pinsbyid = null;
 		
-		for(Iterator<Marker> iter = pinsbyid.keySet().iterator(); iter.hasNext(); ){
+		/*
+		 * First remove old pins that aren't in view now
+		 */
+		for(Iterator<Marker> iter = geoposts.keySet().iterator(); iter.hasNext(); ){
 			Marker m = iter.next();
 			
-			// build psedo pin by id
-			Pin temp = new Pin();
-			if (!pins.contains(temp)){
+			if (!pins.contains(geoposts.get(m))){
+				// m is no longer in our scope
 				m.remove();
-				pinsbyid.remove(m);
+				geoposts.remove(m);
 			}
 		}
 		
-		Collection<Pin> pinvalues = pinsbyid.values();
+		/*
+		 * Now add new pins that weren't drawn before
+		 */
+		Collection<Pin> pinvalues = geoposts.values();
 		for (Pin p : pins){
 			if (!pinvalues.contains(p)){
 				Marker m = addPin(p);
 				
-				pinsbyid.put(m, p);
+				geoposts.put(m, p);
 				
 			}
 		}
+	}
+	
+	/**
+	 * Query database and redraw pins that are now in view
+	 */
+	public void updateMap(){
+		Location l = getLastKnownLocation();
+		VisibleRegion vr = map.getProjection().getVisibleRegion();
+		//Set<Pin> pins = DBQuery.getPins();
 	}
 }
