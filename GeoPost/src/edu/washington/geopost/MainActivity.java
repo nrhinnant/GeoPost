@@ -52,8 +52,8 @@ public class MainActivity extends FragmentActivity
 	 * A map of all pins currently drawn in the app
 	 */
 	private HashMap<Marker, Pin> geoposts;
-	private final String appID = ""; 		// change this to your Parse application id
-	private final String clientKey = ""; 	// change this to your Parse client key
+	private final String appID = "GlrWxWCu5mnGFKUeeQIFg9Upt9AwomBDk3t0OKHa"; 		// change this to your Parse application id
+	private final String clientKey = "HRRt6k8GzTclufgMCW8RES8LZgQLTTvKBJAnbD5c"; 	// change this to your Parse client key
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +91,7 @@ public class MainActivity extends FragmentActivity
 		}
 		
 		// Populate the map window with pins
-		updateMap();
+		//updateMap();
 	}
 
     // Loops through available providers and finds one that returns a location which
@@ -140,13 +140,20 @@ public class MainActivity extends FragmentActivity
      * Add a pin to the map
      * @param pin
      */
-    private Marker addPin(Pin pin){
+    private void addPin(Pin pin){
+    	//User currentUser = DBQuery.getCurrentUser();
+    	String name = null;
+    	/*if (currentUser != null) {
+    		name = currentUser.getName();
+    	}*/
+    	
     	//TODO real values
     	Marker m = map.addMarker(new MarkerOptions()
     	.title(pin.getMessage())
+    	.snippet(name)
     	.position(pin.getCoord()));
     	
-    	return m;
+    	geoposts.put(m, pin);
     }
     
     
@@ -260,6 +267,7 @@ public class MainActivity extends FragmentActivity
 	 */
     @Override
     public void onDialogPositiveClick(DialogFragment dialog, Pin pin) {
+    	//Pin res = DBStore.postPin(pin.getCoord(), pin.getMessage());
         addPin(pin);
     }
 
@@ -318,9 +326,7 @@ public class MainActivity extends FragmentActivity
 		Collection<Pin> pinvalues = geoposts.values();
 		for (Pin p : pins){
 			if (!pinvalues.contains(p)){
-				Marker m = addPin(p);
-				
-				geoposts.put(m, p);
+				addPin(p);
 				
 			}
 		}

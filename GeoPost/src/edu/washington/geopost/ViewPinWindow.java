@@ -33,13 +33,13 @@ public class ViewPinWindow implements InfoWindowAdapter {
 		
 		// this field should be filled with the user who posted the pin
 		// DBQuery.getUser(marker.getId())
-		author.setText("anonymous");
+		author.setText(marker.getSnippet());
 		
 		TextView message = (TextView) myContentsView.findViewById(R.id.message);
 		
 		// this field should be filled with the message of the pin
 		// DBQuery.getMessage(marker.getId())
-		message.setText("this is a sample message");
+		message.setText(marker.getTitle());
 		
 		return myContentsView;
 	}
