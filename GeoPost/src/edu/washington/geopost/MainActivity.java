@@ -1,6 +1,7 @@
 package edu.washington.geopost;
 
 import java.util.List;
+import java.util.Map;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
@@ -33,6 +34,7 @@ public class MainActivity extends FragmentActivity
 	private String provider;
 	private GoogleMap map;
 	private boolean markerWindowShown;
+	private Map<String, Pin> pinIdToPin;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -219,8 +221,8 @@ public class MainActivity extends FragmentActivity
 	 * @param lng the longitude to put the pin
 	 */
     @Override
-    public void onDialogPositiveClick(DialogFragment dialog, double lat, double lng, String id) {
-        addPin(id, lat, lng);
+    public void onDialogPositiveClick(DialogFragment dialog, double lat, double lng, Pin pin) {
+        addPin("pinId", lat, lng);
     }
 
 	// Inherited by LocationListener 
