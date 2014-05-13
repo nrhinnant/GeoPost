@@ -6,7 +6,13 @@ import java.util.List;
 import java.util.Set;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.facebook.Request;
+import com.facebook.Request.GraphUserCallback;
+import com.facebook.Response;
+import com.facebook.Session;
+import com.facebook.model.GraphUser;
 import com.parse.ParseException;
+import com.parse.ParseFacebookUtils;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseQuery;
 import com.parse.ParseRelation;
@@ -110,9 +116,17 @@ public class DBQuery {
 		// Fetch the current user
 		ParseUser user = ParseUser.getCurrentUser();
 		
-		// TODO: Connect with Facebook to get user name. We will need to set up
-		// Facebook for our app. Right now it just returns the Parse username,
-		// and we don't know what that looks like yet.
+		// TODO: Figure out how to get the user name out of the callback.
+		Session session = ParseFacebookUtils.getSession();
+		Request.newMeRequest(session, new GraphUserCallback() {
+			public void onCompleted(GraphUser user, Response response) {
+				if (response.getError() != null) {
+					//name = user.getName();
+				} else { // TODO: Make this more robust
+					System.err.println("Error connecting to Facebook");
+				}
+			}
+		});
 		name = user.getUsername();
 		
 		// Get the number of pins they've viewed
