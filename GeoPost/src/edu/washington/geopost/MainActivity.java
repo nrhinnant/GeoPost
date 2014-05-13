@@ -264,8 +264,8 @@ public class MainActivity extends FragmentActivity
 	 * @param lng the longitude to put the pin
 	 */
     @Override
-    public void onDialogPositiveClick(DialogFragment dialog, double lat, double lng, String id) {
-        addPin(id, lat, lng);
+    public void onDialogPositiveClick(DialogFragment dialog, Pin pin) {
+        addPin(pin);
     }
 
 	// Inherited by LocationListener 

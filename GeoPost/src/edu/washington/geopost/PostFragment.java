@@ -1,5 +1,7 @@
 package edu.washington.geopost;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -17,7 +19,7 @@ public class PostFragment extends DialogFragment {
      * implement this interface in order to receive event callbacks.
      * Each method passes the DialogFragment in case the host needs to query it. */
     public interface PostDialogListener {
-        public void onDialogPositiveClick(DialogFragment dialog, double lat, double lng, String id);
+        public void onDialogPositiveClick(DialogFragment dialog, Pin p);
     }
     
     // Use this instance of the interface to deliver action events
@@ -53,9 +55,8 @@ public class PostFragment extends DialogFragment {
                    public void onClick(DialogInterface dialog, int id) {
                 	   double lat = getArguments().getDouble("lat");
                 	   double lng = getArguments().getDouble("lng");
-                	   String pinId = "test";
-                       storePinInfo(lat, lng, pinId);
-                       listener.onDialogPositiveClick(PostFragment.this, lat, lng, pinId);
+                       Pin p = createPin(lat, lng);
+                       listener.onDialogPositiveClick(PostFragment.this, p);
                    }
                })
                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -70,10 +71,12 @@ public class PostFragment extends DialogFragment {
 	/**
 	 * Store the information about the pin
 	 */
-	private void storePinInfo(double lat, double lng, String id) {
+	private Pin createPin(double lat, double lng) {
 		
 		// get the message entered by the user
 		EditText e = (EditText) getDialog().findViewById(R.id.post_text);
 		String message = e.getText().toString();
+		
+		return new Pin(new LatLng(lat, lng), null, message);
 	}
 }
