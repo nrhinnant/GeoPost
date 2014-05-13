@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseQuery;
@@ -80,10 +81,8 @@ public class DBQuery {
 				boolean locked = viewed.contains(pin);
 
 				// Set up the pin's location.
-				// TODO: Do we need to set bearing and accuracy???
-				Location location = new Location("");
-		        location.setLatitude(pin.getLocation().getLatitude());
-		        location.setLongitude(pin.getLocation().getLongitude());
+				LatLng location = new LatLng(pin.getLocation().getLatitude(),
+						pin.getLocation().getLongitude());
 
 		        // Make the new pin and add it to the result set
 				Pin newPin = new Pin(locked, location, 

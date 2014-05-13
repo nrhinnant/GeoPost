@@ -2,6 +2,7 @@ package edu.washington.geopost;
 
 import android.location.Location;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseQuery;
@@ -34,9 +35,9 @@ public class DBStore {
 		
 		dbPin.setUser(ParseUser.getCurrentUser());
 		
-		Location pinLocation = pin.getLocation();
-		ParseGeoPoint location = new ParseGeoPoint(pinLocation.getLatitude(),
-												   pinLocation.getLongitude());
+		LatLng pinLocation = pin.getLocation();
+		ParseGeoPoint location = new ParseGeoPoint(pinLocation.latitude,
+												   pinLocation.longitude);
 		dbPin.setLocation(location);
 		
 		dbPin.setMessage(pin.getMessage());

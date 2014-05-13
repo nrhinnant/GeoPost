@@ -1,5 +1,7 @@
 package edu.washington.geopost;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import android.location.Location;
 
 /**
@@ -14,7 +16,7 @@ public class Pin {
 	// Whether or not the pin is locked for the user
 	private boolean locked;
 	// The coordinate of the pin
-	private Location coord;
+	private LatLng coord;
 	// The user ID of the pin's author user
 	private String userId;
 	// The unique ID of this pin
@@ -30,7 +32,7 @@ public class Pin {
 	 * @param pinId The pin's ID.
 	 * @param message The pin's message.
 	 */
-	public Pin(boolean locked, Location coord, String userId, String pinId,
+	public Pin(boolean locked, LatLng coord, String userId, String pinId,
 			String message) {
 		this.locked = locked;
 		this.coord = coord;
@@ -65,7 +67,7 @@ public class Pin {
 	 * Returns the pin's location.
 	 * @return The pin's location.
 	 */
-	public Location getLocation() {
+	public LatLng getLocation() {
 		return coord;
 	}
 	
@@ -73,7 +75,7 @@ public class Pin {
 	 * Sets the pin's location.
 	 * @param coord The pin's location.
 	 */
-	public void setLocation(Location coord) {
+	public void setLocation(LatLng coord) {
 		this.coord = coord;
 	}
 	
