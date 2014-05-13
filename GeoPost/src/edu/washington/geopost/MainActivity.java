@@ -41,6 +41,7 @@ public class MainActivity extends FragmentActivity
 	
 	public static final float INIT_ZOOM = 15;
 	
+	static final String TAG = "GeoPost";
 	private final double RANGE_RADIUS = 1.0;
 	private LocationManager locationManager;
 	private String provider;
@@ -94,7 +95,7 @@ public class MainActivity extends FragmentActivity
 		// Populate the map window with pins
 		//updateMap();
 	}
-
+	
     // Loops through available providers and finds one that returns a location which
     // is not null with the best accuracy
     // Uses this provider to get the current location
