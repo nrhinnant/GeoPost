@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.MapFragment;
@@ -20,6 +21,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.SyncStateContract.Constants;
 import android.app.Activity;
 import android.content.Context;
 import android.support.v4.app.DialogFragment;
@@ -33,6 +35,8 @@ public class MainActivity extends FragmentActivity
 						  implements OnMarkerClickListener, 
 									 LocationListener, 
 									 PostFragment.PostDialogListener {
+	
+	public static final float INIT_ZOOM = 15;
 	
 	private final double RANGE_RADIUS = 1.0;
 	private LocationManager locationManager;
@@ -67,6 +71,20 @@ public class MainActivity extends FragmentActivity
 
 		map.setMyLocationEnabled(true);
 		map.setOnMarkerClickListener(this);
+		
+		// Make the app open up to your current location 
+		Location currentLocation = getLastKnownLocation();
+		if (currentLocation != null) {
+			LatLng myLatLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+			map.animateCamera(CameraUpdateFactory.newLatLngZoom(myLatLng, INIT_ZOOM));
+		} else {
+			Toast toast = Toast.makeText(getApplicationContext(), "Unable to find your location", 
+					Toast.LENGTH_SHORT);
+			toast.show();
+		}
+		
+		// Populate the map window with pins
+		updateMap();
 	}
 
     // Loops through available providers and finds one that returns a location which
@@ -130,8 +148,8 @@ public class MainActivity extends FragmentActivity
     private Marker addPin(Pin pin){
     	//TODO real values
     	Marker m = map.addMarker(new MarkerOptions()
-    	.title("")
-    	.position(new LatLng(0, 0)));
+    	.title(pin.getMessage())
+    	.position(pin.getCoord()));
     	
     	return m;
     }

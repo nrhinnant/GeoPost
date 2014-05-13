@@ -10,6 +10,15 @@ public class Pin {
 		pinId = pid;
 		message = m;
 	}
+	
+	public LatLng getCoord() {
+		return coord;
+	}
+	
+	public String getMessage() {
+		return message;
+	}
+	
 	// Whether or not the pin is locked for the user
 	private boolean locked;
 	// The coordinate of the pin
