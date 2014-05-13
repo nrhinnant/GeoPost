@@ -2,6 +2,7 @@ package edu.washington.geopost;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -319,5 +320,12 @@ public class MainActivity extends FragmentActivity
 		Location l = getLastKnownLocation();
 		VisibleRegion vr = map.getProjection().getVisibleRegion();
 		//Set<Pin> pins = DBQuery.getPins();
+		
+		Set<Pin> set = new HashSet<Pin>();
+		set.add(new Pin(new LatLng(0, 0), "abc", "Hello1"));
+		set.add(new Pin(new LatLng(4, 4), "def", "Hello2"));
+		set.add(new Pin(new LatLng(8, 8), "jkl", "Hello3"));
+		
+		drawMarkers(set);
 	}
 }
