@@ -24,6 +24,9 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.Toast;
 
+import com.parse.Parse;
+import com.parse.ParseObject;
+
 public class MainActivity extends FragmentActivity 
 						  implements OnMarkerClickListener, 
 									 LocationListener, 
@@ -36,6 +39,9 @@ public class MainActivity extends FragmentActivity
 	private boolean markerWindowShown;
 	private Map<String, Pin> pinIdToPin;
 	
+	private final String appID = ""; 		// change this to your Parse application id
+	private final String clientKey = ""; 	// change this to your Parse client key
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +62,9 @@ public class MainActivity extends FragmentActivity
         // Turn off the rotation capability of the map
         map.getUiSettings().setRotateGesturesEnabled(false);
         map.setOnMarkerClickListener(this);
+
+        Parse.initialize(this, appID, clientKey);
+
     }
     
     // Loops through available providers and finds one that returns a location which
