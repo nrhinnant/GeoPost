@@ -32,15 +32,13 @@ public class MainActivity extends FragmentActivity
 									 LocationListener, 
 									 PostFragment.PostDialogListener {
 	
+	static final String TAG = "GeoPost";
 	private final double RANGE_RADIUS = 1.0;
 	private LocationManager locationManager;
 	private String provider;
 	private GoogleMap map;
 	private boolean markerWindowShown;
 	private Map<String, Pin> pinIdToPin;
-	
-	private final String appID = ""; 		// change this to your Parse application id
-	private final String clientKey = ""; 	// change this to your Parse client key
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,8 +60,6 @@ public class MainActivity extends FragmentActivity
         // Turn off the rotation capability of the map
         map.getUiSettings().setRotateGesturesEnabled(false);
         map.setOnMarkerClickListener(this);
-
-        Parse.initialize(this, appID, clientKey);
 
     }
     
