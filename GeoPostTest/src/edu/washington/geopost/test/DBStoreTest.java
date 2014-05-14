@@ -14,7 +14,7 @@ import edu.washington.geopost.Pin;
 /**
  * 
  * DBStoreTest contains unit tests for the functionality of the DBStore class.
- * @author Andrew Repp
+ * @author Andrew Repp, Neil Hinnant
  *
  */
 
@@ -47,8 +47,9 @@ public class DBStoreTest {
 		
 	}
 	
+	//Test a single pin drop
 	@Test
-	public void testSafePin() {
+	public void testSinglePin() {
 		String message = "This is a test pin";
 		LatLng coord = new LatLng(35.445, 47.555);
 		Pin pin = pinWriter.postPin(coord, message);
@@ -57,6 +58,48 @@ public class DBStoreTest {
 		assertTrue(coord.equals(pin.getCoord()));
 	}
 	
+	//Test a multiple pin drop
+	@Test
+	public void testMultiPin() {
+		LatLng coord1 = new LatLng(25.225, 56.553);
+		LatLng coord2 = new LatLng(23.455, 57.898);
+		LatLng coord3 = new LatLng(26.999, 58.550);
+		
+		Pin pin1 = pinWriter.postPin(coord1, "Pin1");
+		Pin pin2 = pinWriter.postPin(coord2, "Pin2");
+		Pin pin3 = pinWriter.postPin(coord3, "Pin3");
+		
+		assertTrue("Pin1".equals(pin1.getMessage()));
+		assertTrue(coord1.equals(pin1.getCoord()));
+		
+		assertTrue("Pin2".equals(pin2.getMessage()));
+		assertTrue(coord2.equals(pin2.getCoord()));
+		
+		assertTrue("Pin3".equals(pin3.getMessage()));
+		assertTrue(coord3.equals(pin3.getCoord()));
+	}
+	
+	//TODO
+	//Test a duplicate location pin drop (with different messages)
+	//What is the behavior here? I'm not sure we've defined it. 
+	//I seem to recall we wanted dupes to overwrite.
+	@Test
+	public void testDuplicatePin() {
+		LatLng coord = new LatLng(47.325, -18.25);
+		Pin first = pinWriter.postPin(coord, "First Message");
+		Pin second = pinWriter.postPin(coord, "Second Message");
+	}
+	
+	//Test a null pin drop
+	@Test 
+	public void testNullPin() {
+		LatLng nullCoord = null;
+		Pin nullPin = pinWriter.postPin(nullCoord, "Sooooo null");
+		
+		assertTrue(nullPin == null);
+	}
+	
+	//Sample test
 	@Test
 	public void testExample() {
 		assertTrue(true);
