@@ -3,6 +3,8 @@ package edu.washington.geopost.test;
 import org.junit.Test;
 
 import edu.washington.geopost.MainActivity;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.test.ActivityInstrumentationTestCase2;
 import android.widget.Button;
 
@@ -34,5 +36,14 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 		Button postButton = (Button) activity.findViewById(edu.washington.geopost.R.id.post_button);
 		final String actual = postButton.getText().toString();
 		assertEquals(expected, actual);
+	}
+	
+	public void testPostButtonClickOpensFragment() {
+		Button postButton = (Button) activity.findViewById(edu.washington.geopost.R.id.post_button);
+		activity.onPostButtonClick(postButton);
+		getInstrumentation().waitForIdleSync();
+		Fragment dialog = getActivity().getSupportFragmentManager().findFragmentByTag("post");
+		assertTrue(dialog instanceof DialogFragment);
+		assertTrue(((DialogFragment) dialog).getShowsDialog());
 	}
 }
