@@ -1,5 +1,8 @@
 package edu.washington.geopost;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v4.app.FragmentActivity;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -41,7 +44,10 @@ public class DBStore extends FragmentActivity {
 		dbPin.setMessage(message);
 		
 		// Save the ParsePin to the database
-		dbPin.saveEventually();
+		if (this.isNetworkConnected())
+			dbPin.saveInBackground();
+		else
+			dbPin.saveEventually();
 		
 		Pin newPin = new Pin(false, coord, user.getUsername(), dbPin.getObjectId(), message);
 		return newPin;
@@ -77,5 +83,18 @@ public class DBStore extends FragmentActivity {
 			user.saveEventually();
 		}
 		return success;
+	}
+	
+	/**
+	 * Determines whether the application has internet connectivity
+	 * 
+	 * @return true if connected, false otherwise
+	 */
+	private boolean isNetworkConnected() {
+		ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo activeNetworkInfo = manager.getActiveNetworkInfo();
+		if (activeNetworkInfo == null)
+			return false;
+		return activeNetworkInfo.isConnected();
 	}
 }
