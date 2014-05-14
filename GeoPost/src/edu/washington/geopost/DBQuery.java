@@ -40,7 +40,7 @@ public class DBQuery {
 	 * @return A set of the Pins within the given box. The set will be empty if
 	 *         no such Pins are found or there is an error fetching data.
 	 */
-	public static Set<Pin> getPins(Location southWest, Location northEast) {
+	public Set<Pin> getPins(Location southWest, Location northEast) {
 		// The returned set
 		Set<Pin> pinsToDisplay = new HashSet<Pin>();
 		
@@ -108,7 +108,7 @@ public class DBQuery {
 	 * the app.
 	 * @return The User about which information is desired
 	 */
-	public static User getCurrentUser() {
+	public User getCurrentUser() {
 		String name = null;
 		int viewedNum = 0;
 		int postedNum = 0;

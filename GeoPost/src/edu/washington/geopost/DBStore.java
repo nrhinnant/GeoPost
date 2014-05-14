@@ -17,6 +17,7 @@ import com.parse.ParseUser;
  * DBStore sends information to the Parse database using parameterized queries.
  * 
  * @author Andrew Repp
+ * @author Neil Hinnant
  * 
  */
 
