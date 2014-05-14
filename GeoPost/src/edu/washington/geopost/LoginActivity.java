@@ -22,10 +22,6 @@ import com.parse.ParseUser;
 public class LoginActivity extends Activity {
 
 	
-	private final String PARSE_APP_ID = ""; 		// Change this to your Parse application id
-	private final String PARSE_CLIENT_KEY = ""; 	// Change this to your Parse client key
-	private final String FACEBOOK_APP_ID = "";		// Change this to your Facebook application id
-	
 	private Button loginButton;
 	private Dialog progressDialog;
 	
@@ -35,8 +31,9 @@ public class LoginActivity extends Activity {
 
 		setContentView(R.layout.activity_login);
 		
-        Parse.initialize(this, PARSE_APP_ID, PARSE_CLIENT_KEY);
-        ParseFacebookUtils.initialize(FACEBOOK_APP_ID);
+		// Enter your own parse app id, parse client id, and facebook app id in strings.xml
+        Parse.initialize(this, getString(R.string.parse_app_id), getString(R.string.parse_client_id));
+        ParseFacebookUtils.initialize(getString(R.string.facebook_app_id));
 
 		loginButton = (Button) findViewById(R.id.loginButton);
 		loginButton.setOnClickListener(new View.OnClickListener() {
@@ -58,34 +55,31 @@ public class LoginActivity extends Activity {
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		// For single sign-on
 		ParseFacebookUtils.finishAuthentication(requestCode, resultCode, data);
 	}
 	
 	private void onLoginButtonClicked() {
-		LoginActivity.this.progressDialog = ProgressDialog.show(
-				LoginActivity.this, "", "Logging in...", true);
-		// TODO: Change permissions
-		List<String> permissions = Arrays.asList("public_profile", "email", "user_friends" );
-		ParseFacebookUtils.logIn(permissions, this, new LogInCallback() {
-			@Override
-			public void done(ParseUser user, ParseException err) {
-				LoginActivity.this.progressDialog.dismiss();
-				if (user == null) {
-					Log.d(MainActivity.TAG,
-							"Uh oh. The user cancelled the Facebook login.");
-				} else if (user.isNew()) {
-					Log.d(MainActivity.TAG,
-							"User signed up and logged in through Facebook!");
-					showMainActivity();
-				} else {
-					Log.d(MainActivity.TAG,
-							"User logged in through Facebook!");
-					showMainActivity();
-				}
-			}
-		});
+	    LoginActivity.this.progressDialog = ProgressDialog.show(
+	            LoginActivity.this, "", "Logging in...", true);
+	    // TODO: Change permissions
+	    List<String> permissions = Arrays.asList("public_profile", "email", "user_friends" );
+	    ParseFacebookUtils.logIn(permissions, this, new LogInCallback() {
+	        @Override
+	        public void done(ParseUser user, ParseException err) {
+	            LoginActivity.this.progressDialog.dismiss();
+	            if (user == null) {
+	            	Log.d(MainActivity.TAG, "Uh oh. The user cancelled the Facebook login.");
+	            } else if (user.isNew()) {
+	            	Log.d(MainActivity.TAG, "User signed up and logged in through Facebook!");
+	            	showMainActivity();
+	            } else {
+	            	Log.d(MainActivity.TAG, "User signed up and logged in through Facebook!");
+	            	showMainActivity();
+	            }
+	        }
+	    });
 	}
+
 	
 	private void showMainActivity() {
 		Intent intent = new Intent(this, MainActivity.class);
