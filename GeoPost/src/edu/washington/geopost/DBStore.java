@@ -1,5 +1,7 @@
 package edu.washington.geopost;
 
+import android.support.v4.app.FragmentActivity;
+
 import com.google.android.gms.maps.model.LatLng;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
@@ -15,7 +17,7 @@ import com.parse.ParseUser;
  * 
  */
 
-public class DBStore {
+public class DBStore extends FragmentActivity {
 	/**
 	 * Adds the given pin to the database.
 	 * @param pin The pin that the user is posting that should be in the
@@ -23,7 +25,7 @@ public class DBStore {
 	 * @return True if the pin was stored in the database successfully, false
 	 *         otherwise
 	 */
-	public static Pin postPin(LatLng coord, String message) {
+	public Pin postPin(LatLng coord, String message) {
 		// Make the ParsePin to save to the database and set its fields
 		// TODO: Write ParsePin constructor to do this?
 		ParsePin dbPin = new ParsePin();
@@ -52,7 +54,7 @@ public class DBStore {
 	 * @param userId The user ID of the user that is trying to unlock the pin
 	 * @return True if the pin was unlocked successfully, false otherwise
 	 */
-	public static boolean unlockPin(Pin pin, String userId) {
+	public boolean unlockPin(Pin pin, String userId) {
 		boolean success = true;
 		
 		// Get the ParsePin corresponding to the given Pin.
