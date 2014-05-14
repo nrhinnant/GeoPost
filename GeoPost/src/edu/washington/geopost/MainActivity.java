@@ -49,6 +49,8 @@ public class MainActivity extends FragmentActivity
 	private boolean markerWindowShown;
 	private Map<String, Pin> pinIdToPin;
 	
+	private DBQuery dbq;
+	
 	/*
 	 * A map of all pins currently drawn in the app
 	 */
@@ -64,6 +66,7 @@ public class MainActivity extends FragmentActivity
 
 		// Setup collection
 		geoposts = new HashMap<Marker, Pin>();
+		dbq = new DBQuery();
 
 		// Set the pin pop up windows to use the ViewPinWindow class
 		map.setInfoWindowAdapter(new ViewPinWindow(this));
@@ -337,16 +340,21 @@ public class MainActivity extends FragmentActivity
 	/**
 	 * Query database and redraw pins that are now in view
 	 */
-	public void updateMap(){
+	public synchronized void updateMap(){
+		// get location
 		Location l = getLastKnownLocation();
-		VisibleRegion vr = map.getProjection().getVisibleRegion();
-		//Set<Pin> pins = DBQuery.getPins();
 		
+		// query DB based on map boundries
+		VisibleRegion vr = map.getProjection().getVisibleRegion();
+		Set<Pin> pins = dbq.getPins(vr.latLngBounds.southwest, vr.latLngBounds.northeast);
+		
+		/*
 		Set<Pin> set = new HashSet<Pin>();
 		set.add(new Pin(new LatLng(0, 0), "abc", "Hello1"));
 		set.add(new Pin(new LatLng(4, 4), "def", "Hello2"));
 		set.add(new Pin(new LatLng(8, 8), "jkl", "Hello3"));
+		*/
 		
-		drawMarkers(set);
+		drawMarkers(pins);
 	}
 }

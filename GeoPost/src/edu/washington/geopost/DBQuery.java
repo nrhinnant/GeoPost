@@ -40,15 +40,15 @@ public class DBQuery {
 	 * @return A set of the Pins within the given box. The set will be empty if
 	 *         no such Pins are found or there is an error fetching data.
 	 */
-	public Set<Pin> getPins(Location southWest, Location northEast) {
+	public Set<Pin> getPins(LatLng southWest, LatLng northEast) {
 		// The returned set
 		Set<Pin> pinsToDisplay = new HashSet<Pin>();
 		
 		// Convert the Locations to ParseGeoPoints
-		ParseGeoPoint sw = new ParseGeoPoint(southWest.getLatitude(), 
-											 southWest.getLongitude());
-		ParseGeoPoint ne = new ParseGeoPoint(northEast.getLatitude(),
-											 northEast.getLongitude());
+		ParseGeoPoint sw = new ParseGeoPoint(southWest.latitude, 
+											 southWest.longitude);
+		ParseGeoPoint ne = new ParseGeoPoint(northEast.latitude,
+											 northEast.longitude);
 		
 		// Set up the ParseQuery for the pins within the given coordinates
 		ParseQuery<ParsePin> pinQuery = ParseQuery.getQuery("ParsePin");
