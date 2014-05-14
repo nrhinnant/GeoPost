@@ -6,6 +6,11 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.google.android.gms.maps.model.LatLng;
+
+import edu.washington.geopost.DBStore;
+import edu.washington.geopost.Pin;
+
 /**
  * 
  * DBStoreTest contains unit tests for the functionality of the DBStore class.
@@ -29,14 +34,27 @@ import org.junit.Test;
 // at http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/CountDownLatch.html
 
 public class DBStoreTest {
+	
+	private static DBStore pinWriter;
+	
 	@BeforeClass
 	public static void oneTimeSetUp() {
-		
+		pinWriter = new DBStore ();
 	}
 	
 	@AfterClass
 	public static void oneTimeTearDown() {
 		
+	}
+	
+	@Test
+	public void testSafePin() {
+		String message = "This is a test pin";
+		LatLng coord = new LatLng(35.445, 47.555);
+		Pin pin = pinWriter.postPin(coord, message);
+		
+		assertTrue(message.equals(pin.getMessage()));
+		assertTrue(coord.equals(pin.getCoord()));
 	}
 	
 	@Test
