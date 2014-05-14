@@ -58,10 +58,9 @@ public class DBStore extends FragmentActivity {
 	 * Marks the given pin as being unlocked by the given user and saves the
 	 * information to the database.
 	 * @param pin The pin that the user is trying to unlock
-	 * @param userId The user ID of the user that is trying to unlock the pin
 	 * @return True if the pin was unlocked successfully, false otherwise
 	 */
-	public boolean unlockPin(Pin pin, String userId) {
+	public boolean unlockPin(Pin pin) {
 		boolean success = true;
 		
 		// Get the ParsePin corresponding to the given Pin.
