@@ -55,6 +55,9 @@ public class MainActivity extends FragmentActivity
 	private DBQuery dbq;
 	private DBStore dbs;
 	
+	// Location a pin is currently being posted to
+	private Location postLocation;
+	
 	/*
 	 * A map of all pins currently drawn in the app
 	 */
@@ -252,6 +255,7 @@ public class MainActivity extends FragmentActivity
 			toast.show();
 		} else {	
 			DialogFragment newFragment = new PostFragment();
+			postLocation = l;
 			
 			// Pass the current coordinates to the PostFragment
 			Bundle args = new Bundle();
@@ -278,7 +282,9 @@ public class MainActivity extends FragmentActivity
 	 */
     @Override
     public void onDialogPositiveClick(DialogFragment dialog, Pin pin) {
-    	//Pin res = dbs.postPin(pin.getCoord(), pin.getMessage());
+    	//TODO: we should make the post fragment just return a location and message
+    	//      which is passed to postPin
+    	//Pin pin = dbs.postPin(pin.getCoord(), pin.getMessage());
         addPin(pin);
     }
     
@@ -318,7 +324,9 @@ public class MainActivity extends FragmentActivity
 	 */
 	@Override
 	public void onCameraChange(CameraPosition cp) {
-		//updateMap();
+		Log.d("Event", "onCameraChange fired");
+
+		updateMap();
 	}
 	
 	/**
@@ -326,17 +334,25 @@ public class MainActivity extends FragmentActivity
 	 * removes any pins that are currently displayed if they are not also in the 
 	 * supplied set.
 	 * @param pins, set of pins to draw onto the map
+	 * if pins is null, the map should be cleared
 	 */
 	public void drawMarkers(Set<Pin> pins){
 		assert(geoposts != null);
-		assert(pins != null);
+		if (pins == null){
+			geoposts.clear();
+			map.clear();
+			Toast toast = Toast.makeText(getApplicationContext(), "Unable to load posts", 
+					Toast.LENGTH_SHORT);
+			toast.show();
+		}
+		
 		/*
 		 * First remove old pins that aren't in view now
 		 */
 		for(Iterator<Marker> iter = geoposts.keySet().iterator(); iter.hasNext(); ){
 			Marker m = iter.next();
-			
-			if (!pins.contains(geoposts.get(m))){
+			Pin p = geoposts.get(m);
+			if (!pins.contains(p)){
 				// m is no longer in our scope
 				m.remove();
 				geoposts.remove(m);
@@ -353,6 +369,7 @@ public class MainActivity extends FragmentActivity
 				addPin(p);
 			}
 		}
+		Log.d("drawMarkers", "drew markers");
 	}
 	
 	/**
@@ -362,17 +379,26 @@ public class MainActivity extends FragmentActivity
 	public synchronized void updateMap(){
 		// query DB based on map boundries
 		VisibleRegion vr = map.getProjection().getVisibleRegion();
-		assert(vr != null);
-		
-		Set<Pin> pins = dbq.getPins(vr.latLngBounds.southwest, vr.latLngBounds.northeast);
-		
+
+		if (vr != null){
+			LatLng sw = vr.latLngBounds.southwest;
+			LatLng ne = vr.latLngBounds.northeast;
+			Log.d("updateMap", " sw,lat " + sw.latitude + " sw,lng " + sw.longitude + " ne,lat " + ne.latitude + " ne,lng " + ne.longitude);
+			
+			Set<Pin> pins = dbq.getPins(sw, ne);
+			
+			Log.d("updateMap", "got pins");
+			
+			// draw these pins
+			drawMarkers(pins);
+		} else {
+			assert(false);
+		}
 		/*
 		Set<Pin> pins = new HashSet<Pin>();
 		pins.add(new Pin(new LatLng(0, 0), "abc", "Hello1"));
 		pins.add(new Pin(new LatLng(4, 4), "def", "Hello2"));
 		pins.add(new Pin(new LatLng(8, 8), "jkl", "Hello3"));
-		*/
-		
-		drawMarkers(pins);
+		*/	
 	}
 }
