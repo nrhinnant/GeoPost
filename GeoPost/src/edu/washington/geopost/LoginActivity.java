@@ -17,6 +17,7 @@ import com.parse.LogInCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
+import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 public class LoginActivity extends Activity {
@@ -32,6 +33,7 @@ public class LoginActivity extends Activity {
 		setContentView(R.layout.activity_login);
 		
 		// Enter your own parse app id, parse client id, and facebook app id in strings.xml
+		ParseObject.registerSubclass(ParsePin.class);
         Parse.initialize(this, getString(R.string.parse_app_id), getString(R.string.parse_client_id));
         ParseFacebookUtils.initialize(getString(R.string.facebook_app_id));
 

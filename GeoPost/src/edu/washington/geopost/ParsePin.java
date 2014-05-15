@@ -14,6 +14,11 @@ import com.parse.*;
 
 @ParseClassName("ParsePin")  // associates with a class of ParseObject
 public class ParsePin extends ParseObject {
+	
+	public ParsePin() {
+		// Default constructor required
+	}
+	
 	/**
 	 * Get for the message of the ParsePin.
 	 * @return the string message currently contained by the pin.

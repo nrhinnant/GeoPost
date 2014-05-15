@@ -45,10 +45,12 @@ public class DBStore extends FragmentActivity {
 		dbPin.setMessage(message);
 		
 		// Save the ParsePin to the database
-		if (this.isNetworkConnected())
+		/*if (this.isNetworkConnected())
 			dbPin.saveInBackground();
 		else
 			dbPin.saveEventually();
+		*/
+		dbPin.saveInBackground();
 		
 		Pin newPin = new Pin(false, coord, user.getUsername(), dbPin.getObjectId(), message);
 		return newPin;
