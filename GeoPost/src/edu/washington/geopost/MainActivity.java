@@ -165,7 +165,7 @@ public class MainActivity extends FragmentActivity
     	//TODO real values
     	Marker m = map.addMarker(new MarkerOptions()
     	.title(pin.getMessage())
-    	.snippet(name)
+    	.snippet("anonymous")
     	.position(pin.getCoord()));
     	
     	geoposts.put(m, pin);
