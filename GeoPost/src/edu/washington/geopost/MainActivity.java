@@ -46,7 +46,7 @@ public class MainActivity extends FragmentActivity
 	public static final float INIT_ZOOM = 15;
 	
 	static final String TAG = "GeoPost";
-	private final double RANGE_RADIUS = 1.0;
+	private final double RANGE_RADIUS = 0.01;
 	private LocationManager locationManager;
 	private String provider;
 	private GoogleMap map;
@@ -243,7 +243,6 @@ public class MainActivity extends FragmentActivity
 	 */
 	private boolean isInRange(Marker marker) {
 		// TODO this
-		/*
 		Location l = getLastKnownLocation();
 		if (l == null) {
 			Toast toast = Toast.makeText(getApplicationContext(), "Could not find your location", 
@@ -253,13 +252,12 @@ public class MainActivity extends FragmentActivity
 		}
 		double userLat = l.getLatitude();
 		double userLng = l.getLongitude();
-		double pinLat = 
-		double pinLng = 
-		double res = Math.sqrt(Math.pow(userLat - pinLat, 2) + Math.pow(userLng - pinLng, 2.0);
+		Pin p = geoposts.get(marker);
+		double pinLat = p.getLocation().latitude;
+		double pinLng = p.getLocation().longitude;
+		double res = Math.sqrt(Math.pow(userLat - pinLat, 2) + Math.pow(userLng - pinLng, 2));
+		Log.d(res + "", "cccccc");
 		return res <= RANGE_RADIUS;
-		*/
-		
-		return false;
 	}
 	
 	/**************** Post pin logic ****************/
