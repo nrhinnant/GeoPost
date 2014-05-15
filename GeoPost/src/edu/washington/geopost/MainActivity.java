@@ -47,9 +47,9 @@ public class MainActivity extends FragmentActivity
 	private String provider;
 	private GoogleMap map;
 	private boolean markerWindowShown;
-	private Map<String, Pin> pinIdToPin;
 	
 	private DBQuery dbq;
+	private DBStore dbs;
 	
 	/*
 	 * A map of all pins currently drawn in the app
@@ -67,6 +67,7 @@ public class MainActivity extends FragmentActivity
 		// Setup collection
 		geoposts = new HashMap<Marker, Pin>();
 		dbq = new DBQuery();
+		dbs = new DBStore();
 
 		// Set the pin pop up windows to use the ViewPinWindow class
 		map.setInfoWindowAdapter(new ViewPinWindow(this));
@@ -82,7 +83,7 @@ public class MainActivity extends FragmentActivity
 		map.setMyLocationEnabled(true);
 		map.setOnMarkerClickListener(this);
 		map.getUiSettings().setRotateGesturesEnabled(false);
-		Parse.initialize(this, appID, clientKey);
+		//Parse.initialize(this, appID, clientKey);
 		
 		// Make the app open up to your current location 
 		Location currentLocation = getLastKnownLocation();
@@ -146,11 +147,11 @@ public class MainActivity extends FragmentActivity
      * @param pin
      */
     private void addPin(Pin pin){
-    	//User currentUser = DBQuery.getCurrentUser();
+    	User currentUser = dbq.getCurrentUser();
     	String name = null;
-    	/*if (currentUser != null) {
+    	if (currentUser != null) {
     		name = currentUser.getName();
-    	}*/
+    	}
     	
     	//TODO real values
     	Marker m = map.addMarker(new MarkerOptions()
@@ -272,7 +273,7 @@ public class MainActivity extends FragmentActivity
 	 */
     @Override
     public void onDialogPositiveClick(DialogFragment dialog, Pin pin) {
-    	//Pin res = DBStore.postPin(pin.getCoord(), pin.getMessage());
+    	//Pin res = dbs.postPin(pin.getCoord(), pin.getMessage());
         addPin(pin);
     }
 
@@ -349,10 +350,10 @@ public class MainActivity extends FragmentActivity
 		Set<Pin> pins = dbq.getPins(vr.latLngBounds.southwest, vr.latLngBounds.northeast);
 		
 		/*
-		Set<Pin> set = new HashSet<Pin>();
-		set.add(new Pin(new LatLng(0, 0), "abc", "Hello1"));
-		set.add(new Pin(new LatLng(4, 4), "def", "Hello2"));
-		set.add(new Pin(new LatLng(8, 8), "jkl", "Hello3"));
+		Set<Pin> pins = new HashSet<Pin>();
+		pins.add(new Pin(new LatLng(0, 0), "abc", "Hello1"));
+		pins.add(new Pin(new LatLng(4, 4), "def", "Hello2"));
+		pins.add(new Pin(new LatLng(8, 8), "jkl", "Hello3"));
 		*/
 		
 		drawMarkers(pins);
