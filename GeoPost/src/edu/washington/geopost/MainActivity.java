@@ -104,8 +104,6 @@ public class MainActivity extends FragmentActivity
 			toast.show();
 		}
 		
-		// Populate the map window with pins
-		//updateMap();
 		addPin(new Pin(true, new LatLng(47.5, -122.4), "mike", "aklsjdflkajsd", "helloooo from mike"));
 	}
 	
@@ -351,7 +349,7 @@ public class MainActivity extends FragmentActivity
 	public void onCameraChange(CameraPosition cp) {
 		Log.d("Event", "onCameraChange fired");
 
-		//updateMap();
+		updateMap();
 	}
 	
 	/**
@@ -369,6 +367,7 @@ public class MainActivity extends FragmentActivity
 			Toast toast = Toast.makeText(getApplicationContext(), "Unable to load posts", 
 					Toast.LENGTH_SHORT);
 			toast.show();
+			return;
 		}
 		
 		/*
