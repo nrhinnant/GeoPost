@@ -307,10 +307,11 @@ public class MainActivity extends FragmentActivity
 	 * @param lng the longitude to put the pin
 	 */
     @Override
-    public void onDialogPositiveClick(DialogFragment dialog, Pin pin) {
+    public void onDialogPositiveClick(DialogFragment dialog, LatLng coord, String message) {
     	//TODO: we should make the post fragment just return a location and message
     	//      which is passed to postPin
-    	//Pin pin = dbs.postPin(pin.getCoord(), pin.getMessage());
+    	//Pin pin = dbs.postPin(coord, message);
+    	Pin pin = new Pin(coord, null, message);
         addPin(pin);
     }
     

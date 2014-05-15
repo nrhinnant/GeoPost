@@ -19,7 +19,7 @@ public class PostFragment extends DialogFragment {
      * implement this interface in order to receive event callbacks.
      * Each method passes the DialogFragment in case the host needs to query it. */
     public interface PostDialogListener {
-        public void onDialogPositiveClick(DialogFragment dialog, Pin p);
+        public void onDialogPositiveClick(DialogFragment dialog, LatLng coord, String message);
     }
     
     // Use this instance of the interface to deliver action events
@@ -55,8 +55,7 @@ public class PostFragment extends DialogFragment {
                    public void onClick(DialogInterface dialog, int id) {
                 	   double lat = getArguments().getDouble("lat");
                 	   double lng = getArguments().getDouble("lng");
-                       Pin p = createPin(lat, lng);
-                       listener.onDialogPositiveClick(PostFragment.this, p);
+                       listener.onDialogPositiveClick(PostFragment.this, new LatLng(lat, lng), getMessage());
                    }
                })
                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -71,13 +70,13 @@ public class PostFragment extends DialogFragment {
 	/**
 	 * Store the information about the pin
 	 */
-	private Pin createPin(double lat, double lng) {
+	private String getMessage() {
 		
 		// get the message entered by the user
 		EditText e = (EditText) getDialog().findViewById(R.id.post_text);
 		String message = e.getText().toString();
 		
-		return new Pin(new LatLng(lat, lng), null, message);
+		return message;
 	}
 	
 }
