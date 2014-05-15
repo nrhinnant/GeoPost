@@ -106,6 +106,7 @@ public class MainActivity extends FragmentActivity
 		
 		// Populate the map window with pins
 		//updateMap();
+		addPin(new Pin(true, new LatLng(47.5, -122.4), "mike", "aklsjdflkajsd", "helloooo from mike"));
 	}
 	
     // Loops through available providers and finds one that returns a location which
@@ -191,17 +192,42 @@ public class MainActivity extends FragmentActivity
      * Otherwise, hide the marker window. 
      * 
      * @param marker the clicked marker (or pin)
+     * @return true if event was handled, returning false causes default behavior to run
      */
 	@Override
 	public boolean onMarkerClick(Marker marker) {
+		Pin pin = geoposts.get(marker);
+		if (pin == null){
+			Log.d("onMarkerClick", "clicked on marker not found in map");
+			return true;
+		}
+		
 		// Note: marker.isInfoWindowShown() has a bug, don't use it
-		if (markerWindowShown) {
+		
+		if (markerWindowShown) { // window is showing, hide it
 			marker.hideInfoWindow();
 			markerWindowShown = false;
-		} else {
-			if (isInRange(marker)) {
+		} else {  // window not showing, see if we should show it
+			if (isInRange(marker) && pin.isLocked()) {
+				if (dbs.unlockPin(pin)) {  // unlocked new pin
+					// TODO: pin now has to be updated in the geoposts map
+					marker.showInfoWindow();
+					markerWindowShown = true;
+				} else {  // unlocking failed
+					marker.hideInfoWindow();
+					markerWindowShown = false;
+					Log.d("onMarkerClick", "Failed to unlock pin");
+				}
+			} else if (!pin.isLocked()) {  // pin already unlocked
 				marker.showInfoWindow();
 				markerWindowShown = true;
+				Log.d("onMarkerClick", "viewed previously unlocked pin");
+			} else {  // pin is locked
+				marker.hideInfoWindow();
+				markerWindowShown = false;
+				Toast toast = Toast.makeText(getApplicationContext(), "Locked", 
+						Toast.LENGTH_SHORT);
+				toast.show();
 			}
 		}
 		return true;
@@ -233,7 +259,7 @@ public class MainActivity extends FragmentActivity
 		return res <= RANGE_RADIUS;
 		*/
 		
-		return true;
+		return false;
 	}
 	
 	/**************** Post pin logic ****************/
@@ -326,7 +352,7 @@ public class MainActivity extends FragmentActivity
 	public void onCameraChange(CameraPosition cp) {
 		Log.d("Event", "onCameraChange fired");
 
-		updateMap();
+		//updateMap();
 	}
 	
 	/**
