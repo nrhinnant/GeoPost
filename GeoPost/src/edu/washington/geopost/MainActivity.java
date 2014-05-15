@@ -360,11 +360,10 @@ public class MainActivity extends FragmentActivity
 	 * This function is used in onCameraChanged() to redraw pins for new camera bounds
 	 */
 	public synchronized void updateMap(){
-		// get location
-		Location l = getLastKnownLocation();
-		
 		// query DB based on map boundries
 		VisibleRegion vr = map.getProjection().getVisibleRegion();
+		assert(vr != null);
+		
 		Set<Pin> pins = dbq.getPins(vr.latLngBounds.southwest, vr.latLngBounds.northeast);
 		
 		/*
