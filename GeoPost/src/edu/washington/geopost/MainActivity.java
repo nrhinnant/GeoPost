@@ -7,10 +7,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.Map;
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -37,7 +40,8 @@ import com.parse.ParseObject;
 public class MainActivity extends FragmentActivity 
 						  implements OnMarkerClickListener, 
 									 LocationListener, 
-									 PostFragment.PostDialogListener {
+									 PostFragment.PostDialogListener,
+									 OnCameraChangeListener {
 	
 	public static final float INIT_ZOOM = 15;
 	
@@ -81,6 +85,7 @@ public class MainActivity extends FragmentActivity
 
 		map.setMyLocationEnabled(true);
 		map.setOnMarkerClickListener(this);
+		map.setOnCameraChangeListener(this);
 		map.getUiSettings().setRotateGesturesEnabled(false);
 		Parse.initialize(this, appID, clientKey);
 		
@@ -160,9 +165,7 @@ public class MainActivity extends FragmentActivity
     	
     	geoposts.put(m, pin);
     }
-    
-    
-    
+     
     /**
      * Initialize the map if possible
      */
@@ -229,6 +232,8 @@ public class MainActivity extends FragmentActivity
 		return true;
 	}
 	
+	/**************** Post pin logic ****************/
+	
 	/**
 	 * Method called when the post button is clicked
 	 * Creates and displays a new PostFragment,
@@ -275,8 +280,8 @@ public class MainActivity extends FragmentActivity
     	//Pin res = DBStore.postPin(pin.getCoord(), pin.getMessage());
         addPin(pin);
     }
-
-	// Inherited by LocationListener 
+    
+    /**************** location listener ****************/
 	@Override
 	public void onLocationChanged(Location location) {
 		// TODO Auto-generated method stub
@@ -304,6 +309,17 @@ public class MainActivity extends FragmentActivity
 		
 	}
 	
+	/**************** Map refresh logic ****************/
+	
+	/**
+	 * Activated when camera is changed, panning or zooming.  This method will trigger a call to
+	 * updateMap() to redraw the relevant pins
+	 */
+	@Override
+	public void onCameraChange(CameraPosition cp) {
+		//updateMap();
+	}
+	
 	/**
 	 * Takes a set of Pin objects and ensures that they are displayed on the map,
 	 * removes any pins that are currently displayed if they are not also in the 
@@ -311,7 +327,8 @@ public class MainActivity extends FragmentActivity
 	 * @param pins, set of pins to draw onto the map
 	 */
 	public void drawMarkers(Set<Pin> pins){
-		
+		assert(geoposts != null);
+		assert(pins != null);
 		/*
 		 * First remove old pins that aren't in view now
 		 */
@@ -331,14 +348,15 @@ public class MainActivity extends FragmentActivity
 		Collection<Pin> pinvalues = geoposts.values();
 		for (Pin p : pins){
 			if (!pinvalues.contains(p)){
+				// this will add p to geoposts
 				addPin(p);
-				
 			}
 		}
 	}
 	
 	/**
-	 * Query database and redraw pins that are now in view
+	 * Query database and redraw pins that are now in view.
+	 * This function is used in onCameraChanged() to redraw pins for new camera bounds
 	 */
 	public synchronized void updateMap(){
 		// get location
