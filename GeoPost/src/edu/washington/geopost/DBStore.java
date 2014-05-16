@@ -69,11 +69,6 @@ public class DBStore extends FragmentActivity {
 	 * @return True if the pin was unlocked successfully, false otherwise
 	 */
 	public boolean unlockPin(Pin pin) {
-		return true; 
-		//TODO: fix error
-		// This method causes pins to stop showing up
-		
-		/*
 		boolean success = true;
 		
 		// Get the ParsePin corresponding to the given Pin.
@@ -94,11 +89,10 @@ public class DBStore extends FragmentActivity {
 			ParseUser user = ParseUser.getCurrentUser();
 			ParseRelation<ParsePin> viewedPins = user.getRelation("viewed");
 			viewedPins.add(dbPin);
-			// this is throwing an exception
-			//user.saveEventually();
+			user.saveEventually();
 		}
 		return success;
-		*/
+		
 	}
 	
 	/**
