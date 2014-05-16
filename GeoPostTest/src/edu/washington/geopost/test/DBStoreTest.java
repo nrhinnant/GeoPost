@@ -1,5 +1,6 @@
 package edu.washington.geopost.test;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.AfterClass;
@@ -83,12 +84,14 @@ public class DBStoreTest {
 	//Test a duplicate location pin drop (with different messages)
 	//What is the behavior here? I'm not sure we've defined it. 
 	//I seem to recall we wanted dupes to overwrite.
-	@Test
-	public void testDuplicatePin() {
-		LatLng coord = new LatLng(47.325, -18.25);
-		Pin first = pinWriter.postPin(coord, "First Message");
-		Pin second = pinWriter.postPin(coord, "Second Message");
-	}
+	
+	//This might actually be a system test? It requires using DBQuery
+//	@Test
+//	public void testDuplicatePin() {
+//		LatLng coord = new LatLng(47.325, -18.25);
+//		Pin first = pinWriter.postPin(coord, "First Message");
+//		Pin second = pinWriter.postPin(coord, "Second Message");
+//	}
 	
 	//Test a null pin drop
 	@Test 
@@ -97,6 +100,55 @@ public class DBStoreTest {
 		Pin nullPin = pinWriter.postPin(nullCoord, "Sooooo null");
 		
 		assertTrue(nullPin == null);
+	}
+	
+	//Test null message
+	@Test
+	public void testNullMessage() {
+		LatLng coord = new LatLng(53.22,56.22);
+		Pin nullPin = pinWriter.postPin(coord, null);
+		
+		assertTrue(nullPin == null);
+	}
+	
+	//Test single pin unlock
+	@Test 
+	public void testSingleUnlock() {
+		String message = "Unlock Me!";
+		LatLng coord = new LatLng(38.55, -47.885);
+		Pin pin = pinWriter.postPin(coord, message);
+		
+		assertTrue(pin != null);
+		assertTrue(pinWriter.unlockPin(pin));
+	}
+	
+	//TODO I think we have a problem here.. How can I test whether or 
+	//not we're unlocking a pin we're allowed to? That logic may be improperly 
+	//abstracted?
+	//Test multiple pin unlock
+	@Test
+	public void testMultiUnlock() {
+		LatLng coord1 = new LatLng(25.225, 56.553);
+		LatLng coord2 = new LatLng(23.455, 57.898);
+		LatLng coord3 = new LatLng(26.999, 58.550);
+		
+		Pin pin1 = pinWriter.postPin(coord1, "Pin1");
+		Pin pin2 = pinWriter.postPin(coord2, "Pin2");
+		Pin pin3 = pinWriter.postPin(coord3, "Pin3");
+		
+		assertTrue(pin1 != null);
+		assertTrue(pin2 != null);
+		assertTrue(pin3 != null);
+		
+		assertTrue(pinWriter.unlockPin(pin1));
+		assertTrue(pinWriter.unlockPin(pin2));
+		assertTrue(pinWriter.unlockPin(pin3));
+	}
+	
+	//Test unlock null pin
+	@Test
+	public void testNullUnlock() {
+		assertFalse(pinWriter.unlockPin(null));
 	}
 	
 	//Sample test
