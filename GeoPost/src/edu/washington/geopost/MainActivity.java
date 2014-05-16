@@ -364,6 +364,8 @@ public class MainActivity extends FragmentActivity
 		@Override
 		protected Set<Pin> doInBackground(Object... params) {
 			Log.d("Background!", "Background start!");
+			assert(params.length >= 2);
+			
 			LatLng sw = (LatLng) params[0];
 			LatLng ne = (LatLng) params[1];
 				
