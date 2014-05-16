@@ -13,12 +13,18 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+
+import com.facebook.Request;
+import com.facebook.Response;
+import com.facebook.Session;
+import com.facebook.model.GraphUser;
 import com.parse.LogInCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
+
 
 public class LoginActivity extends Activity {
 
@@ -70,12 +76,14 @@ public class LoginActivity extends Activity {
 	        public void done(ParseUser user, ParseException err) {
 	            LoginActivity.this.progressDialog.dismiss();
 	            if (user == null) {
-	            	Log.d(MainActivity.TAG, "Uh oh. The user cancelled the Facebook login.");
+	            	Log.d(MainActivity.TAG, "User cancelled the Facebook login.");
 	            } else if (user.isNew()) {
 	            	Log.d(MainActivity.TAG, "User signed up and logged in through Facebook!");
+	            	saveUsersName();
 	            	showMainActivity();
 	            } else {
-	            	Log.d(MainActivity.TAG, "User signed up and logged in through Facebook!");
+	            	Log.d(MainActivity.TAG, "User logged in through Facebook!");
+	            	saveUsersName();
 	            	showMainActivity();
 	            }
 	        }
@@ -86,6 +94,31 @@ public class LoginActivity extends Activity {
 	private void showMainActivity() {
 		Intent intent = new Intent(this, MainActivity.class);
 		startActivity(intent);
+	}
+	
+	private void saveUsersName() {
+		Session session = ParseFacebookUtils.getSession();
+		if (session != null && session.isOpened()) {
+
+			Request request = Request.newMeRequest(ParseFacebookUtils.getSession(), new Request.GraphUserCallback() {
+				@Override
+				public void onCompleted(GraphUser user, Response response) {
+					// handle response
+					if (user != null) {
+
+						ParseUser currentUser = ParseUser.getCurrentUser();
+						currentUser.put("name", user.getName());
+						currentUser.saveInBackground();
+
+
+					} else if (response.getError() != null) {
+						Log.d(MainActivity.TAG, response.getError().getErrorMessage());
+
+					}
+				}
+			});
+			request.executeAsync();
+		}
 	}
 
 	
