@@ -12,7 +12,7 @@ import com.parse.*;
  *
  */
 
-@ParseClassName("ParsePin")  // associates with a class of ParseObject
+@ParseClassName("Pin")  // associates with a class of ParseObject
 public class ParsePin extends ParseObject {
 	
 	public ParsePin() {

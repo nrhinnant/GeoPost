@@ -306,8 +306,8 @@ public class MainActivity extends FragmentActivity
     public void onDialogPositiveClick(DialogFragment dialog, LatLng coord, String message) {
     	//TODO: we should make the post fragment just return a location and message
     	//      which is passed to postPin
-    	//Pin pin = dbs.postPin(coord, message);
-    	Pin pin = new Pin(coord, null, message);
+    	Pin pin = dbs.postPin(coord, message);
+    	//Pin pin = new Pin(coord, null, message);
         addPin(pin);
     }
     

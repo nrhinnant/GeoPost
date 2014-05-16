@@ -4,8 +4,10 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseQuery;
@@ -50,7 +52,13 @@ public class DBStore extends FragmentActivity {
 		else
 			dbPin.saveEventually();
 		*/
-		dbPin.saveInBackground();
+		
+		try {
+			dbPin.save();
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			Log.d("PostPin", "ParseException with ParseObject.save()");
+		}
 		
 		Pin newPin = new Pin(false, coord, user.getUsername(), dbPin.getObjectId(), message);
 		return newPin;
