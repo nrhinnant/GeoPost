@@ -318,6 +318,15 @@ public class MainActivity extends FragmentActivity
 	 */
     @Override
     public void onDialogPositiveClick(DialogFragment dialog, LatLng coord, String message) {
+    	
+    	// check for empty message
+    	if (message.length() == 0) {
+    		Toast toast = Toast.makeText(getApplicationContext(), "Sorry, cannot post an empty message", 
+					Toast.LENGTH_SHORT);
+    		toast.show();
+    		return;
+    	}
+    	
     	Pin pin = dbs.postPin(coord, message);
         addPin(pin);
     }
