@@ -1,5 +1,6 @@
 package edu.washington.geopost;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,9 +13,13 @@ import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polygon;
+import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.VisibleRegion;
 
 import android.location.Criteria;
@@ -24,6 +29,7 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -38,14 +44,16 @@ public class MainActivity extends FragmentActivity
 									 OnCameraChangeListener {
 	
 	public static final float INIT_ZOOM = 15;
+	public static final String TAG = "GeoPost";
+	public static final float RADIUS_WIDTH = 4;
+	public static final double RANGE_RADIUS = 0.004;
 	
-	static final String TAG = "GeoPost";
-	private final double RANGE_RADIUS = 0.01;
 	private LocationManager locationManager;
 	private String provider;
 	private GoogleMap map;
 	private boolean markerWindowShown;
 	private RefreshMapTask refreshThread;
+	private Circle unlockedRadius;
 	
 	private DBQuery dbq;
 	private DBStore dbs;
@@ -88,6 +96,7 @@ public class MainActivity extends FragmentActivity
 		map.getUiSettings().setRotateGesturesEnabled(false);
 		//Parse.initialize(this, appID, clientKey);
 		
+		
 		// Make the app open up to your current location 
 		Location currentLocation = getLastKnownLocation();
 		if (currentLocation != null) {
@@ -99,9 +108,13 @@ public class MainActivity extends FragmentActivity
 			toast.show();
 		}
 		
+		// Draw the unlocking radius
+		drawCircle(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
+		
 		// Create the Async Task that will be used to refresh
 		// pins on the screen
 		refreshThread = new RefreshMapTask();
+		
 	}
 	
     // Loops through available providers and finds one that returns a location which
@@ -231,6 +244,24 @@ public class MainActivity extends FragmentActivity
 		return true;
 	}
 	
+	// Draws the circle on the map that shows the user's radius
+	// for viewing/unlocking pins
+	public void drawCircle(LatLng center) {
+		CircleOptions circleOptions = new CircleOptions();
+		circleOptions.center(center);
+		circleOptions.radius(coordToMeters(RANGE_RADIUS));
+		circleOptions.strokeColor(Color.RED);
+		circleOptions.strokeWidth(RADIUS_WIDTH);
+		// Add the circle to the map
+	    unlockedRadius = map.addCircle(circleOptions);
+	}
+	
+	// Given a difference between two coords (lat/lng),
+	// returns the distance in meters
+	private double coordToMeters(double difference) {
+		return difference * 111319.9;
+	}
+	
 	/**
 	 * Returns whether the marker is in range of the user's GPS position. 
 	 * The user must be RANGE_RADIUS coordinates or less away from the marker
@@ -314,8 +345,10 @@ public class MainActivity extends FragmentActivity
     /**************** location listener ****************/
 	@Override
 	public void onLocationChanged(Location location) {
-		// TODO Auto-generated method stub
-		
+		// Remove the old radius
+		unlockedRadius.remove();
+		// Draw the new radius
+		drawCircle(new LatLng(location.getLatitude(), location.getLongitude()));
 	}
 
 	// Inherited by LocationListener 
