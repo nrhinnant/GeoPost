@@ -198,6 +198,7 @@ public class MainActivity extends FragmentActivity
      */
 	@Override
 	public boolean onMarkerClick(Marker marker) {
+		Log.d("onMarkerClick", "marker clicked");
 		Pin pin = geoposts.get(marker);
 		if (pin == null){
 			Log.d("onMarkerClick", "clicked on marker not found in map");
@@ -211,6 +212,7 @@ public class MainActivity extends FragmentActivity
 			markerWindowShown = false;
 		} else {  // window not showing, see if we should show it
 			if (isInRange(marker) && pin.isLocked()) {
+				Log.d("onMarkerClick", "attempting to unlock in-range pin");
 				if (dbs.unlockPin(pin)) {  // unlocked new pin
 					// TODO: pin now has to be updated in the geoposts map
 					marker.showInfoWindow();
@@ -225,6 +227,7 @@ public class MainActivity extends FragmentActivity
 				markerWindowShown = true;
 				Log.d("onMarkerClick", "viewed previously unlocked pin");
 			} else {  // pin is locked
+				Log.d("onMarkerClick", "clicked on locked/out of range pin");
 				marker.hideInfoWindow();
 				markerWindowShown = false;
 				Toast toast = Toast.makeText(getApplicationContext(), "Locked", 
