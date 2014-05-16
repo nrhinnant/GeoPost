@@ -70,7 +70,7 @@ public class MainActivity extends FragmentActivity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		setUpMapIfNeeded();
-
+		Log.d("onCreate", "NEW CODE!!!!");
 		// Setup collection
 		geoposts = new HashMap<Marker, Pin>();
 		dbq = new DBQuery();
@@ -415,12 +415,12 @@ public class MainActivity extends FragmentActivity
 			LatLng ne = vr.latLngBounds.northeast;
 			Log.d("updateMap", " sw,lat " + sw.latitude + " sw,lng " + sw.longitude + " ne,lat " + ne.latitude + " ne,lng " + ne.longitude);
 			
-			Set<Pin> pins = dbq.getPins(sw, ne);
+			dbq.getPins(sw, ne, this);
 			
-			Log.d("updateMap", "got pins " + pins.size());
+			Log.d("updateMap", "called gitPins");
 			
 			// draw these pins
-			drawMarkers(pins);
+			// drawMarkers(pins);
 		} else {
 			assert(false);
 		}

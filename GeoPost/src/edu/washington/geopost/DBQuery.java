@@ -11,6 +11,7 @@ import com.facebook.Request.GraphUserCallback;
 import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.model.GraphUser;
+import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseGeoPoint;
@@ -41,14 +42,11 @@ public class DBQuery {
 	 * @return A set of the Pins within the given box. The set will be empty if
 	 *         no such Pins are found or there is an error fetching data.
 	 */
-	public Set<Pin> getPins(LatLng southWest, LatLng northEast) {
-		// The returned set
-		Set<Pin> pinsToDisplay = new HashSet<Pin>();
-		
+	public void getPins(LatLng southWest, LatLng northEast, final MainActivity a) {		
 		// Convert the Locations to ParseGeoPoints
-		ParseGeoPoint sw = new ParseGeoPoint(southWest.latitude, 
+		final ParseGeoPoint sw = new ParseGeoPoint(southWest.latitude, 
 											 southWest.longitude);
-		ParseGeoPoint ne = new ParseGeoPoint(northEast.latitude,
+		final ParseGeoPoint ne = new ParseGeoPoint(northEast.latitude,
 											 northEast.longitude);
 		
 		
@@ -59,51 +57,61 @@ public class DBQuery {
 		
 		// Get the results of the query
 		List<ParsePin> queryResults = null;
-		try {
-			queryResults = pinQuery.find();
-		} catch (ParseException e) {
-			// Fetching pins had an error
-			return null;
-		}
+		Log.d("getPins", "about to find pins");
+		pinQuery.findInBackground(new FindCallback<ParsePin>(){
+			@Override
+			public void done(final List<ParsePin> queryResults, ParseException arg1) {
+				Log.d("getPins", "found pins");
+				// The returned set
+				final Set<Pin> pinsToDisplay = new HashSet<Pin>();
+				if (queryResults != null) { // The query was successful					
+					// Fetch the current user and set up the query for the list of pins
+					// they've viewed inside the bounding box.
+					ParseUser user = ParseUser.getCurrentUser();
+					ParseRelation<ParsePin> viewedRelation = user.getRelation("viewed");
+					ParseQuery<ParsePin> viewedQuery = viewedRelation.getQuery();
+					viewedQuery.whereWithinGeoBox("location", sw, ne);
+					
+					// Execute the query
+
+					viewedQuery.findInBackground(new FindCallback<ParsePin>(){
+
+						@Override
+						public void done(List<ParsePin> viewed,
+								ParseException arg1) {
+							// TODO Auto-generated method stub
+							for (ParsePin pin : queryResults) {
+								// If this pin is in the user's list of viewed pins, then we'll
+								// mark the pin as unlocked. Otherwise, we'll set it as locked.
+								// TODO: Will this be fast enough? Also, do we want to do
+								// something special if there's an error fetching the user's
+								// viewed list?
+								boolean locked = viewed.contains(pin);
+
+								// Set up the pin's location.
+								LatLng location = new LatLng(pin.getLocation().getLatitude(),
+										pin.getLocation().getLongitude());
+
+						        // Make the new pin and add it to the result set
+								Pin newPin = new Pin(locked, location, 
+													 "anonymous",
+													 pin.getObjectId(), pin.getMessage());
+
+								pinsToDisplay.add(newPin);
+							}
+							a.drawMarkers(pinsToDisplay);
+						}
+						
+					});
+
+					
+				}
+				
+			}
+		});
+
 		
-		if (queryResults != null) { // The query was successful
-			// Fetch the current user and set up the query for the list of pins
-			// they've viewed inside the bounding box.
-			ParseUser user = ParseUser.getCurrentUser();
-			ParseRelation<ParsePin> viewedRelation = user.getRelation("viewed");
-			ParseQuery<ParsePin> viewedQuery = viewedRelation.getQuery();
-			viewedQuery.whereWithinGeoBox("location", sw, ne);
-			
-			// Execute the query
-			List<ParsePin> viewed = new ArrayList<ParsePin>();
-			try {
-				viewed = viewedQuery.find();
-			} catch (ParseException e) {
-				// Fetching viewed had an error
-				return null;
-			}
-			
-			for (ParsePin pin : queryResults) {
-				// If this pin is in the user's list of viewed pins, then we'll
-				// mark the pin as unlocked. Otherwise, we'll set it as locked.
-				// TODO: Will this be fast enough? Also, do we want to do
-				// something special if there's an error fetching the user's
-				// viewed list?
-				boolean locked = viewed.contains(pin);
-
-				// Set up the pin's location.
-				LatLng location = new LatLng(pin.getLocation().getLatitude(),
-						pin.getLocation().getLongitude());
-
-		        // Make the new pin and add it to the result set
-				Pin newPin = new Pin(locked, location, 
-									 "anonymous",
-									 pin.getObjectId(), pin.getMessage());
-
-				pinsToDisplay.add(newPin);
-			}
-		}
-		return pinsToDisplay;
+		
 	}
 	
 	/**
