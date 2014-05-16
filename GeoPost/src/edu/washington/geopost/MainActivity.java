@@ -151,12 +151,6 @@ public class MainActivity extends FragmentActivity
      * @param pin
      */
     private void addPin(Pin pin){
-    	User currentUser = dbq.getCurrentUser();
-    	String name = null;
-    	if (currentUser != null) {
-    		name = currentUser.getName();
-    	}
-    	
     	//TODO real values
     	Marker m = map.addMarker(new MarkerOptions()
     	.title(pin.getMessage())
@@ -373,7 +367,11 @@ public class MainActivity extends FragmentActivity
 			LatLng sw = (LatLng) params[0];
 			LatLng ne = (LatLng) params[1];
 				
-			return dbq.getPins(sw, ne);
+			Set<Pin> p = dbq.getPins(sw, ne);
+			if (p == null){
+				Log.d("doInBackground", "null query");
+			}
+			return p;
 		}
 		
 		protected void onPostExecute(Set<Pin> pins) {
@@ -399,7 +397,7 @@ public class MainActivity extends FragmentActivity
 			toast.show();
 			return;
 		}
-		
+
 		/*
 		 * First remove old pins that aren't in view now
 		 */
@@ -421,10 +419,11 @@ public class MainActivity extends FragmentActivity
 		/*
 		 * Now add new pins that weren't drawn before
 		 */
-		Collection<Pin> pinvalues = geoposts.values();
+		HashSet<Pin> pinvalues = new HashSet<Pin>(geoposts.values());
 		for (Pin p : pins){
 			if (!pinvalues.contains(p)){
 				// this will add p to geoposts
+				Log.d("drawMarkers", "added pin to map");
 				addPin(p);
 			}
 		}
