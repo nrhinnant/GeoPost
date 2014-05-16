@@ -21,6 +21,7 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.content.Context;
 import android.support.v4.app.DialogFragment;
@@ -44,6 +45,7 @@ public class MainActivity extends FragmentActivity
 	private String provider;
 	private GoogleMap map;
 	private boolean markerWindowShown;
+	private RefreshMapTask refreshThread;
 	
 	private DBQuery dbq;
 	private DBStore dbs;
@@ -97,8 +99,9 @@ public class MainActivity extends FragmentActivity
 			toast.show();
 		}
 		
-		//Pin pin = dbs.postPin(new LatLng(47.647, -122.314), "test pin");
-		//addPin(pin);
+		// Create the Async Task that will be used to refresh
+		// pins on the screen
+		refreshThread = new RefreshMapTask();
 	}
 	
     // Loops through available providers and finds one that returns a location which
@@ -188,6 +191,7 @@ public class MainActivity extends FragmentActivity
      */
 	@Override
 	public boolean onMarkerClick(Marker marker) {
+		Log.d("onMarkerClick", "marker clicked");
 		Pin pin = geoposts.get(marker);
 		if (pin == null){
 			Log.d("onMarkerClick", "clicked on marker not found in map");
@@ -201,6 +205,7 @@ public class MainActivity extends FragmentActivity
 			markerWindowShown = false;
 		} else {  // window not showing, see if we should show it
 			if (isInRange(marker) && pin.isLocked()) {
+				Log.d("onMarkerClick", "attempting to unlock in-range pin");
 				if (dbs.unlockPin(pin)) {  // unlocked new pin
 					// TODO: pin now has to be updated in the geoposts map
 					marker.showInfoWindow();
@@ -215,6 +220,7 @@ public class MainActivity extends FragmentActivity
 				markerWindowShown = true;
 				Log.d("onMarkerClick", "viewed previously unlocked pin");
 			} else {  // pin is locked
+				Log.d("onMarkerClick", "clicked on locked/out of range pin");
 				marker.hideInfoWindow();
 				markerWindowShown = false;
 				Toast toast = Toast.makeText(getApplicationContext(), "Locked", 
@@ -342,8 +348,38 @@ public class MainActivity extends FragmentActivity
 	@Override
 	public void onCameraChange(CameraPosition cp) {
 		Log.d("Event", "onCameraChange fired");
+		refreshThread.cancel(true); // If another query to onCameraChange is still
+									// running, stop this so that this new change is seen
+		VisibleRegion vr = map.getProjection().getVisibleRegion();
+		if (vr != null){
+			LatLng sw = vr.latLngBounds.southwest;
+			LatLng ne = vr.latLngBounds.northeast;
+			Log.d("updateMap", " sw,lat " + sw.latitude + " sw,lng " + sw.longitude + " ne,lat " + ne.latitude + " ne,lng " + ne.longitude);
+		
+			refreshThread = new RefreshMapTask();
+			refreshThread.execute(sw, ne);
+		}
+		//updateMap();
+	}
+	
+	// Asynchronous task used to refresh the pins on the map.
+	// The querying to the database is done in the background
+	// and draws the results once it gets resulting pins
+	private class RefreshMapTask extends AsyncTask<Object, Void, Set<Pin>> {
 
-		updateMap();
+		@Override
+		protected Set<Pin> doInBackground(Object... params) {
+			Log.d("Background!", "Background start!");
+			LatLng sw = (LatLng) params[0];
+			LatLng ne = (LatLng) params[1];
+				
+			return dbq.getPins(sw, ne);
+		}
+		
+		protected void onPostExecute(Set<Pin> pins) {
+			Log.d("Background!", "executing");
+			drawMarkers(pins);
+		}	
 	}
 	
 	/**
