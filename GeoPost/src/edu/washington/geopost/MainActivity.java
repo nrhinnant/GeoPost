@@ -1,6 +1,5 @@
 package edu.washington.geopost;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -53,12 +52,8 @@ public class MainActivity extends FragmentActivity
 	// Location a pin is currently being posted to
 	private Location postLocation;
 	
-	/*
-	 * A map of all pins currently drawn in the app
-	 */
+	// A map of all pins currently drawn in the app
 	private HashMap<Marker, Pin> geoposts;
-	private final String appID = ""; 		// change this to your Parse application id
-	private final String clientKey = ""; 	// change this to your Parse client key
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +63,7 @@ public class MainActivity extends FragmentActivity
 
 		// Setup collection
 		geoposts = new HashMap<Marker, Pin>();
+		
 		dbq = new DBQuery();
 		dbs = new DBStore();
 
@@ -86,7 +82,6 @@ public class MainActivity extends FragmentActivity
 		map.setOnMarkerClickListener(this);
 		map.setOnCameraChangeListener(this);
 		map.getUiSettings().setRotateGesturesEnabled(false);
-		//Parse.initialize(this, appID, clientKey);
 		
 		// Make the app open up to your current location 
 		Location currentLocation = getLastKnownLocation();
@@ -148,10 +143,10 @@ public class MainActivity extends FragmentActivity
     
     /**
      * Add a pin to the map
-     * @param pin
+     * @param pin the pin to be added
      */
     private void addPin(Pin pin){
-    	//TODO real values
+    	// TODO use pin.getUser() instead of "anonymous"
     	Marker m = map.addMarker(new MarkerOptions()
     	.title(pin.getMessage())
     	.snippet("anonymous")
@@ -171,7 +166,6 @@ public class MainActivity extends FragmentActivity
             // Check if we were successful in obtaining the map.
             if (map != null) {
                 // The Map is verified. It is now safe to manipulate the map.
-
             }
         }
     }
@@ -191,8 +185,6 @@ public class MainActivity extends FragmentActivity
 			Log.d("onMarkerClick", "clicked on marker not found in map");
 			return true;
 		}
-		
-		// Note: marker.isInfoWindowShown() has a bug, don't use it
 		
 		if (markerWindowShown) { // window is showing, hide it
 			marker.hideInfoWindow();
@@ -234,7 +226,6 @@ public class MainActivity extends FragmentActivity
 	 * @return true if the marker is in range, false otherwise
 	 */
 	private boolean isInRange(Marker marker) {
-		// TODO this
 		Location l = getLastKnownLocation();
 		if (l == null) {
 			Toast toast = Toast.makeText(getApplicationContext(), "Could not find your location", 
@@ -248,7 +239,6 @@ public class MainActivity extends FragmentActivity
 		double pinLat = p.getLocation().latitude;
 		double pinLng = p.getLocation().longitude;
 		double res = Math.sqrt(Math.pow(userLat - pinLat, 2) + Math.pow(userLng - pinLng, 2));
-		Log.d(res + "", "cccccc");
 		return res <= RANGE_RADIUS;
 	}
 	
@@ -290,18 +280,15 @@ public class MainActivity extends FragmentActivity
      * Fragment.onAttach() callback, which it uses to call the following methods
      * defined by the PostFragment.PostDialogListener interface
 	 * This method is called on a click of the "Post" button from a PostFragment
-	 * Adds a pin to the map at the coordinates given
+	 * Adds a pin to the map at the coordinates given with the given message
 	 * 
 	 * @param dialog a reference to the fragment this is listening on
-	 * @param lat the latitude to put the pin
-	 * @param lng the longitude to put the pin
+	 * @param coord the coordinates to create a pin at
+	 * @param message the message for the new pin
 	 */
     @Override
     public void onDialogPositiveClick(DialogFragment dialog, LatLng coord, String message) {
-    	//TODO: we should make the post fragment just return a location and message
-    	//      which is passed to postPin
     	Pin pin = dbs.postPin(coord, message);
-    	//Pin pin = new Pin(coord, null, message);
         addPin(pin);
     }
     
