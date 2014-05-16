@@ -69,14 +69,20 @@ public class DBStore extends FragmentActivity {
 	 * @return True if the pin was unlocked successfully, false otherwise
 	 */
 	public boolean unlockPin(Pin pin) {
+		return true; 
+		//TODO: fix error
+		// This method causes pins to stop showing up
+		
+		/*
 		boolean success = true;
 		
 		// Get the ParsePin corresponding to the given Pin.
-		ParseQuery<ParsePin> query = ParseQuery.getQuery("ParsePin");
+		ParseQuery<ParsePin> query = ParseQuery.getQuery(ParsePin.class);
 		ParsePin dbPin = null;
 		try {
 			dbPin = query.get(pin.getPinId());
-		} catch (ParseException e) {
+		} catch (Exception e) {
+			Log.d("unlockPin", "exception");
 			// Error fetching pin
 			return false;
 		}
@@ -88,9 +94,11 @@ public class DBStore extends FragmentActivity {
 			ParseUser user = ParseUser.getCurrentUser();
 			ParseRelation<ParsePin> viewedPins = user.getRelation("viewed");
 			viewedPins.add(dbPin);
-			user.saveEventually();
+			// this is throwing an exception
+			//user.saveEventually();
 		}
 		return success;
+		*/
 	}
 	
 	/**

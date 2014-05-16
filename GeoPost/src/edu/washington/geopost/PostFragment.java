@@ -11,6 +11,15 @@ import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.widget.EditText;
 
+/**
+ * A post fragment is a window displayed on an application. 
+ * It contains a positive and negative button and a way to enter
+ * information that will be transmitted to listeners on clicking
+ * of the positive button. 
+ * 
+ * @author Ethan Goldman-Kirst
+ *
+ */
 public class PostFragment extends DialogFragment {
 	
 	/* The activity that creates an instance of this dialog fragment must
@@ -66,15 +75,12 @@ public class PostFragment extends DialogFragment {
     }
 	
 	/**
-	 * Store the information about the pin
+	 * Retrieve and return the message entered by the user
+	 * @return the message entered by the user
 	 */
 	private String getMessage() {
-		
-		// get the message entered by the user
 		EditText e = (EditText) getDialog().findViewById(R.id.post_text);
-		String message = e.getText().toString();
-		
-		return message;
+		return e.getText().toString();
 	}
 	
 }
