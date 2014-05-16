@@ -68,7 +68,7 @@ public class DBStore extends FragmentActivity {
 	 * @param pin The pin that the user is trying to unlock
 	 * @return True if the pin was unlocked successfully, false otherwise
 	 */
-	public boolean unlockPin(Pin pin) {
+	public Pin unlockPin(Pin pin) {
 		boolean success = true;
 		
 		// Get the ParsePin corresponding to the given Pin.
@@ -79,7 +79,7 @@ public class DBStore extends FragmentActivity {
 		} catch (Exception e) {
 			Log.d("unlockPin", "exception");
 			// Error fetching pin
-			return false;
+			return null;
 		}
 		
 		// If we successfully got the ParsePin, get the current user, add the
@@ -91,8 +91,18 @@ public class DBStore extends FragmentActivity {
 			viewedPins.add(dbPin);
 			user.saveEventually();
 		}
-		return success;
 		
+		return createUnlockedPin(pin);
+		
+	}
+	
+	/**
+	 * Take in a pin and return an unlocked version of it
+	 * @param p, the pin to copy
+	 * @return a copy of p excepted locked is false
+	 */
+	private Pin createUnlockedPin(Pin p){
+		return new Pin(false, p.getCoord(), p.getUser(), p.getPinId(), p.getMessage());
 	}
 	
 	/**

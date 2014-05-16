@@ -204,8 +204,10 @@ public class MainActivity extends FragmentActivity
 		} else {  // window not showing, see if we should show it
 			if (isInRange(marker) && pin.isLocked()) {
 				Log.d("onMarkerClick", "attempting to unlock in-range pin");
-				if (dbs.unlockPin(pin)) {  // unlocked new pin
+				Pin p = dbs.unlockPin(pin);
+				if (p != null) {  // unlocked new pin
 					// TODO: pin now has to be updated in the geoposts map
+					geoposts.put(marker, p);
 					marker.showInfoWindow();
 					markerWindowShown = true;
 				} else {  // unlocking failed
