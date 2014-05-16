@@ -26,10 +26,12 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 		super.tearDown();
 	}
 	
+	@Test
 	public void testPreconditions() {
 		assertNotNull("activity is null", activity);
 	}
 	
+	@Test
 	public void testPostButtonMessage() {
 		final String expected = 
 				activity.getString(edu.washington.geopost.R.string.button_message);
@@ -38,6 +40,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 		assertEquals(expected, actual);
 	}
 	
+	@Test
 	public void testPostButtonClickOpensFragment() {
 		Button postButton = (Button) activity.findViewById(edu.washington.geopost.R.id.post_button);
 		activity.onPostButtonClick(postButton);
