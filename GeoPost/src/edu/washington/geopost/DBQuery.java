@@ -87,7 +87,7 @@ public class DBQuery {
 				// TODO: Will this be fast enough? Also, do we want to do
 				// something special if there's an error fetching the user's
 				// viewed list?
-				boolean locked = viewed.contains(pin);
+				boolean locked = !viewed.contains(pin);
 
 				// Set up the pin's location.
 				LatLng location = new LatLng(pin.getLocation().getLatitude(),
