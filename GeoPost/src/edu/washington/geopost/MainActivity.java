@@ -104,7 +104,8 @@ public class MainActivity extends FragmentActivity
 			toast.show();
 		}
 		
-		addPin(new Pin(true, new LatLng(47.5, -122.4), "mike", "aklsjdflkajsd", "helloooo from mike"));
+		//Pin pin = dbs.postPin(new LatLng(47.647, -122.314), "test pin");
+		//addPin(pin);
 	}
 	
     // Loops through available providers and finds one that returns a location which
@@ -373,14 +374,19 @@ public class MainActivity extends FragmentActivity
 		/*
 		 * First remove old pins that aren't in view now
 		 */
-		for(Iterator<Marker> iter = geoposts.keySet().iterator(); iter.hasNext(); ){
-			Marker m = iter.next();
+		HashSet<Marker> temp = new HashSet<Marker>();
+		for(Marker m : geoposts.keySet()){
 			Pin p = geoposts.get(m);
 			if (!pins.contains(p)){
 				// m is no longer in our scope
-				m.remove();
-				geoposts.remove(m);
+				temp.add(m);
 			}
+		}
+		
+		// Now remove the markers from the map and geoposts
+		for (Marker m : temp) {
+			m.remove();
+			geoposts.remove(m);
 		}
 		
 		/*
@@ -411,7 +417,7 @@ public class MainActivity extends FragmentActivity
 			
 			Set<Pin> pins = dbq.getPins(sw, ne);
 			
-			Log.d("updateMap", "got pins");
+			Log.d("updateMap", "got pins " + pins.size());
 			
 			// draw these pins
 			drawMarkers(pins);
