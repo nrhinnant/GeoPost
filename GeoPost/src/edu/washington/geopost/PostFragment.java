@@ -11,6 +11,15 @@ import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.widget.EditText;
 
+/**
+ * A post fragment is a window displayed on an application. 
+ * It contains a positive and negative button and a way to enter
+ * information that will be transmitted to listeners on clicking
+ * of the positive button. 
+ * 
+ * @author Ethan Goldman-Kirst
+ *
+ */
 public class PostFragment extends DialogFragment {
 	
 	/* The activity that creates an instance of this dialog fragment must
