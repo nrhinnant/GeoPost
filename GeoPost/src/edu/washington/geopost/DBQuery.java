@@ -19,6 +19,7 @@ import com.parse.ParseRelation;
 import com.parse.ParseUser;
 
 import android.location.Location;
+import android.util.Log;
 
 /**
  * 
@@ -50,8 +51,10 @@ public class DBQuery {
 		ParseGeoPoint ne = new ParseGeoPoint(northEast.latitude,
 											 northEast.longitude);
 		
+		
 		// Set up the ParseQuery for the pins within the given coordinates
-		ParseQuery<ParsePin> pinQuery = ParseQuery.getQuery("ParsePin");
+		ParseQuery<ParsePin> pinQuery = ParseQuery.getQuery(ParsePin.class);
+		
 		pinQuery.whereWithinGeoBox("location", sw, ne);
 		
 		// Get the results of the query
@@ -94,7 +97,7 @@ public class DBQuery {
 
 		        // Make the new pin and add it to the result set
 				Pin newPin = new Pin(locked, location, 
-									 pin.getUser().getUsername(),
+									 "anonymous",
 									 pin.getObjectId(), pin.getMessage());
 
 				pinsToDisplay.add(newPin);
