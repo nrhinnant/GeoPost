@@ -76,9 +76,6 @@ public class DBQueryTest extends AndroidTestCase {
 				Log.d("mybugs", "Error signing up user.");
 				e.printStackTrace();
 			}
-			
-			ParseRelation<ParsePin> viewedPins = user.getRelation("viewed");
-			ParseRelation<ParsePin> postedPins = user.getRelation("posted");
 
 			// Create several pins 
 			// Try to add each to the database
@@ -95,9 +92,6 @@ public class DBQueryTest extends AndroidTestCase {
 				e.printStackTrace();
 			}
 			
-			viewedPins.add(dbp1);
-			postedPins.add(dbp1);
-			
 			ParsePin dbp2 = new ParsePin();
 			dbp2.setUser(user);
 			dbp2.setLocation(new ParseGeoPoint(0.1,0.2));
@@ -111,9 +105,6 @@ public class DBQueryTest extends AndroidTestCase {
 				e.printStackTrace();
 			}
 			
-			viewedPins.add(dbp2);
-			postedPins.add(dbp2);
-			
 			ParsePin dbp3 = new ParsePin();
 			dbp3.setUser(user);
 			dbp3.setLocation(new ParseGeoPoint(0.2,0.3));
@@ -126,9 +117,6 @@ public class DBQueryTest extends AndroidTestCase {
 				Log.d("mybugs", "Couldn't save pin.");
 				e.printStackTrace();
 			}
-			
-			viewedPins.add(dbp3);
-			postedPins.add(dbp3);
 		}
 	}
 	
