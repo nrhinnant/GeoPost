@@ -27,11 +27,10 @@ public class DBStore extends FragmentActivity {
 	 * Creates and adds a new pin to the pin DB
 	 * @param coord The coordinates for this new pin
 	 * @param message The pin's message
-	 * @return The created pin, or null
+	 * @return The created pin, or null if updating the DB failed.
 	 */
 	public Pin postPin(LatLng coord, String message) {
-		// Make the ParsePin to save to the database and set its fields
-		// TODO: Write ParsePin constructor to do this?
+		// Make the ParsePin to save to the database and set its fields\
 		ParsePin dbPin = new ParsePin();
 		
 		ParseUser user = ParseUser.getCurrentUser();
@@ -53,10 +52,15 @@ public class DBStore extends FragmentActivity {
 		
 		try {
 			dbPin.save();
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
+		} catch (ParseException e) { // TODO: Make this more robust
 			Log.d("PostPin", "ParseException with ParseObject.save()");
+			return null;
 		}
+		ParseRelation<ParsePin> viewedPins = user.getRelation("viewed");
+		viewedPins.add(dbPin);
+		ParseRelation<ParsePin> postedPins = user.getRelation("posted");
+		postedPins.add(dbPin);
+		user.saveEventually();
 		
 		Pin newPin = new Pin(false, coord, user.getUsername(), dbPin.getObjectId(), message);
 		return newPin;
@@ -69,8 +73,6 @@ public class DBStore extends FragmentActivity {
 	 * @return True if the pin was unlocked successfully, false otherwise
 	 */
 	public boolean unlockPin(Pin pin) {
-		boolean success = true;
-		
 		// Get the ParsePin corresponding to the given Pin.
 		ParseQuery<ParsePin> query = ParseQuery.getQuery(ParsePin.class);
 		ParsePin dbPin = null;
@@ -91,7 +93,7 @@ public class DBStore extends FragmentActivity {
 			viewedPins.add(dbPin);
 			user.saveEventually();
 		}
-		return success;
+		return true;
 		
 	}
 	
@@ -103,8 +105,10 @@ public class DBStore extends FragmentActivity {
 	private boolean isNetworkConnected() {
 		ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo activeNetworkInfo = manager.getActiveNetworkInfo();
-		if (activeNetworkInfo == null)
+		if (activeNetworkInfo == null) {
 			return false;
-		return activeNetworkInfo.isConnected();
+		} else {
+			return activeNetworkInfo.isConnected();
+		}
 	}
 }
