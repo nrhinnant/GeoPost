@@ -25,11 +25,10 @@ import com.parse.ParseUser;
 
 public class DBStore extends FragmentActivity {
 	/**
-	 * Adds the given pin to the database.
-	 * @param pin The pin that the user is posting that should be in the
-	 *            database
-	 * @return True if the pin was stored in the database successfully, false
-	 *         otherwise
+	 * Creates and adds a new pin to the pin DB
+	 * @param coord The coordinates for this new pin
+	 * @param message The pin's message
+	 * @return The created pin, or null
 	 */
 	public Pin postPin(LatLng coord, String message) {
 		// Make the ParsePin to save to the database and set its fields
