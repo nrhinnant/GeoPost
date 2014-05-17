@@ -26,12 +26,23 @@ import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 
+/**
+ * 
+ * The user logs in from this activity.
+ * 
+ * @author Megan Drasnin
+ *
+ */
+
 public class LoginActivity extends Activity {
 
 	
 	private Button loginButton;
 	private Dialog progressDialog;
 	
+	/**
+	 * Registers the app with Parse and Facebook and displays the login button.
+	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -60,12 +71,18 @@ public class LoginActivity extends Activity {
 		}
 	}
 	
+	/**
+	 * Finishes Facebook authentication.
+	 */
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		ParseFacebookUtils.finishAuthentication(requestCode, resultCode, data);
 	}
 	
+	/**
+	 * Logs in the user when they press the login button.
+	 */
 	private void onLoginButtonClicked() {
 	    LoginActivity.this.progressDialog = ProgressDialog.show(
 	            LoginActivity.this, "", "Logging in...", true);
@@ -90,12 +107,17 @@ public class LoginActivity extends Activity {
 	    });
 	}
 
-	
+	/**
+	 * Shows the map activity.
+	 */
 	private void showMainActivity() {
 		Intent intent = new Intent(this, MainActivity.class);
 		startActivity(intent);
 	}
 	
+	/**
+	 * Saves the user's name from Facebook in the Parse database.
+	 */
 	private void saveUsersName() {
 		Session session = ParseFacebookUtils.getSession();
 		if (session != null && session.isOpened()) {
