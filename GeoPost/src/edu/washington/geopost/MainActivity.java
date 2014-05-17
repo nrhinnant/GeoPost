@@ -1,16 +1,18 @@
 package edu.washington.geopost;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.Map;
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -20,10 +22,10 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.SyncStateContract.Constants;
-import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -31,39 +33,64 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.Toast;
 
-import com.parse.Parse;
-import com.parse.ParseObject;
-
+/** 
+ * @author Matt, Mike, Ethan
+ *
+ */
 public class MainActivity extends FragmentActivity 
 						  implements OnMarkerClickListener, 
 									 LocationListener, 
-									 PostFragment.PostDialogListener {
+									 PostFragment.PostDialogListener,
+									 OnCameraChangeListener {
 	
+	// Zoom level upon opening app
 	public static final float INIT_ZOOM = 15;
+	// TODO: Put this in the strings.xml
+	public static final String TAG = "GeoPost";
+	// Thickness of the unlocking circle border line
+	public static final float BORDER_THICKNESS = 4;
+	// Scale of the unlocking circle in lat/long coord difference
+	public static final double RANGE_RADIUS = 0.004;
+	// The meters between two lat/lng lines in meters
+	public static final double COORD_IN_METERS = 111319.9;
 	
-	static final String TAG = "GeoPost";
-	private final double RANGE_RADIUS = 1.0;
+	// Location related fields 
 	private LocationManager locationManager;
 	private String provider;
+	// The main map that is shown to the user
 	private GoogleMap map;
+	// Check to see if marker window is open
 	private boolean markerWindowShown;
-	private Map<String, Pin> pinIdToPin;
+	// The background thread that handles getting pins from database
+	private RefreshMapTask refreshThread;
+	// The circle drawn on the map
+	private Circle unlockedRadius;
 	
-	/*
-	 * A map of all pins currently drawn in the app
-	 */
+	// Database interfaces
+	private DBQuery dbq;
+	private DBStore dbs;
+	
+	// A map of all pins currently drawn in the app
 	private HashMap<Marker, Pin> geoposts;
-	private final String appID = ""; 		// change this to your Parse application id
-	private final String clientKey = ""; 	// change this to your Parse client key
 
+	/**
+	 * @param Bundle The saved instance state of the app
+	 * Called upon opening of the activity. Initializes all of the
+	 * UI components, location, database interfaces, and makes
+	 * initial call to zoom in on location and get pins to put on map.
+	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		setUpMapIfNeeded();
 
-		// Setup collection
+		// Setup collection of markers on map to actual pins
 		geoposts = new HashMap<Marker, Pin>();
+		
+		// Initialize the database interfaces
+		dbq = new DBQuery();
+		dbs = new DBStore();
 
 		// Set the pin pop up windows to use the ViewPinWindow class
 		map.setInfoWindowAdapter(new ViewPinWindow(this));
@@ -78,8 +105,9 @@ public class MainActivity extends FragmentActivity
 
 		map.setMyLocationEnabled(true);
 		map.setOnMarkerClickListener(this);
+		map.setOnCameraChangeListener(this);
 		map.getUiSettings().setRotateGesturesEnabled(false);
-		Parse.initialize(this, appID, clientKey);
+		
 		
 		// Make the app open up to your current location 
 		Location currentLocation = getLastKnownLocation();
@@ -92,13 +120,21 @@ public class MainActivity extends FragmentActivity
 			toast.show();
 		}
 		
-		// Populate the map window with pins
-		//updateMap();
+		// Draw the unlocking radius
+		drawCircle(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
+		
+		// Create the Async Task that will be used to refresh
+		// pins on the screen
+		refreshThread = new RefreshMapTask();
+		
 	}
 	
-    // Loops through available providers and finds one that returns a location which
-    // is not null with the best accuracy
-    // Uses this provider to get the current location
+	/**
+	 * Loops through available providers and finds one that returns a location which
+	 * is not null with the best accuracy
+	 * @return The most accurate location available or null, if no location
+	 * service is available
+	 */
     private Location getLastKnownLocation() {
     	List<String> providers = locationManager.getProviders(true);
     	Location bestLocation = null;
@@ -117,20 +153,28 @@ public class MainActivity extends FragmentActivity
     	return bestLocation;
     }
     
-	/* Request updates at startup */
+	/**
+	 * Request updates at startup 
+	 */
 	@Override
 	protected void onResume() {
 		super.onResume();
 		locationManager.requestLocationUpdates(provider, 400, 1, this);
 	}
 
-	/* Remove the locationlistener updates when Activity is paused */
+	/**
+	 *  Remove the locationlistener updates when Activity is paused 
+	*/
 	@Override
 	protected void onPause() {
 		super.onPause();
 		locationManager.removeUpdates(this);
 	}
 
+	/**
+	 * Creates the options menu on start up of the activity.
+	 * Currently, always returns true.
+	 */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -140,26 +184,18 @@ public class MainActivity extends FragmentActivity
     
     /**
      * Add a pin to the map
-     * @param pin
+     * @param pin the pin to be added
      */
     private void addPin(Pin pin){
-    	//User currentUser = DBQuery.getCurrentUser();
-    	String name = null;
-    	/*if (currentUser != null) {
-    		name = currentUser.getName();
-    	}*/
-    	
-    	//TODO real values
+    	// TODO use pin.getUser() instead of "anonymous"
     	Marker m = map.addMarker(new MarkerOptions()
     	.title(pin.getMessage())
-    	.snippet(name)
-    	.position(pin.getCoord()));
+    	.snippet("anonymous")
+    	.position(pin.getLocation()));
     	
     	geoposts.put(m, pin);
     }
-    
-    
-    
+     
     /**
      * Initialize the map if possible
      */
@@ -171,27 +207,57 @@ public class MainActivity extends FragmentActivity
             // Check if we were successful in obtaining the map.
             if (map != null) {
                 // The Map is verified. It is now safe to manipulate the map.
-
             }
         }
     }
+    
+    /************ View pin logic ***************/
 
     /**
      * On clicking a marker, show the marker window if there is not already one shown. 
      * Otherwise, hide the marker window. 
      * 
      * @param marker the clicked marker (or pin)
+     * @return true if event was handled, returning false causes default behavior to run
      */
 	@Override
 	public boolean onMarkerClick(Marker marker) {
-		// Note: marker.isInfoWindowShown() has a bug, don't use it
-		if (markerWindowShown) {
+		Log.d("onMarkerClick", "marker clicked");
+		assert(marker != null);
+		Pin pin = geoposts.get(marker);
+		if (pin == null){
+			Log.d("onMarkerClick", "clicked on marker not found in map");
+			return true;
+		}
+		
+		if (markerWindowShown) { // window is showing, hide it
 			marker.hideInfoWindow();
 			markerWindowShown = false;
-		} else {
-			if (isInRange(marker)) {
+		} else {  // window not showing, see if we should show it
+			if (isInRange(marker) && pin.isLocked()) {
+				Log.d("onMarkerClick", "attempting to unlock in-range pin");
+				Pin p = dbs.unlockPin(pin);
+				if (p != null) {  // unlocked new pin
+					// TODO: pin now has to be updated in the geoposts map
+					geoposts.put(marker, p);
+					marker.showInfoWindow();
+					markerWindowShown = true;
+				} else {  // unlocking failed
+					marker.hideInfoWindow();
+					markerWindowShown = false;
+					Log.d("onMarkerClick", "Failed to unlock pin");
+				}
+			} else if (!pin.isLocked()) {  // pin already unlocked
 				marker.showInfoWindow();
 				markerWindowShown = true;
+				Log.d("onMarkerClick", "viewed previously unlocked pin");
+			} else {  // pin is locked
+				Log.d("onMarkerClick", "clicked on locked/out of range pin");
+				marker.hideInfoWindow();
+				markerWindowShown = false;
+				Toast toast = Toast.makeText(getApplicationContext(), "Locked", 
+						Toast.LENGTH_SHORT);
+				toast.show();
 			}
 		}
 		return true;
@@ -206,8 +272,6 @@ public class MainActivity extends FragmentActivity
 	 * @return true if the marker is in range, false otherwise
 	 */
 	private boolean isInRange(Marker marker) {
-		// TODO this
-		/*
 		Location l = getLastKnownLocation();
 		if (l == null) {
 			Toast toast = Toast.makeText(getApplicationContext(), "Could not find your location", 
@@ -217,14 +281,14 @@ public class MainActivity extends FragmentActivity
 		}
 		double userLat = l.getLatitude();
 		double userLng = l.getLongitude();
-		double pinLat = 
-		double pinLng = 
-		double res = Math.sqrt(Math.pow(userLat - pinLat, 2) + Math.pow(userLng - pinLng, 2.0);
+		Pin p = geoposts.get(marker);
+		double pinLat = p.getLocation().latitude;
+		double pinLng = p.getLocation().longitude;
+		double res = Math.sqrt(Math.pow(userLat - pinLat, 2) + Math.pow(userLng - pinLng, 2));
 		return res <= RANGE_RADIUS;
-		*/
-		
-		return true;
 	}
+	
+	/**************** Post pin logic ****************/
 	
 	/**
 	 * Method called when the post button is clicked
@@ -261,23 +325,62 @@ public class MainActivity extends FragmentActivity
      * Fragment.onAttach() callback, which it uses to call the following methods
      * defined by the PostFragment.PostDialogListener interface
 	 * This method is called on a click of the "Post" button from a PostFragment
-	 * Adds a pin to the map at the coordinates given
+	 * Adds a pin to the map at the coordinates given with the given message
 	 * 
 	 * @param dialog a reference to the fragment this is listening on
-	 * @param lat the latitude to put the pin
-	 * @param lng the longitude to put the pin
+	 * @param coord the coordinates to create a pin at
+	 * @param message the message for the new pin
 	 */
     @Override
-    public void onDialogPositiveClick(DialogFragment dialog, Pin pin) {
-    	//Pin res = DBStore.postPin(pin.getCoord(), pin.getMessage());
+    public void onDialogPositiveClick(DialogFragment dialog, LatLng coord, String message) {
+    	
+    	// check for empty message
+    	if (message.length() == 0) {
+    		Toast toast = Toast.makeText(getApplicationContext(), "Sorry, cannot post an empty message", 
+					Toast.LENGTH_SHORT);
+    		toast.show();
+    		return;
+    	}
+    	
+    	Pin pin = dbs.postPin(coord, message);
         addPin(pin);
     }
-
-	// Inherited by LocationListener 
+    
+    /**************** location listener ****************/
+    /**
+     * @param Location The new location the user has moved to
+     * Redraws the user's unlocking radius to center around the new location
+     */
 	@Override
 	public void onLocationChanged(Location location) {
-		// TODO Auto-generated method stub
-		
+		// Remove the old radius
+		unlockedRadius.remove();
+		// Draw the new radius
+		drawCircle(new LatLng(location.getLatitude(), location.getLongitude()));
+	}
+	
+	/**
+	 * 
+	 * @param center The coordinate center where the user is located on the map
+	 * 				which serves as the epicenter of the circle to draw
+	 */
+	public void drawCircle(LatLng center) {
+		CircleOptions circleOptions = new CircleOptions();
+		circleOptions.center(center);
+		circleOptions.radius(coordToMeters(RANGE_RADIUS));
+		circleOptions.strokeColor(Color.RED);
+		circleOptions.strokeWidth(BORDER_THICKNESS);
+		// Add the circle to the map
+	    unlockedRadius = map.addCircle(circleOptions);
+	}
+	
+	/**
+	 * 
+	 * @param difference The lat/lng difference in distance between two points
+	 * @return The same distance in meters
+	 */
+	private double coordToMeters(double difference) {
+		return difference * COORD_IN_METERS;
 	}
 
 	// Inherited by LocationListener 
@@ -301,52 +404,124 @@ public class MainActivity extends FragmentActivity
 		
 	}
 	
+	/**************** Map refresh logic ****************/
+	
+	/**
+	 * Activated when camera is changed, panning or zooming.  This method will trigger a call to
+	 * updateMap() to redraw the relevant pins
+	 * @param CameraPosition The position of the user's camera
+	 */
+	@Override
+	public void onCameraChange(CameraPosition cp) {
+		Log.d("Event", "onCameraChange fired");
+		refreshThread.cancel(true); // If another query to onCameraChange is still
+									// running, stop this so that this new change is seen
+		VisibleRegion vr = map.getProjection().getVisibleRegion();
+		if (vr != null){
+			LatLng sw = vr.latLngBounds.southwest;
+			LatLng ne = vr.latLngBounds.northeast;
+			Log.d("updateMap", " sw,lat " + sw.latitude + " sw,lng " + sw.longitude + " ne,lat " + ne.latitude + " ne,lng " + ne.longitude);
+		
+			// Create background task that will query the database
+			// and upon return, draw the updated pin/markers on the map
+			refreshThread = new RefreshMapTask();
+			refreshThread.execute(sw, ne);
+		}
+	}
+	
+	// Asynchronous task used to refresh the pins on the map.
+	// The querying to the database is done in the background
+	// and draws the results once it gets resulting pins
+	/**
+	 * 
+	 * @author Matt 
+	 *  Asynchronous task used to refresh the pins on the map.
+	 *  The querying to the database is done in the background
+	 *  and draws the results once it gets resulting pins
+	 *	Extends from AsyncTask which is an asynchronous task handler
+	 */
+	private class RefreshMapTask extends AsyncTask<Object, Void, Set<Pin>> {
+
+		/**
+		 * @param LatLng sw The southwest corner of the user's view
+		 * @param LatLng ne The northeast corner of the user's view
+		 * @return Set<Pin> The resulting pins from the database that
+		 * 					are within the bounding box from the two points
+		 */
+		@Override
+		protected Set<Pin> doInBackground(Object... params) {
+			Log.d("Background!", "Background start!");
+			assert(params.length >= 2);
+			
+			LatLng sw = (LatLng) params[0];
+			LatLng ne = (LatLng) params[1];
+				
+			Set<Pin> p = dbq.getPins(sw, ne);
+			if (p == null){
+				Log.d("doInBackground", "null query");
+			}
+			return p;
+		}
+		
+		/**
+		 * @param Set<Pin> The pins from the background task that
+		 * 					need to be drawn onto the map
+		 * Draws the pins onto the map
+		 */
+		protected void onPostExecute(Set<Pin> pins) {
+			Log.d("Background!", "executing");
+			drawMarkers(pins);
+		}	
+	}
+	
 	/**
 	 * Takes a set of Pin objects and ensures that they are displayed on the map,
 	 * removes any pins that are currently displayed if they are not also in the 
 	 * supplied set.
 	 * @param pins, set of pins to draw onto the map
+	 * if pins is null, the map should be cleared
 	 */
 	public void drawMarkers(Set<Pin> pins){
-		
+		assert(geoposts != null);
+		if (pins == null){
+			geoposts.clear();
+			map.clear();
+			Toast toast = Toast.makeText(getApplicationContext(), "Unable to load posts", 
+					Toast.LENGTH_SHORT);
+			toast.show();
+			return;
+		}
+
 		/*
 		 * First remove old pins that aren't in view now
 		 */
-		for(Iterator<Marker> iter = geoposts.keySet().iterator(); iter.hasNext(); ){
-			Marker m = iter.next();
-			
-			if (!pins.contains(geoposts.get(m))){
+		HashSet<Marker> temp = new HashSet<Marker>();
+		for(Marker m : geoposts.keySet()){
+			Pin p = geoposts.get(m);
+			if (!pins.contains(p)){
 				// m is no longer in our scope
-				m.remove();
-				geoposts.remove(m);
+				temp.add(m);
 			}
+		}
+		
+		// Now remove the markers from the map and geoposts
+		for (Marker m : temp) {
+			m.remove();
+			geoposts.remove(m);
 		}
 		
 		/*
 		 * Now add new pins that weren't drawn before
 		 */
-		Collection<Pin> pinvalues = geoposts.values();
+		HashSet<Pin> pinvalues = new HashSet<Pin>(geoposts.values());
 		for (Pin p : pins){
 			if (!pinvalues.contains(p)){
+				// this will add p to geoposts
+				Log.d("drawMarkers", "added pin to map");
 				addPin(p);
-				
 			}
 		}
+		Log.d("drawMarkers", "drew markers");
 	}
 	
-	/**
-	 * Query database and redraw pins that are now in view
-	 */
-	public void updateMap(){
-		Location l = getLastKnownLocation();
-		VisibleRegion vr = map.getProjection().getVisibleRegion();
-		//Set<Pin> pins = DBQuery.getPins();
-		
-		Set<Pin> set = new HashSet<Pin>();
-		set.add(new Pin(new LatLng(0, 0), "abc", "Hello1"));
-		set.add(new Pin(new LatLng(4, 4), "def", "Hello2"));
-		set.add(new Pin(new LatLng(8, 8), "jkl", "Hello3"));
-		
-		drawMarkers(set);
-	}
 }

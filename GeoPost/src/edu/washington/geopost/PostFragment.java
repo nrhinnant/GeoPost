@@ -8,24 +8,36 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.EditText;
 
+/**
+ * A post fragment is a window displayed on an application. 
+ * It contains a positive and negative button and a way to enter
+ * information that will be transmitted to listeners on clicking
+ * of the positive button. 
+ * 
+ * @author Ethan Goldman-Kirst
+ *
+ */
 public class PostFragment extends DialogFragment {
 	
 	/* The activity that creates an instance of this dialog fragment must
      * implement this interface in order to receive event callbacks.
-     * Each method passes the DialogFragment in case the host needs to query it. */
+     * Each method passes the DialogFragment in case the host needs to query it
+     * as well as coordinates and a message */
     public interface PostDialogListener {
-        public void onDialogPositiveClick(DialogFragment dialog, Pin p);
+        public void onDialogPositiveClick(DialogFragment dialog, LatLng coord, String message);
     }
     
     // Use this instance of the interface to deliver action events
     PostDialogListener listener;
 	
-    // Override the Fragment.onAttach() method to instantiate the PostDialogListener
+    /**
+     *  Override the Fragment.onAttach() method to instantiate the PostDialogListener
+     *  
+     *  @param activity the activity that will add a listener
+     */
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -40,6 +52,15 @@ public class PostFragment extends DialogFragment {
         }
     }
     
+    /**
+     * Create the dialog view. 
+     * Uses the dialog_post layout and sets listeners on button clicks. 
+     * Dispatch to listeners on a positive button click. 
+     * 
+     * @param savedInstanceState parameters passed into this method. 
+     * 			Should include a latitude and longitude
+     * @return the dialog view
+     */
 	@Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Use the Builder class for convenient dialog construction
@@ -55,8 +76,7 @@ public class PostFragment extends DialogFragment {
                    public void onClick(DialogInterface dialog, int id) {
                 	   double lat = getArguments().getDouble("lat");
                 	   double lng = getArguments().getDouble("lng");
-                       Pin p = createPin(lat, lng);
-                       listener.onDialogPositiveClick(PostFragment.this, p);
+                       listener.onDialogPositiveClick(PostFragment.this, new LatLng(lat, lng), getMessage());
                    }
                })
                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -69,15 +89,12 @@ public class PostFragment extends DialogFragment {
     }
 	
 	/**
-	 * Store the information about the pin
+	 * Retrieve and return the message entered by the user
+	 * @return the message entered by the user
 	 */
-	private Pin createPin(double lat, double lng) {
-		
-		// get the message entered by the user
+	private String getMessage() {
 		EditText e = (EditText) getDialog().findViewById(R.id.post_text);
-		String message = e.getText().toString();
-		
-		return new Pin(new LatLng(lat, lng), null, message);
+		return e.getText().toString();
 	}
 	
 }

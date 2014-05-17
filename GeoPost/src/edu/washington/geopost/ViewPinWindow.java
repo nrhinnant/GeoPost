@@ -8,12 +8,20 @@ import android.widget.TextView;
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.google.android.gms.maps.model.Marker;
 
+/**
+ * A ViewPinWindow displays a view on clicking of a marker on
+ * a GoogleMap. 
+ * 
+ * @author Ethan Goldman-Kirst
+ *
+ */
 public class ViewPinWindow implements InfoWindowAdapter {
 	
 	private final View myContentsView;
 	
 	/**
 	 * Constructor for a ViewPinWindow
+	 * Sets the layout to be view_pin_window
 	 * 
 	 * @param context the layout to put the ViewPinWindow on
 	 * 		(for this project, this should be MainActivity)
@@ -26,19 +34,19 @@ public class ViewPinWindow implements InfoWindowAdapter {
 	/**
 	 * Customizes content of the window
 	 * Sets an author text field and a message text field
+	 * 
+	 * @param marker the clicked marker
+	 * @return the updated view for the window
 	 */
 	@Override
 	public View getInfoContents(Marker marker) {
 		TextView author = (TextView) myContentsView.findViewById(R.id.author);
-		
-		// this field should be filled with the user who posted the pin
-		// DBQuery.getUser(marker.getId())
-		author.setText(marker.getSnippet());
-		
 		TextView message = (TextView) myContentsView.findViewById(R.id.message);
 		
-		// this field should be filled with the message of the pin
-		// DBQuery.getMessage(marker.getId())
+		// this field is filled with the user who posted the pin
+		author.setText(marker.getSnippet());
+		
+		// this field is filled with the message of the pin
 		message.setText(marker.getTitle());
 		
 		return myContentsView;
@@ -47,10 +55,11 @@ public class ViewPinWindow implements InfoWindowAdapter {
 	/**
 	 * Allows for providing a view for the info window
 	 * Returns null, so the default view is used. 
+	 * 
+	 * @param marker the clicked marker
 	 */
 	@Override
-	public View getInfoWindow(Marker arg0) {
-		// TODO Auto-generated method stub
+	public View getInfoWindow(Marker marker) {
 		return null;
 	}
 
