@@ -1,6 +1,5 @@
 package edu.washington.geopost.test;
 
-import org.junit.After;
 import org.junit.Before;
 
 import android.annotation.SuppressLint;
@@ -8,7 +7,6 @@ import android.app.Instrumentation.ActivityMonitor;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
-import android.support.v4.app.FragmentManager;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
 import android.widget.Button;
@@ -16,7 +14,6 @@ import android.widget.Button;
 import com.robotium.solo.Solo;
 
 import edu.washington.geopost.MainActivity;
-import edu.washington.geopost.PostFragment;
 
 @SuppressLint("NewApi")
 public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActivity> {
@@ -46,11 +43,6 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 		lm.setTestProviderEnabled(PROVIDER, true);
 		lm.setTestProviderLocation(PROVIDER, createLocation(LAT, LNG, ACCURACY, PROVIDER));
 		Log.d(TAG, "Set it up set it up");
-	}
-	
-	@Before
-	protected void setUpMapMocking() {
-
 	}
 	
 	@Override
@@ -86,8 +78,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/*
-	 * From input arguments, create a single Location with provider set to
-	 * "flp"
+	 * From input arguments, create a single Location
 	 */
 	@SuppressLint("NewApi")
 	public Location createLocation(double lat, double lng, float accuracy, String provider) {
