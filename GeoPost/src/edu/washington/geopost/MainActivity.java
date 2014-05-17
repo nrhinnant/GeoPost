@@ -191,7 +191,7 @@ public class MainActivity extends FragmentActivity
     	Marker m = map.addMarker(new MarkerOptions()
     	.title(pin.getMessage())
     	.snippet("anonymous")
-    	.position(pin.getCoord()));
+    	.position(pin.getLocation()));
     	
     	geoposts.put(m, pin);
     }

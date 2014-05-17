@@ -15,7 +15,6 @@ import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
-import com.parse.ParseRelation;
 import com.parse.ParseUser;
 
 import edu.washington.geopost.DBQuery;
@@ -30,7 +29,6 @@ import edu.washington.geopost.User;
  *
  */
 
-// TODO: This class will be hard to test.
 // We need to consider how to set up a user for testing. One thing to
 // look into would be the ParseAnonymousUtils class, which has documentation at
 // https://parse.com/docs/android/api/com/parse/ParseAnonymousUtils.html
@@ -40,9 +38,9 @@ public class DBQueryTest extends AndroidTestCase {
 	private static final int NUMBER_OF_TESTS = 3; // one additional for testAndroidTestCaseSetupProperly
 	private static int testsRun = 0;
 	static List<ParseObject> createdObjs = new ArrayList<ParseObject>();
-	private final static String appID = "";  // Insert Parse ApplicationID
-	private final static String clientKey = "";  // Insert Parse ClientKey
-	private final static String facebookAppID = "";  // Insert Facebook ApplicationID
+	private final String appID = getContext().getString(R.string.parse_app_id);
+	private final String clientKey = getContext().getString(R.string.parse_client_id);
+	private final String facebookAppID = getContext().getString(R.string.facebook_app_id);
 	
 	/**
 	 * Set up before each test case runs.
