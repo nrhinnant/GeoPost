@@ -16,8 +16,6 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polygon;
-import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.VisibleRegion;
 
 import android.location.Criteria;
@@ -35,42 +33,62 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.Toast;
 
+/** 
+ * @author Matt, Mike, Ethan
+ *
+ */
 public class MainActivity extends FragmentActivity 
 						  implements OnMarkerClickListener, 
 									 LocationListener, 
 									 PostFragment.PostDialogListener,
 									 OnCameraChangeListener {
 	
+	// Zoom level upon opening app
 	public static final float INIT_ZOOM = 15;
+	// TODO: Put this in the strings.xml
 	public static final String TAG = "GeoPost";
-	public static final float RADIUS_WIDTH = 4;
+	// Thickness of the unlocking circle border line
+	public static final float BORDER_THICKNESS = 4;
+	// Scale of the unlocking circle in lat/long coord difference
 	public static final double RANGE_RADIUS = 0.004;
+	// The meters between two lat/lng lines in meters
+	public static final double COORD_IN_METERS = 111319.9;
 	
+	// Location related fields 
 	private LocationManager locationManager;
 	private String provider;
+	// The main map that is shown to the user
 	private GoogleMap map;
+	// Check to see if marker window is open
 	private boolean markerWindowShown;
+	// The background thread that handles getting pins from database
 	private RefreshMapTask refreshThread;
+	// The circle drawn on the map
 	private Circle unlockedRadius;
 	
+	// Database interfaces
 	private DBQuery dbq;
 	private DBStore dbs;
-	
-	// Location a pin is currently being posted to
-	private Location postLocation;
 	
 	// A map of all pins currently drawn in the app
 	private HashMap<Marker, Pin> geoposts;
 
+	/**
+	 * @param Bundle The saved instance state of the app
+	 * Called upon opening of the activity. Initializes all of the
+	 * UI components, location, database interfaces, and makes
+	 * initial call to zoom in on location and get pins to put on map.
+	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		setUpMapIfNeeded();
 
-		// Setup collection
+		// Setup collection of markers on map to actual pins
 		geoposts = new HashMap<Marker, Pin>();
 		
+		// Initialize the database interfaces
 		dbq = new DBQuery();
 		dbs = new DBStore();
 
@@ -111,9 +129,12 @@ public class MainActivity extends FragmentActivity
 		
 	}
 	
-    // Loops through available providers and finds one that returns a location which
-    // is not null with the best accuracy
-    // Uses this provider to get the current location
+	/**
+	 * Loops through available providers and finds one that returns a location which
+	 * is not null with the best accuracy
+	 * @return The most accurate location available or null, if no location
+	 * service is available
+	 */
     private Location getLastKnownLocation() {
     	List<String> providers = locationManager.getProviders(true);
     	Location bestLocation = null;
@@ -132,20 +153,28 @@ public class MainActivity extends FragmentActivity
     	return bestLocation;
     }
     
-	/* Request updates at startup */
+	/**
+	 * Request updates at startup 
+	 */
 	@Override
 	protected void onResume() {
 		super.onResume();
 		locationManager.requestLocationUpdates(provider, 400, 1, this);
 	}
 
-	/* Remove the locationlistener updates when Activity is paused */
+	/**
+	 *  Remove the locationlistener updates when Activity is paused 
+	*/
 	@Override
 	protected void onPause() {
 		super.onPause();
 		locationManager.removeUpdates(this);
 	}
 
+	/**
+	 * Creates the options menu on start up of the activity.
+	 * Currently, always returns true.
+	 */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -181,6 +210,8 @@ public class MainActivity extends FragmentActivity
             }
         }
     }
+    
+    /************ View pin logic ***************/
 
     /**
      * On clicking a marker, show the marker window if there is not already one shown. 
@@ -192,6 +223,7 @@ public class MainActivity extends FragmentActivity
 	@Override
 	public boolean onMarkerClick(Marker marker) {
 		Log.d("onMarkerClick", "marker clicked");
+		assert(marker != null);
 		Pin pin = geoposts.get(marker);
 		if (pin == null){
 			Log.d("onMarkerClick", "clicked on marker not found in map");
@@ -229,24 +261,6 @@ public class MainActivity extends FragmentActivity
 			}
 		}
 		return true;
-	}
-	
-	// Draws the circle on the map that shows the user's radius
-	// for viewing/unlocking pins
-	public void drawCircle(LatLng center) {
-		CircleOptions circleOptions = new CircleOptions();
-		circleOptions.center(center);
-		circleOptions.radius(coordToMeters(RANGE_RADIUS));
-		circleOptions.strokeColor(Color.RED);
-		circleOptions.strokeWidth(RADIUS_WIDTH);
-		// Add the circle to the map
-	    unlockedRadius = map.addCircle(circleOptions);
-	}
-	
-	// Given a difference between two coords (lat/lng),
-	// returns the distance in meters
-	private double coordToMeters(double difference) {
-		return difference * 111319.9;
 	}
 	
 	/**
@@ -293,7 +307,6 @@ public class MainActivity extends FragmentActivity
 			toast.show();
 		} else {	
 			DialogFragment newFragment = new PostFragment();
-			postLocation = l;
 			
 			// Pass the current coordinates to the PostFragment
 			Bundle args = new Bundle();
@@ -334,12 +347,40 @@ public class MainActivity extends FragmentActivity
     }
     
     /**************** location listener ****************/
+    /**
+     * @param Location The new location the user has moved to
+     * Redraws the user's unlocking radius to center around the new location
+     */
 	@Override
 	public void onLocationChanged(Location location) {
 		// Remove the old radius
 		unlockedRadius.remove();
 		// Draw the new radius
 		drawCircle(new LatLng(location.getLatitude(), location.getLongitude()));
+	}
+	
+	/**
+	 * 
+	 * @param center The coordinate center where the user is located on the map
+	 * 				which serves as the epicenter of the circle to draw
+	 */
+	public void drawCircle(LatLng center) {
+		CircleOptions circleOptions = new CircleOptions();
+		circleOptions.center(center);
+		circleOptions.radius(coordToMeters(RANGE_RADIUS));
+		circleOptions.strokeColor(Color.RED);
+		circleOptions.strokeWidth(BORDER_THICKNESS);
+		// Add the circle to the map
+	    unlockedRadius = map.addCircle(circleOptions);
+	}
+	
+	/**
+	 * 
+	 * @param difference The lat/lng difference in distance between two points
+	 * @return The same distance in meters
+	 */
+	private double coordToMeters(double difference) {
+		return difference * COORD_IN_METERS;
 	}
 
 	// Inherited by LocationListener 
@@ -368,6 +409,7 @@ public class MainActivity extends FragmentActivity
 	/**
 	 * Activated when camera is changed, panning or zooming.  This method will trigger a call to
 	 * updateMap() to redraw the relevant pins
+	 * @param CameraPosition The position of the user's camera
 	 */
 	@Override
 	public void onCameraChange(CameraPosition cp) {
@@ -380,17 +422,32 @@ public class MainActivity extends FragmentActivity
 			LatLng ne = vr.latLngBounds.northeast;
 			Log.d("updateMap", " sw,lat " + sw.latitude + " sw,lng " + sw.longitude + " ne,lat " + ne.latitude + " ne,lng " + ne.longitude);
 		
+			// Create background task that will query the database
+			// and upon return, draw the updated pin/markers on the map
 			refreshThread = new RefreshMapTask();
 			refreshThread.execute(sw, ne);
 		}
-		//updateMap();
 	}
 	
 	// Asynchronous task used to refresh the pins on the map.
 	// The querying to the database is done in the background
 	// and draws the results once it gets resulting pins
+	/**
+	 * 
+	 * @author Matt 
+	 *  Asynchronous task used to refresh the pins on the map.
+	 *  The querying to the database is done in the background
+	 *  and draws the results once it gets resulting pins
+	 *	Extends from AsyncTask which is an asynchronous task handler
+	 */
 	private class RefreshMapTask extends AsyncTask<Object, Void, Set<Pin>> {
 
+		/**
+		 * @param LatLng sw The southwest corner of the user's view
+		 * @param LatLng ne The northeast corner of the user's view
+		 * @return Set<Pin> The resulting pins from the database that
+		 * 					are within the bounding box from the two points
+		 */
 		@Override
 		protected Set<Pin> doInBackground(Object... params) {
 			Log.d("Background!", "Background start!");
@@ -406,6 +463,11 @@ public class MainActivity extends FragmentActivity
 			return p;
 		}
 		
+		/**
+		 * @param Set<Pin> The pins from the background task that
+		 * 					need to be drawn onto the map
+		 * Draws the pins onto the map
+		 */
 		protected void onPostExecute(Set<Pin> pins) {
 			Log.d("Background!", "executing");
 			drawMarkers(pins);
@@ -462,33 +524,4 @@ public class MainActivity extends FragmentActivity
 		Log.d("drawMarkers", "drew markers");
 	}
 	
-	/**
-	 * Query database and redraw pins that are now in view.
-	 * This function is used in onCameraChanged() to redraw pins for new camera bounds
-	 */
-	public synchronized void updateMap(){
-		// query DB based on map boundries
-		VisibleRegion vr = map.getProjection().getVisibleRegion();
-
-		if (vr != null){
-			LatLng sw = vr.latLngBounds.southwest;
-			LatLng ne = vr.latLngBounds.northeast;
-			Log.d("updateMap", " sw,lat " + sw.latitude + " sw,lng " + sw.longitude + " ne,lat " + ne.latitude + " ne,lng " + ne.longitude);
-			
-			Set<Pin> pins = dbq.getPins(sw, ne);
-			
-			Log.d("updateMap", "got pins " + pins.size());
-			
-			// draw these pins
-			drawMarkers(pins);
-		} else {
-			assert(false);
-		}
-		/*
-		Set<Pin> pins = new HashSet<Pin>();
-		pins.add(new Pin(new LatLng(0, 0), "abc", "Hello1"));
-		pins.add(new Pin(new LatLng(4, 4), "def", "Hello2"));
-		pins.add(new Pin(new LatLng(8, 8), "jkl", "Hello3"));
-		*/	
-	}
 }
