@@ -68,8 +68,8 @@ public class ParsePin extends ParseObject {
 	}
 	
 	/**
-	 * Standard hashcode function for pin.
-	 * @return int hashcode for the pin.
+	 * Standard hashcode function for ParsePin.
+	 * @return int hashcode for the ParsePin.
 	 */
 	@Override
 	public int hashCode() {
@@ -77,9 +77,10 @@ public class ParsePin extends ParseObject {
 	}
 	
 	/**
-	 * Two pins are equal iff they have the same pinID
+	 * Determines whether this ParsePin equals the given object. Two ParsePins
+	 * are equal if and only if they have the same object id.
 	 * @param other object to compare
-	 * @return boolean describing if this and o are equal
+	 * @return true if this and o are equal, false otherwise
 	 */
 	@Override
 	public boolean equals(Object o) {

@@ -1,8 +1,5 @@
 package edu.washington.geopost;
 
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
@@ -17,8 +14,7 @@ import com.parse.ParseUser;
  * 
  * DBStore sends information to the Parse database using parameterized queries.
  * 
- * @author Andrew Repp
- * @author Neil Hinnant
+ * @authors Neil Hinnant, Andrew Repp
  * 
  */
 
@@ -30,39 +26,32 @@ public class DBStore extends FragmentActivity {
 	 * @return The created pin, or null if updating the DB failed.
 	 */
 	public Pin postPin(LatLng coord, String message) {
-		// Make the ParsePin to save to the database and set its fields\
+		// Make the ParsePin to save to the database and set its fields
 		ParsePin dbPin = new ParsePin();
-		
 		ParseUser user = ParseUser.getCurrentUser();
 		dbPin.setUser(user);
-		
 		LatLng pinLocation = coord;
 		ParseGeoPoint location = new ParseGeoPoint(pinLocation.latitude,
 												   pinLocation.longitude);
 		dbPin.setLocation(location);
-		
 		dbPin.setMessage(message);
-		
-		// Save the ParsePin to the database
-		/*if (this.isNetworkConnected())
-			dbPin.saveInBackground();
-		else
-			dbPin.saveEventually();
-		*/
 		
 		try {
 			dbPin.save();
-		} catch (ParseException e) { // TODO: Make this more robust
+		} catch (ParseException e) { // Error saving pin
 			Log.d("PostPin", "ParseException with ParseObject.save()");
 			return null;
 		}
+		
+		// Update the user's viewed and posted pins to contain the new pin
 		ParseRelation<ParsePin> viewedPins = user.getRelation("viewed");
 		viewedPins.add(dbPin);
 		ParseRelation<ParsePin> postedPins = user.getRelation("posted");
 		postedPins.add(dbPin);
 		user.saveEventually();
 		
-		Pin newPin = new Pin(false, coord, user.getUsername(), dbPin.getObjectId(), message);
+		Pin newPin = new Pin(false, coord, user.getUsername(), 
+							 dbPin.getObjectId(), message);
 		return newPin;
 	}
 	
@@ -70,19 +59,17 @@ public class DBStore extends FragmentActivity {
 	 * Marks the given pin as being unlocked by the given user and saves the
 	 * information to the database.
 	 * @param pin The pin that the user is trying to unlock
-	 * @return True if the pin was unlocked successfully, false otherwise
+	 * @return A copy of the Pin marked as unlocked if successful, null
+	 *         otherwise
 	 */
 	public Pin unlockPin(Pin pin) {
-		boolean success = true;
-		
 		// Get the ParsePin corresponding to the given Pin.
 		ParseQuery<ParsePin> query = ParseQuery.getQuery(ParsePin.class);
 		ParsePin dbPin = null;
 		try {
 			dbPin = query.get(pin.getPinId());
-		} catch (Exception e) {
+		} catch (Exception e) { // Error fetching pin
 			Log.d("unlockPin", "exception");
-			// Error fetching pin
 			return null;
 		}
 		
@@ -97,23 +84,25 @@ public class DBStore extends FragmentActivity {
 		}
 		
 		return createUnlockedPin(pin);
-		
 	}
 	
 	/**
-	 * Take in a pin and return an unlocked version of it
-	 * @param p, the pin to copy
-	 * @return a copy of p excepted locked is false
+	 * Returns an unlocked version of the given Pin.
+	 * @param p The pin to copy
+	 * @return A copy of p marked as unlocked
 	 */
-	private Pin createUnlockedPin(Pin p){
-		return new Pin(false, p.getCoord(), p.getUser(), p.getPinId(), p.getMessage());
+	private Pin createUnlockedPin(Pin p) {
+		return new Pin(false, p.getLocation(), p.getUser(), p.getPinId(), 
+					   p.getMessage());
 	}
 	
 	/**
 	 * Determines whether the application has internet connectivity
-	 * 
 	 * @return true if connected, false otherwise
 	 */
+	/*
+	// We're unsure if we'll need this in the future, so we'll leave it
+	// here for now.
 	private boolean isNetworkConnected() {
 		ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo activeNetworkInfo = manager.getActiveNetworkInfo();
@@ -123,4 +112,5 @@ public class DBStore extends FragmentActivity {
 			return activeNetworkInfo.isConnected();
 		}
 	}
+	*/
 }
