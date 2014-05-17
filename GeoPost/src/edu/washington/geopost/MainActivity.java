@@ -209,6 +209,11 @@ public class MainActivity extends FragmentActivity
      */
     private void openProfileActivity() {
     	Intent intent = new Intent(this, ProfileActivity.class);
+    	User u = dbq.getCurrentUser();
+    	assert(u != null);
+    	intent.putExtra("edu.washington.geopost.USERNAME", u.getName());
+    	intent.putExtra("edu.washington.geopost.NUM_POSTED", u.getNumPosted());
+    	intent.putExtra("edu.washington.geopost.NUM_VIEWED", u.getNumViewed());
     	startActivity(intent);
     }
     
