@@ -25,11 +25,13 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -180,6 +182,34 @@ public class MainActivity extends FragmentActivity
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
+    }
+    
+    /**
+     * Handle menu item selections
+     * 
+     * @param item the clicked menu item
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                //TODO: open settings page
+                return true;
+            case R.id.action_profile:
+            	openProfileActivity();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+    
+    /**
+     * Open the profile activity
+     */
+    private void openProfileActivity() {
+    	Intent intent = new Intent(this, ProfileActivity.class);
+    	startActivity(intent);
     }
     
     /**

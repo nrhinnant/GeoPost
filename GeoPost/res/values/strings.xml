@@ -3,6 +3,7 @@
 
     <string name="app_name">GeoPost</string>
     <string name="action_settings">Settings</string>
+    <string name="action_profile">Profile</string>
     <string name="button_message">Post</string>
     <string name="post_message">Enter a message:</string>
     <string name="cancel">Cancel</string>
@@ -10,9 +11,9 @@
     <string name="login_intro">Welcome to GeoPost!</string>
     <string name="login">Log In</string>
     
-    <string name="facebook_app_id">facebook app id here</string>
-    <string name="parse_app_id">parse app id here</string>
-    <string name="parse_client_id">parse client id here</string>
-    <string name="google_maps_release_key">google maps key here</string>
+    <string name="facebook_app_id">248684115322840</string>
+    <string name="parse_app_id">GlrWxWCu5mnGFKUeeQIFg9Upt9AwomBDk3t0OKHa</string>
+    <string name="parse_client_id">HRRt6k8GzTclufgMCW8RES8LZgQLTTvKBJAnbD5c</string>
+    <string name="google_maps_release_key">AIzaSyDfYntxdIueBwbT0OCSSXJ4Za_dzXg2xlk</string>
 
 </resources>
