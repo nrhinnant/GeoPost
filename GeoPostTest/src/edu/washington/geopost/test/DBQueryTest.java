@@ -15,7 +15,6 @@ import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
-import com.parse.ParseRelation;
 import com.parse.ParseUser;
 
 import edu.washington.geopost.DBQuery;
@@ -30,7 +29,6 @@ import edu.washington.geopost.User;
  *
  */
 
-// TODO: This class will be hard to test.
 // We need to consider how to set up a user for testing. One thing to
 // look into would be the ParseAnonymousUtils class, which has documentation at
 // https://parse.com/docs/android/api/com/parse/ParseAnonymousUtils.html

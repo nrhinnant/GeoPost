@@ -30,6 +30,10 @@ public class DBStore extends FragmentActivity {
 	 * @return The created pin, or null if updating the DB failed.
 	 */
 	public Pin postPin(LatLng coord, String message) {
+		if (message == null) {
+			return null;
+		}
+		
 		// Make the ParsePin to save to the database and set its fields\
 		ParsePin dbPin = new ParsePin();
 		
