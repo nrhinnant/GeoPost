@@ -7,10 +7,12 @@
     <string name="post_message">Enter a message:</string>
     <string name="cancel">Cancel</string>
     <string name="sample_greeting">Welcome to the GeoPost App!</string>
-    <string name="facebook_app_id">Your Facebook App ID</string>
     <string name="login_intro">Welcome to GeoPost!</string>
     <string name="login">Log In</string>
-    <string name="parse_app_id">Your Parse App ID</string>
-    <string name="parse_client_id">Your Parse Client ID</string>
+    
+    <string name="facebook_app_id">facebook app id here</string>
+    <string name="parse_app_id">parse app id here</string>
+    <string name="parse_client_id">parse client id here</string>
+    <string name="google_maps_release_key">google maps key here</string>
 
 </resources>

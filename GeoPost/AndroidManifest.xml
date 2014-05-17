@@ -46,7 +46,7 @@
         
         <meta-data 
             android:name="com.google.android.maps.v2.API_KEY"
-           	android:value="AIzaSyDfYntxdIueBwbT0OCSSXJ4Za_dzXg2xlk" />
+           	android:value="@string/google_maps_release_key" />
         <meta-data android:value="@string/facebook_app_id" android:name="com.facebook.sdk.ApplicationId"/>
         <activity android:name="com.facebook.LoginActivity" android:label="@string/app_name"></activity>
         <activity android:name="edu.washington.geopost.MainActivity" android:label="@string/app_name"></activity>
