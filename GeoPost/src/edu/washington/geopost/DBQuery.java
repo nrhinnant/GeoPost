@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import android.util.Log;
+
 import com.google.android.gms.maps.model.LatLng;
 import com.facebook.Request;
 import com.facebook.Request.GraphUserCallback;
@@ -81,6 +83,8 @@ public class DBQuery {
 				return null;
 			}
 			
+			Log.d("getPins", "All pins: " + queryResults);
+			Log.d("getPins", "My pins : " + viewed);
 			for (ParsePin pin : queryResults) {
 				// If this pin is in the user's list of viewed pins, then we'll
 				// mark the pin as unlocked. Otherwise, we'll set it as locked.
@@ -88,6 +92,7 @@ public class DBQuery {
 				// something special if there's an error fetching the user's
 				// viewed list?
 				boolean locked = !viewed.contains(pin);
+				Log.d("getPins", pin + " " + locked);
 
 				// Set up the pin's location.
 				LatLng location = new LatLng(pin.getLocation().getLatitude(),

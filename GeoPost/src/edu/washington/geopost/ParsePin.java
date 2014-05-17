@@ -66,4 +66,35 @@ public class ParsePin extends ParseObject {
 	public void setLocation(ParseGeoPoint location) {
 		put("location", location);
 	}
+	
+	/**
+	 * Standard hashcode function for pin.
+	 * @return int hashcode for the pin.
+	 */
+	@Override
+	public int hashCode() {
+		return getObjectId().hashCode();		
+	}
+	
+	/**
+	 * Two pins are equal iff they have the same pinID
+	 * @param other object to compare
+	 * @return boolean describing if this and o are equal
+	 */
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof ParsePin))
+			return false;
+		ParsePin p = (ParsePin) o;
+		return getObjectId().equals(p.getObjectId());
+	}
+	
+	/**
+	 * Returns string representation of pin which
+	 * is the pin's id
+	 */
+	@Override
+	public String toString() {
+		return getObjectId();
+	}
 }
