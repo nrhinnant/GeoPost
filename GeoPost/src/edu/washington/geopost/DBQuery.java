@@ -5,14 +5,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import android.util.Log;
+
 import com.google.android.gms.maps.model.LatLng;
-import com.facebook.Request;
-import com.facebook.Request.GraphUserCallback;
-import com.facebook.Response;
-import com.facebook.Session;
-import com.facebook.model.GraphUser;
 import com.parse.ParseException;
-import com.parse.ParseFacebookUtils;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseQuery;
 import com.parse.ParseRelation;
@@ -52,15 +48,13 @@ public class DBQuery {
 		
 		// Set up the ParseQuery for the pins within the given coordinates
 		ParseQuery<ParsePin> pinQuery = ParseQuery.getQuery(ParsePin.class);
-		
 		pinQuery.whereWithinGeoBox("location", sw, ne);
 		
 		// Get the results of the query
 		List<ParsePin> queryResults = null;
 		try {
 			queryResults = pinQuery.find();
-		} catch (ParseException e) {
-			// Fetching pins had an error
+		} catch (ParseException e) { // Fetching pins had an error
 			return null;
 		}
 		
@@ -76,22 +70,21 @@ public class DBQuery {
 			List<ParsePin> viewed = new ArrayList<ParsePin>();
 			try {
 				viewed = viewedQuery.find();
-			} catch (ParseException e) {
-				// Fetching viewed had an error
+			} catch (ParseException e) { // Fetching viewed had an error
 				return null;
 			}
 			
+			Log.d("getPins", "All pins: " + queryResults);
+			Log.d("getPins", "My pins : " + viewed);
 			for (ParsePin pin : queryResults) {
 				// If this pin is in the user's list of viewed pins, then we'll
 				// mark the pin as unlocked. Otherwise, we'll set it as locked.
-				// TODO: Will this be fast enough? Also, do we want to do
-				// something special if there's an error fetching the user's
-				// viewed list?
 				boolean locked = !viewed.contains(pin);
+				Log.d("getPins", pin + " " + locked);
 
 				// Set up the pin's location.
 				LatLng location = new LatLng(pin.getLocation().getLatitude(),
-						pin.getLocation().getLongitude());
+											 pin.getLocation().getLongitude());
 
 		        // Make the new pin and add it to the result set
 				Pin newPin = new Pin(locked, location, 
@@ -114,28 +107,15 @@ public class DBQuery {
 		int viewedNum = 0;
 		int postedNum = 0;
 		
-		// Fetch the current user
+		// Fetch the current user's name
 		ParseUser user = ParseUser.getCurrentUser();
-		
-		// TODO: Figure out how to get the user name out of the callback.
-		Session session = ParseFacebookUtils.getSession();
-		Request.newMeRequest(session, new GraphUserCallback() {
-			public void onCompleted(GraphUser user, Response response) {
-				if (response.getError() != null) {
-					//name = user.getName();
-				} else { // TODO: Make this more robust
-					System.err.println("Error connecting to Facebook");
-				}
-			}
-		});
 		name = user.getUsername();
 		
 		// Get the number of pins they've viewed
 		ParseRelation<ParsePin> viewedRelation = user.getRelation("viewed");
 		try {
 			viewedNum = viewedRelation.getQuery().count();
-		} catch (ParseException e) {
-			// Error fetching viewed
+		} catch (ParseException e) { // Error fetching viewed
 			return null;
 		}
 		
@@ -143,8 +123,7 @@ public class DBQuery {
 		ParseRelation<ParsePin> postedRelation = user.getRelation("posted");
 		try {
 			postedNum = postedRelation.getQuery().count();
-		} catch (ParseException e) {
-			// Error fetching posted
+		} catch (ParseException e) { // Error fetching posted
 			return null;
 		}
 		

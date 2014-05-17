@@ -11,16 +11,6 @@ import com.google.android.gms.maps.model.LatLng;
  */
 
 public class Pin {
-	public Pin(LatLng location, String pid, String m){
-		coord = location;
-		pinId = pid;
-		message = m;
-	}
-	
-	public LatLng getCoord() {
-		return coord;
-	}
-	
 	// Whether or not the pin is locked for the user
 	private boolean locked;
 	// The coordinate of the pin
@@ -33,7 +23,7 @@ public class Pin {
 	private String message;
 	
 	/**
-	 * Creates a new Pin.
+	 * Creates a new Pin from the given parameters.
 	 * @param locked True if the pin is locked.
 	 * @param coord The pin's location.
 	 * @param userId The user who posted the pin.
@@ -45,6 +35,18 @@ public class Pin {
 		this.locked = locked;
 		this.coord = coord;
 		this.userId = userId;
+		this.pinId = pinId;
+		this.message = message;
+	}
+	
+	/**
+	 * Creates a new Pin from the given parameters.
+	 * @param location The coordinates of the Pin
+	 * @param pid The pin's id
+	 * @param message
+	 */
+	public Pin(LatLng coord, String pinId, String message) {
+		this.coord = coord;
 		this.pinId = pinId;
 		this.message = message;
 	}
@@ -145,9 +147,10 @@ public class Pin {
 	}
 	
 	/**
-	 * Two pins are equal iff they have the same pinID
+	 * Determines whether this Pin equals the given Pin. Two Pins are equal
+	 * if and only if they have the same pinID.
 	 * @param other object to compare
-	 * @return boolean describing if this and o are equal
+	 * @return true if this and o are equal, false otherwise
 	 */
 	@Override
 	public boolean equals(Object o) {

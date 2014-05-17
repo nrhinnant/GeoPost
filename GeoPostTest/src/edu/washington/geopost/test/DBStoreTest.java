@@ -34,8 +34,8 @@ import edu.washington.geopost.Pin;
 public class DBStoreTest extends AndroidTestCase {
 	
 	private static DBStore pinWriter;
-	private final static String appID = "";  // Insert Parse ApplicationID
-	private final static String clientKey = "";  // Insert Parse ClientKey
+	private final String appID = getContext().getString(R.string.parse_app_id);
+	private final String clientKey = getContext().getString(R.string.parse_client_id);
 	
 	@Override
 	public void setUp() throws Exception {
@@ -53,7 +53,7 @@ public class DBStoreTest extends AndroidTestCase {
 		Pin pin = pinWriter.postPin(coord, message);
 		
 		assertTrue(message.equals(pin.getMessage()));
-		assertTrue(coord.equals(pin.getCoord()));
+		assertTrue(coord.equals(pin.getLocation()));
 	}
 	
 	//Test a multiple pin drop
@@ -68,13 +68,13 @@ public class DBStoreTest extends AndroidTestCase {
 		Pin pin3 = pinWriter.postPin(coord3, "Pin3");
 		
 		assertTrue("Pin1".equals(pin1.getMessage()));
-		assertTrue(coord1.equals(pin1.getCoord()));
+		assertTrue(coord1.equals(pin1.getLocation()));
 		
 		assertTrue("Pin2".equals(pin2.getMessage()));
-		assertTrue(coord2.equals(pin2.getCoord()));
+		assertTrue(coord2.equals(pin2.getLocation()));
 		
 		assertTrue("Pin3".equals(pin3.getMessage()));
-		assertTrue(coord3.equals(pin3.getCoord()));
+		assertTrue(coord3.equals(pin3.getLocation()));
 	}
 	
 	//TODO

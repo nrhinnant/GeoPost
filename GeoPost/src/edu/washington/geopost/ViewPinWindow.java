@@ -21,6 +21,7 @@ public class ViewPinWindow implements InfoWindowAdapter {
 	
 	/**
 	 * Constructor for a ViewPinWindow
+	 * Sets the layout to be view_pin_window
 	 * 
 	 * @param context the layout to put the ViewPinWindow on
 	 * 		(for this project, this should be MainActivity)
@@ -35,6 +36,7 @@ public class ViewPinWindow implements InfoWindowAdapter {
 	 * Sets an author text field and a message text field
 	 * 
 	 * @param marker the clicked marker
+	 * @return the updated view for the window
 	 */
 	@Override
 	public View getInfoContents(Marker marker) {
