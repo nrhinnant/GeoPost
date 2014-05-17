@@ -24,7 +24,8 @@ public class PostFragment extends DialogFragment {
 	
 	/* The activity that creates an instance of this dialog fragment must
      * implement this interface in order to receive event callbacks.
-     * Each method passes the DialogFragment in case the host needs to query it. */
+     * Each method passes the DialogFragment in case the host needs to query it
+     * as well as coordinates and a message */
     public interface PostDialogListener {
         public void onDialogPositiveClick(DialogFragment dialog, LatLng coord, String message);
     }
@@ -32,7 +33,11 @@ public class PostFragment extends DialogFragment {
     // Use this instance of the interface to deliver action events
     PostDialogListener listener;
 	
-    // Override the Fragment.onAttach() method to instantiate the PostDialogListener
+    /**
+     *  Override the Fragment.onAttach() method to instantiate the PostDialogListener
+     *  
+     *  @param activity the activity that will add a listener
+     */
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -47,6 +52,15 @@ public class PostFragment extends DialogFragment {
         }
     }
     
+    /**
+     * Create the dialog view. 
+     * Uses the dialog_post layout and sets listeners on button clicks. 
+     * Dispatch to listeners on a positive button click. 
+     * 
+     * @param savedInstanceState parameters passed into this method. 
+     * 			Should include a latitude and longitude
+     * @return the dialog view
+     */
 	@Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Use the Builder class for convenient dialog construction
