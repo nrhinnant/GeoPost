@@ -10,6 +10,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
@@ -206,6 +207,7 @@ public class MainActivity extends FragmentActivity
     
     /**
      * Open the profile activity
+     * Pass it the user's name, number of posts, and number of viewed posts
      */
     private void openProfileActivity() {
     	Intent intent = new Intent(this, ProfileActivity.class);
@@ -222,11 +224,17 @@ public class MainActivity extends FragmentActivity
      * @param pin the pin to be added
      */
     private void addPin(Pin pin){
+    	float color = BitmapDescriptorFactory.HUE_RED;
+    	if (!pin.isLocked()) {
+    		color = BitmapDescriptorFactory.HUE_BLUE;
+    	}
+    	
     	// TODO use pin.getUser() instead of "anonymous"
     	Marker m = map.addMarker(new MarkerOptions()
     	.title(pin.getMessage())
     	.snippet("anonymous")
-    	.position(pin.getLocation()));
+    	.position(pin.getLocation())
+    	.icon(BitmapDescriptorFactory.defaultMarker(color)));
     	
     	geoposts.put(m, pin);
     }
