@@ -109,7 +109,7 @@ public class DBQuery {
 		
 		// Fetch the current user's name
 		ParseUser user = ParseUser.getCurrentUser();
-		name = user.getUsername();
+		name = user.getString("name");
 		
 		// Get the number of pins they've viewed
 		ParseRelation<ParsePin> viewedRelation = user.getRelation("viewed");
