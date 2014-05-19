@@ -19,10 +19,8 @@ import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.model.GraphUser;
 import com.parse.LogInCallback;
-import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
-import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 
@@ -41,18 +39,14 @@ public class LoginActivity extends Activity {
 	private Dialog progressDialog;
 	
 	/**
-	 * Registers the app with Parse and Facebook and displays the login button.
+	 * Displays the login button
 	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_login);
-		
-		// Enter your own parse app id, parse client id, and facebook app id in strings.xml
-		ParseObject.registerSubclass(ParsePin.class);
-        Parse.initialize(this, getString(R.string.parse_app_id), getString(R.string.parse_client_id));
-        ParseFacebookUtils.initialize(getString(R.string.facebook_app_id));
+
 
 		loginButton = (Button) findViewById(R.id.loginButton);
 		loginButton.setOnClickListener(new View.OnClickListener() {

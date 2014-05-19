@@ -133,6 +133,13 @@ public class MainActivity extends FragmentActivity
 	}
 	
 	/**
+	 * Disable the back button
+	 */
+	@Override
+	public void onBackPressed() {
+	}
+	
+	/**
 	 * Loops through available providers and finds one that returns a location which
 	 * is not null with the best accuracy
 	 * @return The most accurate location available or null, if no location
