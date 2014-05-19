@@ -15,6 +15,8 @@ public class User {
 	private int postedNum;
 	// The name of the user
 	private String name;
+	// The user's Facebook ID
+	private String facebookID;
 	
 	/**
 	 * Creates a new User.
@@ -22,10 +24,11 @@ public class User {
 	 * @param postedNum The number of pins the user has posted.
 	 * @param name The name of the user.
 	 */
-	public User(int viewedNum, int postedNum, String name) {
+	public User(int viewedNum, int postedNum, String name, String facebookID) {
 		this.viewedNum = viewedNum;
 		this.postedNum = postedNum;
 		this.name = name;
+		this.facebookID = facebookID;
 	}
 	
 	/**
@@ -53,6 +56,14 @@ public class User {
 	}
 	
 	/**
+	 * Return's the user's Facebook ID.
+	 * @return The user's Facebook ID.
+	 */
+	public String getFacebookID() {
+		return facebookID;
+	}
+	
+	/**
 	 * Sets the number of pins the user has viewed.
 	 * @param viewedNum The number of pins the user has viewed.
 	 */
@@ -74,5 +85,13 @@ public class User {
 	 */
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	/**
+	 * Sets the user's Facebook ID.
+	 * @param facebookID The user's Facebook ID.
+	 */
+	public void setFacebookID(String facebookID) {
+		this.facebookID = facebookID;
 	}
 }

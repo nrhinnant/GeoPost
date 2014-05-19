@@ -221,6 +221,7 @@ public class MainActivity extends FragmentActivity
     	User u = dbq.getCurrentUser();
     	assert(u != null);
     	intent.putExtra("edu.washington.geopost.USERNAME", u.getName());
+    	intent.putExtra("edu.washington.geopost.FACEBOOKID", u.getFacebookID());
     	intent.putExtra("edu.washington.geopost.NUM_POSTED", u.getNumPosted());
     	intent.putExtra("edu.washington.geopost.NUM_VIEWED", u.getNumViewed());
     	startActivity(intent);

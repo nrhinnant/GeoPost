@@ -104,12 +104,14 @@ public class DBQuery {
 	 */
 	public User getCurrentUser() {
 		String name = null;
+		String facebookID = null;
 		int viewedNum = 0;
 		int postedNum = 0;
 		
-		// Fetch the current user's name
+		// Fetch the current user's name and FacebookID
 		ParseUser user = ParseUser.getCurrentUser();
 		name = user.getString("name");
+		facebookID = user.getString("facebookID");
 		
 		// Get the number of pins they've viewed
 		ParseRelation<ParsePin> viewedRelation = user.getRelation("viewed");
@@ -127,6 +129,6 @@ public class DBQuery {
 			return null;
 		}
 		
-		return new User(viewedNum, postedNum, name);
+		return new User(viewedNum, postedNum, name, facebookID);
 	}
 }

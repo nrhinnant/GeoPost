@@ -90,11 +90,11 @@ public class LoginActivity extends Activity {
 	            	Log.d(MainActivity.TAG, "User cancelled the Facebook login.");
 	            } else if (user.isNew()) {
 	            	Log.d(MainActivity.TAG, "User signed up and logged in through Facebook!");
-	            	saveUsersName();
+	            	saveUserInfo();
 	            	showMainActivity();
 	            } else {
 	            	Log.d(MainActivity.TAG, "User logged in through Facebook!");
-	            	saveUsersName();
+	            	saveUserInfo();
 	            	showMainActivity();
 	            }
 	        }
@@ -110,9 +110,9 @@ public class LoginActivity extends Activity {
 	}
 	
 	/**
-	 * Saves the user's name from Facebook in the Parse database.
+	 * Saves the user's Facebook ID and name from Facebook in the Parse database.
 	 */
-	private void saveUsersName() {
+	private void saveUserInfo() {
 		Session session = ParseFacebookUtils.getSession();
 		if (session != null && session.isOpened()) {
 
@@ -124,6 +124,7 @@ public class LoginActivity extends Activity {
 
 						ParseUser currentUser = ParseUser.getCurrentUser();
 						currentUser.put("name", user.getName());
+						currentUser.put("facebookID", user.getId());
 						currentUser.saveInBackground();
 
 
