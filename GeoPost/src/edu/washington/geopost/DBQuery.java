@@ -48,6 +48,7 @@ public class DBQuery {
 		
 		// Set up the ParseQuery for the pins within the given coordinates
 		ParseQuery<ParsePin> pinQuery = ParseQuery.getQuery(ParsePin.class);
+		pinQuery.include("user");
 		pinQuery.whereWithinGeoBox("location", sw, ne);
 		
 		// Get the results of the query
@@ -85,10 +86,13 @@ public class DBQuery {
 				// Set up the pin's location.
 				LatLng location = new LatLng(pin.getLocation().getLatitude(),
 											 pin.getLocation().getLongitude());
+				
+				// Get the pin's original poster
+				String poster = pin.getUser().getString("name");
 
 		        // Make the new pin and add it to the result set
 				Pin newPin = new Pin(locked, location, 
-									 "anonymous",
+									 poster,
 									 pin.getObjectId(), pin.getMessage());
 
 				pinsToDisplay.add(newPin);
