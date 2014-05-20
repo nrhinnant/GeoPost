@@ -73,6 +73,8 @@ public class MainActivity extends FragmentActivity
 	private DBQuery dbq;
 	private DBStore dbs;
 	
+	private User currentUser;
+	
 	// A map of all pins currently drawn in the app
 	private HashMap<Marker, Pin> geoposts;
 
@@ -94,6 +96,8 @@ public class MainActivity extends FragmentActivity
 		// Initialize the database interfaces
 		dbq = new DBQuery();
 		dbs = new DBStore();
+		
+		currentUser = dbq.getCurrentUser();
 
 		// Set the pin pop up windows to use the ViewPinWindow class
 		map.setInfoWindowAdapter(new ViewPinWindow(this));
@@ -218,7 +222,11 @@ public class MainActivity extends FragmentActivity
      */
     private void openProfileActivity() {
     	Intent intent = new Intent(this, ProfileActivity.class);
-    	User u = dbq.getCurrentUser();
+    	
+    	// get the user again to update posts and views
+    	currentUser = dbq.getCurrentUser();
+    	
+    	User u = currentUser;
     	assert(u != null);
     	intent.putExtra("edu.washington.geopost.USERNAME", u.getName());
     	intent.putExtra("edu.washington.geopost.FACEBOOKID", u.getFacebookID());
@@ -233,14 +241,17 @@ public class MainActivity extends FragmentActivity
      */
     private void addPin(Pin pin){
     	float color = BitmapDescriptorFactory.HUE_RED;
-    	if (!pin.isLocked()) {
+    	Log.d("addPin", pin.getUser());
+    	if (pin.getUser().equals(currentUser.getName())) {
+    		color = BitmapDescriptorFactory.HUE_VIOLET;
+    	} else if (!pin.isLocked()) {
     		color = BitmapDescriptorFactory.HUE_BLUE;
     	}
     	
     	// TODO use pin.getUser() instead of "anonymous"
     	Marker m = map.addMarker(new MarkerOptions()
     	.title(pin.getMessage())
-    	.snippet("anonymous")
+    	.snippet(pin.getUser())
     	.position(pin.getLocation())
     	.icon(BitmapDescriptorFactory.defaultMarker(color)));
     	
