@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dip" >
+        
+        <ImageView
+        	android:id="@+id/imageView1"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:src="@drawable/red_marker"
+        	android:paddingRight="10dip" />
+        
+        <TextView
+            android:id="@+id/locked_pin_message"
+            android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:textSize="28sp"
+        	android:text="@string/locked_pin" />
+        
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dip" >
+        
+        <ImageView
+        	android:id="@+id/imageView1"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:src="@drawable/blue_marker"
+        	android:paddingRight="10dip" />
+        
+        <TextView
+            android:id="@+id/unlocked_pin_message"
+            android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:textSize="28sp"
+        	android:text="@string/unlocked_pin" />
+        
+    </LinearLayout>
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dip" >
+        
+        <ImageView
+        	android:id="@+id/imageView1"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:src="@drawable/purple_marker"
+        	android:paddingRight="10dip" />
+        
+        <TextView
+            android:id="@+id/posted_pin_message"
+            android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:textSize="28sp"
+        	android:text="@string/posted_pin" />
+        
+    </LinearLayout>
+
+</LinearLayout>

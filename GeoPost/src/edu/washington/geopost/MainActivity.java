@@ -184,56 +184,6 @@ public class MainActivity extends FragmentActivity
 		super.onPause();
 		locationManager.removeUpdates(this);
 	}
-
-	/**
-	 * Creates the options menu on start up of the activity.
-	 * Currently, always returns true.
-	 */
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-    
-    /**
-     * Handle menu item selections
-     * 
-     * @param item the clicked menu item
-     */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
-        switch (item.getItemId()) {
-            case R.id.action_settings:
-                //TODO: open settings page
-                return true;
-            case R.id.action_profile:
-            	openProfileActivity();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-    
-    /**
-     * Open the profile activity
-     * Pass it the user's name, number of posts, and number of viewed posts
-     */
-    private void openProfileActivity() {
-    	Intent intent = new Intent(this, ProfileActivity.class);
-    	
-    	// get the user again to update posts and views
-    	currentUser = dbq.getCurrentUser();
-    	
-    	User u = currentUser;
-    	assert(u != null);
-    	intent.putExtra("edu.washington.geopost.USERNAME", u.getName());
-    	intent.putExtra("edu.washington.geopost.FACEBOOKID", u.getFacebookID());
-    	intent.putExtra("edu.washington.geopost.NUM_POSTED", u.getNumPosted());
-    	intent.putExtra("edu.washington.geopost.NUM_VIEWED", u.getNumViewed());
-    	startActivity(intent);
-    }
     
     /**
      * Add a pin to the map
@@ -271,6 +221,76 @@ public class MainActivity extends FragmentActivity
                 // The Map is verified. It is now safe to manipulate the map.
             }
         }
+    }
+    
+	/************ Options Menu ***************/
+	
+	/**
+	 * Creates the options menu on start up of the activity.
+	 * Currently, always returns true.
+	 */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+    
+    /**
+     * Handle menu item selections
+     * 
+     * @param item the clicked menu item
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.action_help:
+                openHelpFragment();
+                return true;
+            case R.id.action_profile:
+            	openProfileActivity();
+                return true;
+            case R.id.action_logout:
+            	logout();
+            	return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+    
+    /**
+     * Open the help fragment
+     */
+    private void openHelpFragment() {
+    	DialogFragment newFragment = new HelpFragment();
+    	newFragment.show(getSupportFragmentManager(), "help");
+    }
+    
+    /**
+     * Open the profile activity
+     * Pass it the user's name, number of posts, and number of viewed posts
+     */
+    private void openProfileActivity() {
+    	Intent intent = new Intent(this, ProfileActivity.class);
+    	
+    	// get the user again to update posts and views
+    	currentUser = dbq.getCurrentUser();
+    	
+    	User u = currentUser;
+    	assert(u != null);
+    	intent.putExtra("edu.washington.geopost.USERNAME", u.getName());
+    	intent.putExtra("edu.washington.geopost.FACEBOOKID", u.getFacebookID());
+    	intent.putExtra("edu.washington.geopost.NUM_POSTED", u.getNumPosted());
+    	intent.putExtra("edu.washington.geopost.NUM_VIEWED", u.getNumViewed());
+    	startActivity(intent);
+    }
+    
+    /**
+     * Log out the user
+     */
+    private void logout() {
+    	//TODO: this
     }
     
     /************ View pin logic ***************/
