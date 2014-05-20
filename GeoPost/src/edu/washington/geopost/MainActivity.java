@@ -195,7 +195,7 @@ public class MainActivity extends FragmentActivity
     	if (pin.getUser().equals(currentUser.getName())) {
     		color = BitmapDescriptorFactory.HUE_VIOLET;
     	} else if (!pin.isLocked()) {
-    		color = BitmapDescriptorFactory.HUE_BLUE;
+    		color = (float) 220.0;
     	}
     	
     	// TODO use pin.getUser() instead of "anonymous"

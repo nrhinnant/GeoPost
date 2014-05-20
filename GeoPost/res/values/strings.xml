@@ -17,6 +17,13 @@
     <string name="unlocked_pin">Unlocked Pin</string>
     <string name="posted_pin">Your Pin</string>
     
+    <string name="help_message">
+        To post a message at your location, click on the "Post" button. 
+        To unlock a post, travel to that post\'s location and tap the pin. 
+        You can unlock posts within the red circle around your location. 
+        Pins outside of this circle will be locked. 
+    </string>
+    
     <string name="facebook_app_id">facebook app id here</string>
     <string name="parse_app_id">parse app id here</string>
     <string name="parse_client_id">parse client id here</string>
