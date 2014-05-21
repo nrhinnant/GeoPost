@@ -179,6 +179,7 @@ public class MainActivity extends FragmentActivity
 	 */
 	@Override
 	public void onBackPressed() {
+		moveTaskToBack(true);
 	}
 	
 	/*
