@@ -68,10 +68,14 @@ public class MainActivity extends FragmentActivity
 	public static final double RANGE_RADIUS = 0.004;
 	// The meters between two lat/lng lines in meters
 	public static final double COORD_IN_METERS = 111319.9;
+	// The number of milliseconds in a second
+	public static final int SEC_TO_MILLIS = 1000;
+	// The update interval for location in seconds
+	public static final int UPDATE_INTERVAL = 5;
+	// The fastest possible update interval in seconds
+	public static final int FASTEST_UPDATE = 1;
 	
 	// Location related fields 
-	//private LocationManager locationManager;
-	private String provider;
 	// The main map that is shown to the user
 	private GoogleMap map;
 	// Check to see if marker window is open
@@ -81,6 +85,11 @@ public class MainActivity extends FragmentActivity
 	// The circle drawn on the map
 	private Circle unlockedRadius;
 	
+	// The location client that handles location
+	private LocationClient locationClient;
+	// The location request which has parameters about location updates
+	private LocationRequest locationRequest;
+	
 	// Database interfaces
 	private DBQuery dbq;
 	private DBStore dbs;
@@ -89,9 +98,6 @@ public class MainActivity extends FragmentActivity
 	
 	// A map of all pins currently drawn in the app
 	private HashMap<Marker, Pin> geoposts;
-	
-	private LocationClient locationClient;
-	private LocationRequest locationRequest;
 
 	/**
 	 * @param Bundle The saved instance state of the app
@@ -118,9 +124,9 @@ public class MainActivity extends FragmentActivity
 		locationRequest = LocationRequest.create();
 		locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         // Set the update interval to 5 seconds
-        locationRequest.setInterval(5 * 1000);
+        locationRequest.setInterval(UPDATE_INTERVAL * SEC_TO_MILLIS);
         // Set the fastest update interval to 1 second
-        locationRequest.setFastestInterval(1 * 1000);
+        locationRequest.setFastestInterval(FASTEST_UPDATE * SEC_TO_MILLIS);
 
 		// Setup collection of markers on map to actual pins
 		geoposts = new HashMap<Marker, Pin>();
@@ -165,11 +171,16 @@ public class MainActivity extends FragmentActivity
         super.onStop(); 
     } 
 	 
-	//helper functions 
+	/**
+	 * Stops the location client from updating location
+	 */
     private void stopPeriodicUpdates() {
     	locationClient.removeLocationUpdates(this);
     } 
-     
+    
+    /**
+     * Starts the location client to continually update location
+     */
     private void startPeriodicUpdates() { 
     	locationClient.requestLocationUpdates(locationRequest, this);
     } 
@@ -181,31 +192,6 @@ public class MainActivity extends FragmentActivity
 	public void onBackPressed() {
 		moveTaskToBack(true);
 	}
-	
-	/*
-	/**
-	 * Loops through available providers and finds one that returns a location which
-	 * is not null with the best accuracy
-	 * @return The most accurate location available or null, if no location
-	 * service is available
-	 *
-    private Location getLastKnownLocation() {
-    	List<String> providers = locationManager.getProviders(true);
-    	Location bestLocation = null;
-    	for (String provider : providers) {
-    		Location l = locationManager.getLastKnownLocation(provider);
-
-    		if (l == null) {
-    			continue;
-    		}
-    		if (bestLocation == null
-    				|| l.getAccuracy() < bestLocation.getAccuracy()) {
-    			bestLocation = l;
-    			this.provider = provider;
-    		}
-    	}
-    	return bestLocation;
-    } */
     
 	/**
 	 * Request updates at startup 
@@ -229,7 +215,6 @@ public class MainActivity extends FragmentActivity
 	
 	@Override
 	public void onConnected(Bundle arg0) {
-		Toast.makeText(this, "Connected", Toast.LENGTH_LONG).show();
 		// Make the app open up to your current location 
 		Location currentLocation = locationClient.getLastLocation();
 		if (currentLocation != null) {
@@ -242,9 +227,6 @@ public class MainActivity extends FragmentActivity
 		}
 		
 		drawCircle(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
-
-		Location loc = locationClient.getLastLocation();
-		Log.d("XXX", "location=" + loc.toString());
 
 		startPeriodicUpdates();
 	}
