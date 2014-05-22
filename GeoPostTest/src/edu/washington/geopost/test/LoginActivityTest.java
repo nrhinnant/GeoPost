@@ -1,15 +1,15 @@
 package edu.washington.geopost.test;
 
-import org.junit.Test;
+import java.util.Collection;
 
-import android.app.Activity;
 import android.app.Instrumentation.ActivityMonitor;
 import android.test.ActivityInstrumentationTestCase2;
 
+import com.parse.ParseUser;
 import com.robotium.solo.Solo;
+import com.robotium.solo.WebElement;
 
 import edu.washington.geopost.LoginActivity;
-import edu.washington.geopost.MainActivity;
 
 public class LoginActivityTest extends
 		ActivityInstrumentationTestCase2<LoginActivity> {
@@ -27,9 +27,15 @@ public class LoginActivityTest extends
 	}
 	
 	public void testOnLoginButtonClicked() {
+		ParseUser.logOut();
+		solo.sleep(5000);
 		solo.clickOnText("Log In");
-		Activity fbLogin = getInstrumentation().waitForMonitorWithTimeout(am, 5000);		
-		assertNotNull(fbLogin);
-		fbLogin.finish();
+		solo.sleep(5000);
+		
+		Collection<WebElement> we = solo.getCurrentWebElements();
+		assert(we.size() > 0);
+		
+		getActivity().finish();
+		ParseUser.logOut();
 	}
 }
