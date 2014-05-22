@@ -99,6 +99,11 @@ public class MainActivity extends FragmentActivity
 	private DBQuery dbq;
 	private DBStore dbs;
 	
+	// Sorting fields
+	private boolean filterViewed;
+	private boolean filterLocked;
+	private boolean filterPosted;
+	
 	private User currentUser;
 	
 	// A map of all pins currently drawn in the app
@@ -115,6 +120,11 @@ public class MainActivity extends FragmentActivity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		setUpMapIfNeeded();
+		
+		// Set filters to show all posts
+		filterViewed = false;
+		filterLocked = false;
+		filterPosted = false;
 		
 		final int result = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
 		if (result != ConnectionResult.SUCCESS) {
@@ -266,15 +276,29 @@ public class MainActivity extends FragmentActivity
      */
     private void addPin(Pin pin){
     	float color = BitmapDescriptorFactory.HUE_RED;
+    	boolean visible = true;
     	Log.d("addPin", pin.getUser());
     	if (currentUser == null) {
     		currentUser = dbq.getCurrentUser();
     	}
     	if (pin.getFacebookID() != null && 
     			pin.getFacebookID().equals(currentUser.getFacebookID())) {
+    		// pin is user's posted pin
+    		if (filterPosted) {
+    			visible = false;
+    		}
     		color = BitmapDescriptorFactory.HUE_VIOLET;
     	} else if (!pin.isLocked()) {
+    		// pin is unlocked
+    		if (filterViewed) {
+    			visible = false;
+    		}
     		color = (float) 220.0;
+    	} else {
+    		// pin is locked
+    		if (filterLocked) {
+    			visible = false;
+    		}
     	}
     	
     	// TODO use pin.getUser() instead of "anonymous"
@@ -282,7 +306,8 @@ public class MainActivity extends FragmentActivity
     	.title(pin.getMessage())
     	.snippet(pin.getUser())
     	.position(pin.getLocation())
-    	.icon(BitmapDescriptorFactory.defaultMarker(color)));
+    	.icon(BitmapDescriptorFactory.defaultMarker(color))
+    	.visible(visible));
     	
     	geoposts.put(m, pin);
     }
