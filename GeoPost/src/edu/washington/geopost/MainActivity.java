@@ -32,6 +32,8 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.content.Context;
@@ -111,26 +113,31 @@ public class MainActivity extends FragmentActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Log.d("FB", "main onCreate");
 		setContentView(R.layout.activity_main);
+		Log.d("FB", "set content view");
 		setUpMapIfNeeded();
+		Log.d("FB", "main setup done");
 		
 		final int result = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
 		if (result != ConnectionResult.SUCCESS) {
 			Toast toast = Toast.makeText(this, "Google Play service is not available: " + result, Toast.LENGTH_LONG);
 			toast.show();
 		}
+		
+		Log.d("FB", "main after play check");
 		locationClient = new LocationClient(this, this, this);
 		Log.d("LC", "Created location client");
 		locationClient.connect();
 		Log.d("LC", "Connected location client");
-		
+			
 		locationRequest = LocationRequest.create();
-		locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        // Set the update interval to 5 seconds
-        locationRequest.setInterval(UPDATE_INTERVAL * SEC_TO_MILLIS);
-        // Set the fastest update interval to 1 second
-        locationRequest.setFastestInterval(FASTEST_UPDATE * SEC_TO_MILLIS);
-
+	    locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+	    // Set the update interval to 5 seconds
+	    locationRequest.setInterval(UPDATE_INTERVAL * SEC_TO_MILLIS);
+	    // Set the fastest update interval to 1 second
+	    locationRequest.setFastestInterval(FASTEST_UPDATE * SEC_TO_MILLIS);
+		Log.d("FB", "after all");
 		// Setup collection of markers on map to actual pins
 		geoposts = new HashMap<Marker, Pin>();
 		
@@ -138,8 +145,16 @@ public class MainActivity extends FragmentActivity
 		dbq = new DBQuery();
 		dbs = new DBStore();
 		
-		currentUser = dbq.getCurrentUser();
+		Log.d("FB", "after db stuff");
+		if (isNetworkAvailable()) {
+			currentUser = dbq.getCurrentUser();
+		} else {
+			Toast toast = Toast.makeText(getApplicationContext(), "Network unavailable", 
+					Toast.LENGTH_LONG);
+			toast.show();
+		}
 
+		Log.d("FB", "after current user");
 		// Set the pin pop up windows to use the ViewPinWindow class
 		map.setInfoWindowAdapter(new ViewPinWindow(this));
 
@@ -149,6 +164,8 @@ public class MainActivity extends FragmentActivity
 		map.setOnMarkerClickListener(this);
 		map.setOnCameraChangeListener(this);
 		map.getUiSettings().setRotateGesturesEnabled(false);
+		
+		Log.d("FB", "after map stuff");
 		
 		// Draw the unlocking radius
 		//drawCircle(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
@@ -202,6 +219,7 @@ public class MainActivity extends FragmentActivity
 	@Override
 	protected void onResume() {
 		super.onResume();
+		Log.d("FB", "onResume");
 		//locationManager.requestLocationUpdates(provider, 400, 1, this);
 		locationClient.connect();
 	}
@@ -259,6 +277,9 @@ public class MainActivity extends FragmentActivity
     private void addPin(Pin pin){
     	float color = BitmapDescriptorFactory.HUE_RED;
     	Log.d("addPin", pin.getUser());
+    	if (currentUser == null) {
+    		currentUser = dbq.getCurrentUser();
+    	}
     	if (pin.getUser().equals(currentUser.getName())) {
     		color = BitmapDescriptorFactory.HUE_VIOLET;
     	} else if (!pin.isLocked()) {
@@ -280,6 +301,7 @@ public class MainActivity extends FragmentActivity
      */
     private void setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
+    	Log.d("FB", "inside setup map");
         if (map == null) {
             map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map))
                                 .getMap();
@@ -528,7 +550,9 @@ public class MainActivity extends FragmentActivity
 	@Override
 	public void onLocationChanged(Location location) {
 		// Remove the old radius
-		unlockedRadius.remove();
+		if (unlockedRadius != null) {
+			unlockedRadius.remove();
+		}
 		// Draw the new radius
 		if (location != null) {
 			drawCircle(new LatLng(location.getLatitude(), location.getLongitude()));
@@ -586,6 +610,14 @@ public class MainActivity extends FragmentActivity
 	public void onProviderDisabled(String provider) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	
+	private boolean isNetworkAvailable() {
+	    ConnectivityManager connectivityManager 
+	          = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+	    NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+	    return activeNetworkInfo != null && activeNetworkInfo.isConnected();
 	}
 	
 	/**************** Map refresh logic ****************/

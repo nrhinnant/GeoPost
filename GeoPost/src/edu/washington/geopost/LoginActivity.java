@@ -7,11 +7,15 @@ import java.util.List;
 
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 
 import com.facebook.Request;
@@ -44,9 +48,11 @@ public class LoginActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Log.d("FB", "onCreate");
 
 		setContentView(R.layout.activity_login);
 
+		Log.d("FB", "setcontentview");
 
 		loginButton = (Button) findViewById(R.id.loginButton);
 		loginButton.setOnClickListener(new View.OnClickListener() {
@@ -56,6 +62,7 @@ public class LoginActivity extends Activity {
 			}
 		});
 
+		Log.d("FB", "Before checking for previous user");
 		// Check if there is a currently logged in user
 		// and they are linked to a Facebook account.
 		ParseUser currentUser = ParseUser.getCurrentUser();
@@ -71,7 +78,13 @@ public class LoginActivity extends Activity {
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
+		Log.d("FB", "onActivityResult");
 		ParseFacebookUtils.finishAuthentication(requestCode, resultCode, data);
+		if (!isNetworkAvailable()) {
+			Toast toast = Toast.makeText(getApplicationContext(), "Network unavailable", 
+					Toast.LENGTH_LONG);
+			toast.show();
+		}
 	}
 	
 	/**
@@ -136,6 +149,14 @@ public class LoginActivity extends Activity {
 			});
 			request.executeAsync();
 		}
+	}
+	
+	
+	private boolean isNetworkAvailable() {
+	    ConnectivityManager connectivityManager 
+	          = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+	    NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+	    return activeNetworkInfo != null && activeNetworkInfo.isConnected();
 	}
 
 	
