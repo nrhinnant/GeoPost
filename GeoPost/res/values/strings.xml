@@ -27,10 +27,10 @@
     <!-- DO NOT COMMIT CHANGES TO THESE PLACEHOLDERS!, YEE BE WARNED
     	 These are used in auto build system
      -->
-    <string name="facebook_app_id">FACEBOOK_ID</string>
-    <string name="parse_app_id">PARSE_ID</string>
-    <string name="parse_client_id">PARSE_CLNT_ID</string>
-    <string name="google_maps_release_key">GOOGLE_MAPS_RLS_KEY</string>
-    <string name="google_maps_debug_key">GOOGLE_MAPS_DBG_KEY</string>
+    <string name="facebook_app_id">248684115322840</string>
+    <string name="parse_app_id">GlrWxWCu5mnGFKUeeQIFg9Upt9AwomBDk3t0OKHa</string>
+    <string name="parse_client_id">HRRt6k8GzTclufgMCW8RES8LZgQLTTvKBJAnbD5c</string>
+    <string name="google_maps_release_key">AIzaSyCnaNizlPjZVKfvOSIJjG5EnAQfM0Lef1U</string>
+    <string name="google_maps_debug_key">AIzaSyDfYntxdIueBwbT0OCSSXJ4Za_dzXg2xlk</string>
 
 </resources>
