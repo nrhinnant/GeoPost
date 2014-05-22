@@ -87,12 +87,13 @@ public class DBQuery {
 				LatLng location = new LatLng(pin.getLocation().getLatitude(),
 											 pin.getLocation().getLongitude());
 				
-				// Get the pin's original poster
-				String poster = pin.getUser().getString("name");
-				
+				// Get the pin's original poster and their Facebook ID
+				String poster = pin.getUser().getUsername();
+				String facebookID = pin.getUser().getString("facebookID");
+			
 		        // Make the new pin and add it to the result set
 				Pin newPin = new Pin(locked, location, 
-									 poster, pin.getUser().getString("facebookID"),
+									 poster, facebookID,
 									 pin.getObjectId(), pin.getMessage());
 
 				pinsToDisplay.add(newPin);
@@ -114,7 +115,7 @@ public class DBQuery {
 		
 		// Fetch the current user's name and FacebookID
 		ParseUser user = ParseUser.getCurrentUser();
-		name = user.getString("name");
+		name = user.getUsername();
 		facebookID = user.getString("facebookID");
 		
 		// Get the number of pins they've viewed

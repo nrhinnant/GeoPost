@@ -130,7 +130,7 @@ public class LoginActivity extends Activity {
 					if (user != null) {
 
 						ParseUser currentUser = ParseUser.getCurrentUser();
-						currentUser.put("name", user.getName());
+						currentUser.setUsername(user.getName());
 						currentUser.put("facebookID", user.getId());
 						currentUser.saveInBackground();
 
