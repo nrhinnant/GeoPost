@@ -164,6 +164,8 @@ public class DBStoreTest extends AndroidTestCase {
 	//Sample test
 	@Test
 	public void testExample() {
+		// I SAW THIS TEST FAIL
+		// IS THIS EVEN JAVA
 		assertTrue(true);
 	}
 }

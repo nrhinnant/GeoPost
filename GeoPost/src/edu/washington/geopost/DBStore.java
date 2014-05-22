@@ -26,7 +26,7 @@ public class DBStore extends FragmentActivity {
 	 * @return The created pin, or null if updating the DB failed.
 	 */
 	public Pin postPin(LatLng coord, String message) {
-		if (message == null) {
+		if (message == null || coord == null) {
 			return null;
 		}
 		
