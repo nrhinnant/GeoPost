@@ -54,6 +54,7 @@ public class MainActivity extends FragmentActivity
 						  implements OnMarkerClickListener, 
 									 LocationListener, 
 									 PostFragment.PostDialogListener,
+									 EnableLocationFragment.EnableLocationDialogListener,
 									 OnCameraChangeListener,
 									 ConnectionCallbacks, OnConnectionFailedListener,
 									 com.google.android.gms.location.LocationListener {
@@ -229,12 +230,17 @@ public class MainActivity extends FragmentActivity
 			
 			drawCircle(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
 		} else {
-			Toast toast = Toast.makeText(getApplicationContext(), "Unable to find your location", 
-					Toast.LENGTH_SHORT);
-			toast.show();
+			DialogFragment newFragment = new EnableLocationFragment();
+			newFragment.show(getSupportFragmentManager(), "enableLocation");
 		}
 
 		startPeriodicUpdates();
+	}
+	
+	public void onEnableLocationPositiveClick(DialogFragment dialog) {
+		Intent gpsOptionsIntent = new Intent(
+				android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+		startActivity(gpsOptionsIntent);
 	}
 
 	@Override
