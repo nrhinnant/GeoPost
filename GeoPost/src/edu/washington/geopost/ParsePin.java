@@ -91,6 +91,18 @@ public class ParsePin extends ParseObject {
 	}
 	
 	/**
+	 * 
+	 */
+	public boolean equals2(Object o) {
+		if (!(o instanceof ParsePin)) 
+			return false;
+		ParsePin p = (ParsePin) o;
+		return p.getString("name").equals(this.getString("name")) &&
+			   p.getString("facebookID").equals(this.getString("facebookID")) &&
+			   p.getLocation().equals(this.getLocation());
+		
+	}
+	/**
 	 * Returns string representation of pin which
 	 * is the pin's id
 	 */

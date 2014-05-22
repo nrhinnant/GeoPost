@@ -34,12 +34,14 @@ import edu.washington.geopost.Pin;
 public class DBStoreTest extends AndroidTestCase {
 	
 	private static DBStore pinWriter;
-	private final String appID = getContext().getString(R.string.parse_app_id);
-	private final String clientKey = getContext().getString(R.string.parse_client_id);
+	private String appID;
+	private String clientKey;
 	
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
+		appID = "GlrWxWCu5mnGFKUeeQIFg9Upt9AwomBDk3t0OKHa";
+		clientKey = "HRRt6k8GzTclufgMCW8RES8LZgQLTTvKBJAnbD5c";
 		Parse.initialize(getContext(), appID, clientKey);
 		ParseObject.registerSubclass(ParsePin.class);
 		pinWriter = new DBStore ();

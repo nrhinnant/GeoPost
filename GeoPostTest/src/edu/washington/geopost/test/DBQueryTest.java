@@ -1,7 +1,9 @@
 package edu.washington.geopost.test;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 import org.junit.Test;
@@ -38,9 +40,19 @@ public class DBQueryTest extends AndroidTestCase {
 	private static final int NUMBER_OF_TESTS = 3; // one additional for testAndroidTestCaseSetupProperly
 	private static int testsRun = 0;
 	static List<ParseObject> createdObjs = new ArrayList<ParseObject>();
-	private final String appID = "Parse App ID";
-	private final String clientKey = "Parse Client Key";
-	private final String facebookAppID = "Facebook App ID";
+	private final String appID = "GlrWxWCu5mnGFKUeeQIFg9Upt9AwomBDk3t0OKHa";
+	private final String clientKey = "HRRt6k8GzTclufgMCW8RES8LZgQLTTvKBJAnbD5c";
+	private final String facebookAppID = "248684115322840";
+	private ParseUser testUser;
+	private String parseUserEmail = "parsetestuser@huehuehue.com";
+	private String parseUserName = "Parse Test User";
+	private String parsePassword = "testPassword1234";
+	private String parseTestFBName = "Parse Test User Name";
+	private String parseTestFBID = "123456654321";
+	private ParsePin testPin0;
+	private ParsePin testPin1;
+	private ParsePin testPin2;
+	
 	
 	/**
 	 * Set up before each test case runs.
@@ -52,69 +64,68 @@ public class DBQueryTest extends AndroidTestCase {
 		ParseObject.registerSubclass(ParsePin.class);
 		super.setUp();
 		
-		// Check for a current parse user.
-		ParseUser user = ParseUser.getCurrentUser();
+		testUser = new ParseUser();
+		testUser.setEmail(parseUserEmail);
+		testUser.setUsername(parseUserName);
+		testUser.setPassword(parsePassword);
 		
-		// Create a new user and pins the first time setUp is called.
-		if (user == null) {
-			user = new ParseUser();  // test user
-			user.setUsername("name");
-			user.setPassword("password");
-			user.setEmail("email@example.com");
-			
-			createdObjs.add(user);  // so they can be removed from database
-			Log.d("mybugs", "I am running.");
-			
-			// Sign up the test user.
-			try {
-				user.signUp();
-				Log.d("mybugs", "User signed up.");
-			} catch (ParseException e) {
-				// Sign up failed.
-				Log.d("mybugs", "Error signing up user.");
-				e.printStackTrace();
+		ParseUser.logOut();
+		try {
+			testUser.signUp();
+		} catch (ParseException e) {
+			if (e.getCode() != e.USERNAME_TAKEN){
+				throw e;
 			}
-
-			// Create several pins 
-			// Try to add each to the database
-			ParsePin dbp1 = new ParsePin();
-			dbp1.setUser(user);
-			dbp1.setLocation(new ParseGeoPoint(0.0,0.1));
-			dbp1.setMessage("Sample Message 1");
-			createdObjs.add(dbp1);
-			
-			try {
-				dbp1.save();
-			} catch (ParseException e) {
-				Log.d("mybugs", "Couldn't save pin.");
-				e.printStackTrace();
-			}
-			
-			ParsePin dbp2 = new ParsePin();
-			dbp2.setUser(user);
-			dbp2.setLocation(new ParseGeoPoint(0.1,0.2));
-			dbp2.setMessage("Sample Message 2");
-			createdObjs.add(dbp2);
-			
-			try {
-				dbp2.save();
-			} catch (ParseException e) {
-				Log.d("mybugs", "Couldn't save pin.");
-				e.printStackTrace();
-			}
-			
-			ParsePin dbp3 = new ParsePin();
-			dbp3.setUser(user);
-			dbp3.setLocation(new ParseGeoPoint(0.2,0.3));
-			dbp3.setMessage("Sample Message 3");
-			createdObjs.add(dbp3);
-			
-			try {
-				dbp3.save();
-			} catch (ParseException e) {
-				Log.d("mybugs", "Couldn't save pin.");
-				e.printStackTrace();
-			}
+		}
+		
+		ParseUser.logIn(parseUserName, parsePassword);
+		
+		testUser = ParseUser.getCurrentUser();
+		
+		
+		testUser.put("name", parseTestFBName);
+		testUser.put("facebookID", parseTestFBID);
+		testUser.save();
+		
+		// Create several pins 
+		// Try to add each to the database
+		testPin0 = new ParsePin();
+		testPin0.setUser(testUser);
+		testPin0.setLocation(new ParseGeoPoint(0.0,0.1));
+		testPin0.setMessage("Sample Message 1");
+		createdObjs.add(testPin0);
+		
+		try {
+			testPin0.save();
+		} catch (ParseException e) {
+			Log.d("mybugs", "Couldn't save pin.");
+			e.printStackTrace();
+		}
+		
+		testPin1 = new ParsePin();
+		testPin1.setUser(testUser);
+		testPin1.setLocation(new ParseGeoPoint(0.1,0.2));
+		testPin1.setMessage("Sample Message 2");
+		createdObjs.add(testPin1);
+		
+		try {
+			testPin1.save();
+		} catch (ParseException e) {
+			Log.d("mybugs", "Couldn't save pin.");
+			e.printStackTrace();
+		}
+		
+		testPin2 = new ParsePin();
+		testPin2.setUser(testUser);
+		testPin2.setLocation(new ParseGeoPoint(0.2,0.3));
+		testPin2.setMessage("Sample Message 3");
+		createdObjs.add(testPin2);
+		
+		try {
+			testPin2.save();
+		} catch (ParseException e) {
+			Log.d("mybugs", "Couldn't save pin.");
+			e.printStackTrace();
 		}
 	}
 	
@@ -123,7 +134,6 @@ public class DBQueryTest extends AndroidTestCase {
 	 */
 	@Override
 	public void tearDown() throws Exception {
-		Parse.initialize(getContext(), appID, clientKey);
 		super.tearDown();
 		// Delete all the elements added to the database after all tests run.
 		if (testsRun == NUMBER_OF_TESTS) {
@@ -141,12 +151,11 @@ public class DBQueryTest extends AndroidTestCase {
 	 */
 	@Test
 	public void testCurrentUser() {
-		Parse.initialize(getContext(), appID, clientKey);
-		ParseFacebookUtils.initialize(facebookAppID);
 		DBQuery dbq = new DBQuery();
 		User user = dbq.getCurrentUser();
 		
-		assertTrue(user.getName().equals("name"));
+		assertTrue(user.getName().equals(testUser.getString("name")));
+		assertTrue(user.getFacebookID().equals(testUser.getString("facebookID")));
 		// TODO: Fix this when relations are being tested.
 		//assertTrue(user.getNumPosted() == 3);
 		//assertTrue(user.getNumViewed() == 0);
@@ -157,10 +166,17 @@ public class DBQueryTest extends AndroidTestCase {
 	 */
 	@Test
 	public void testGetPins() {
-		Parse.initialize(getContext(), appID, clientKey);
 		DBQuery dbq = new DBQuery();
 		Set<Pin> pins = dbq.getPins(new LatLng(0.0, 0.0), new LatLng(0.4, 0.4));
 		
-		assertTrue(pins.size() == 3);
+		assertTrue(pins.size() > 2);
+		
+		// Ideally we would check for the actual pins being in the db, but the equals method 
+		// only checks for equivalent IDs. This is the best I got for now.
+		/*
+		assertTrue(pins.contains(testPin0));
+		assertTrue(pins.contains(testPin1));
+		assertTrue(pins.contains(testPin2));
+		*/
 	}
 }
