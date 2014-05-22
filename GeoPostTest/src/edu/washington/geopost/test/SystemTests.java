@@ -60,23 +60,23 @@ public class SystemTests  extends ActivityInstrumentationTestCase2<LoginActivity
 		if ((currentUser == null) || !ParseFacebookUtils.isLinked(currentUser)) {
 			// Go to the map activity
 			solo.clickOnText("Log In");
-			solo.sleep(5000);
-			solo.typeTextInWebElement(By.name("email"), TEST_USER);
-			solo.typeTextInWebElement(By.name("pass"), TEST_USER_PASSWORD);
-			solo.clickOnWebElement(By.textContent("Log In"));
-			solo.sleep(5000);
-			solo.clickOnWebElement(By.textContent("OK"));
-			Log.d("geopost Systemtest", "Logged in as test user");		
+			if (getInstrumentation().waitForMonitorWithTimeout(am,  5000) == null) {
+				solo.typeTextInWebElement(By.name("email"), TEST_USER);
+				solo.typeTextInWebElement(By.name("pass"), TEST_USER_PASSWORD);
+				solo.clickOnWebElement(By.textContent("Log In"));
+				solo.sleep(5000);
+				solo.clickOnWebElement(By.textContent("OK"));
+				Log.d("geopost Systemtest", "Logged in as test user");		
+			}		
 		}
+		
 		
 		MainActivity nextActivity = (MainActivity) getInstrumentation().waitForMonitorWithTimeout(am, 5000);
 		assert(nextActivity != null);
 		
-		Collection<View> views = solo.getCurrentViews();
-		
 		solo.clickOnButton("Post");
 		solo.enterText(0, TEST_POST_CONTENT);
-		solo.clickOnText("Post", 1);
+		solo.clickOnButton("Post");
 		solo.sleep(5000);
 		ParseUser.logOut();
 	}
