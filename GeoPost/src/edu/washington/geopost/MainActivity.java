@@ -220,13 +220,13 @@ public class MainActivity extends FragmentActivity
 		if (currentLocation != null) {
 			LatLng myLatLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
 			map.animateCamera(CameraUpdateFactory.newLatLngZoom(myLatLng, INIT_ZOOM));
+			
+			drawCircle(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
 		} else {
 			Toast toast = Toast.makeText(getApplicationContext(), "Unable to find your location", 
 					Toast.LENGTH_SHORT);
 			toast.show();
 		}
-		
-		drawCircle(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
 
 		startPeriodicUpdates();
 	}
@@ -495,7 +495,13 @@ public class MainActivity extends FragmentActivity
 		// Remove the old radius
 		unlockedRadius.remove();
 		// Draw the new radius
-		drawCircle(new LatLng(location.getLatitude(), location.getLongitude()));
+		if (location != null) {
+			drawCircle(new LatLng(location.getLatitude(), location.getLongitude()));
+		} else {
+			Toast toast = Toast.makeText(getApplicationContext(), "Unable to find your location", 
+					Toast.LENGTH_SHORT);
+			toast.show();
+		}
 	}
 	
 	/**
