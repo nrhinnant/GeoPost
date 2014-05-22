@@ -68,6 +68,8 @@ public class MainActivity extends FragmentActivity
 	public static final double RANGE_RADIUS = 0.004;
 	// The meters between two lat/lng lines in meters
 	public static final double COORD_IN_METERS = 111319.9;
+	// The radius of the earth in meters
+	public static final int EARTH_RADIUS = 6366000;
 	// The number of milliseconds in a second
 	public static final int SEC_TO_MILLIS = 1000;
 	// The update interval for location in seconds
@@ -220,6 +222,10 @@ public class MainActivity extends FragmentActivity
 		if (currentLocation != null) {
 			LatLng myLatLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
 			map.animateCamera(CameraUpdateFactory.newLatLngZoom(myLatLng, INIT_ZOOM));
+			
+			if (unlockedRadius != null) {
+				unlockedRadius.remove();
+			}
 			
 			drawCircle(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
 		} else {
@@ -417,13 +423,37 @@ public class MainActivity extends FragmentActivity
 			toast.show();
 			return false;
 		}
+		// Get the user's lat/lng coordinates
 		double userLat = l.getLatitude();
 		double userLng = l.getLongitude();
+
+		// Get the pin's lat/lng coordinates
 		Pin p = geoposts.get(marker);
 		double pinLat = p.getLocation().latitude;
 		double pinLng = p.getLocation().longitude;
-		double res = Math.sqrt(Math.pow(userLat - pinLat, 2) + Math.pow(userLng - pinLng, 2));
-		return res <= RANGE_RADIUS;
+		
+		// Return if the distance between points is within unlocked radius
+		double distance = distance(userLat, userLng, pinLat, pinLng);
+		return distance <= coordToMeters(RANGE_RADIUS);
+	}
+	
+	/**
+	 * 
+	 * @param startLat The latitude of the initial point
+	 * @param startLng The longitude of the initial point
+	 * @param endLat The latitude of the end point
+	 * @param endLng The latitude of the end point
+	 * @return	Uses the haversine formula to calculate and return the distance 
+	 * 			between two lat/lng points on the earth in meters
+	 */
+	private double distance(double startLat, double startLng, double endLat, double endLng) {
+	    double dLat = Math.toRadians(endLat - startLat);
+	    double dLon = Math.toRadians(endLng - startLng);
+	    double a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+	    Math.cos(Math.toRadians(startLat)) * Math.cos(Math.toRadians(endLat)) *
+	    Math.sin(dLon/2) * Math.sin(dLon/2);
+	    double c = 2 * Math.asin(Math.sqrt(a));
+	    return EARTH_RADIUS * c;
 	}
 	
 	/**************** Post pin logic ****************/
@@ -526,6 +556,10 @@ public class MainActivity extends FragmentActivity
 	 */
 	private double coordToMeters(double difference) {
 		return difference * COORD_IN_METERS;
+	}
+	
+	private double metersToCoord(double difference) {
+		return difference / COORD_IN_METERS;
 	}
 
 	// Inherited by LocationListener 

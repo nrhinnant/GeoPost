@@ -1,18 +1,26 @@
 package edu.washington.geopost.test;
 
+import java.util.Collection;
+
 import org.junit.Test;
 
-import com.robotium.solo.Solo;
-
-import android.content.Context;
-import android.location.LocationManager;
+import android.app.ActivityManager;
+import android.app.Instrumentation.ActivityMonitor;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
+import android.view.View;
+
+import com.parse.ParseFacebookUtils;
+import com.parse.ParseUser;
+import com.robotium.solo.By;
+import com.robotium.solo.Solo;
+
 import edu.washington.geopost.LoginActivity;
 import edu.washington.geopost.MainActivity;
 
 public class SystemTests  extends ActivityInstrumentationTestCase2<LoginActivity>  {
 	private Solo solo;
+	ActivityMonitor am;
 	String TEST_USER = "open_zjzusdi_user@tfbnw.net";
 	String TEST_USER_PASSWORD = "TestUserPass";
 	String TEST_POST_CONTENT = "TestPost from Systemtest";
@@ -26,6 +34,7 @@ public class SystemTests  extends ActivityInstrumentationTestCase2<LoginActivity
 	protected void setUp() throws Exception {
 		super.setUp();
 		solo = new Solo(getInstrumentation(), getActivity());
+		am = getInstrumentation().addMonitor(MainActivity.class.getName(), null, false);		
 	}
 	
 	@Override
@@ -46,17 +55,30 @@ public class SystemTests  extends ActivityInstrumentationTestCase2<LoginActivity
 	 */
 	public void testUseCaseLogInAndDrop() {
 		solo.waitForActivity(edu.washington.geopost.LoginActivity.class);
-		solo.clickOnText("Log In");
-		if (solo.waitForActivity(MainActivity.class, BIG_TIMEOUT)) {
-			solo.waitForText("Post");
-			solo.clickOnText("Post");
-			solo.enterText(0, TEST_POST_CONTENT);
-			solo.clickOnText("Post");
-			return;
-		}
-
 		
-		fail();
+		ParseUser currentUser = ParseUser.getCurrentUser();
+		if ((currentUser == null) || !ParseFacebookUtils.isLinked(currentUser)) {
+			// Go to the map activity
+			solo.clickOnText("Log In");
+			solo.sleep(5000);
+			solo.typeTextInWebElement(By.name("email"), TEST_USER);
+			solo.typeTextInWebElement(By.name("pass"), TEST_USER_PASSWORD);
+			solo.clickOnWebElement(By.textContent("Log In"));
+			solo.sleep(5000);
+			solo.clickOnWebElement(By.textContent("OK"));
+			Log.d("geopost Systemtest", "Logged in as test user");		
+		}
+		
+		MainActivity nextActivity = (MainActivity) getInstrumentation().waitForMonitorWithTimeout(am, 5000);
+		assert(nextActivity != null);
+		
+		Collection<View> views = solo.getCurrentViews();
+		
+		solo.clickOnButton("Post");
+		solo.enterText(0, TEST_POST_CONTENT);
+		solo.clickOnText("Post", 1);
+		solo.sleep(5000);
+		ParseUser.logOut();
 	}
 
 }
