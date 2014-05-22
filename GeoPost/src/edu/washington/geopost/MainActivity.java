@@ -270,7 +270,8 @@ public class MainActivity extends FragmentActivity
     	if (currentUser == null) {
     		currentUser = dbq.getCurrentUser();
     	}
-    	if (pin.getUser().equals(currentUser.getName())) {
+    	if (pin.getFacebookID() != null && 
+    			pin.getFacebookID().equals(currentUser.getFacebookID())) {
     		color = BitmapDescriptorFactory.HUE_VIOLET;
     	} else if (!pin.isLocked()) {
     		color = (float) 220.0;

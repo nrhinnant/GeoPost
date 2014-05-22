@@ -16,25 +16,28 @@ public class Pin {
 	// The coordinate of the pin
 	private LatLng coord;
 	// The user ID of the pin's author user
-	private String userId;
+	private String username;
 	// The unique ID of this pin
 	private String pinId;
 	// The message that the pin will display
 	private String message;
+	// The facebook id of the author
+	private String facebookId;
 	
 	/**
 	 * Creates a new Pin from the given parameters.
 	 * @param locked True if the pin is locked.
 	 * @param coord The pin's location.
-	 * @param userId The user who posted the pin.
+	 * @param username The user who posted the pin.
 	 * @param pinId The pin's ID.
 	 * @param message The pin's message.
 	 */
-	public Pin(boolean locked, LatLng coord, String userId, String pinId,
+	public Pin(boolean locked, LatLng coord, String username, String facebookId, String pinId,
 			String message) {
 		this.locked = locked;
 		this.coord = coord;
-		this.userId = userId;
+		this.username = username;
+		this.facebookId = facebookId;
 		this.pinId = pinId;
 		this.message = message;
 	}
@@ -94,15 +97,27 @@ public class Pin {
 	 * @return The userId of the user who posted the pin.
 	 */
 	public String getUser() {
-		return userId;
+		return username;
 	}
 	
 	/**
 	 * Sets the user who posted the pin.
 	 * @param userId The user who posted the pin.
 	 */
-	public void setUser(String userId) {
-		this.userId = userId;
+	public void setUser(String username) {
+		this.username = username;
+	}
+	
+	/**
+	 * Return the facebookId of the user who posted the pin
+	 * @return the facebookId of the user who posted the pin
+	 */
+	public String getFacebookID() {
+		return facebookId;
+	}
+	
+	public void setFacebookID(String facebookId) {
+		this.facebookId = facebookId;
 	}
 	
 	/**

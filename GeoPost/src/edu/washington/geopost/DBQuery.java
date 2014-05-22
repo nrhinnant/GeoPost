@@ -92,7 +92,7 @@ public class DBQuery {
 				
 		        // Make the new pin and add it to the result set
 				Pin newPin = new Pin(locked, location, 
-									 poster,
+									 poster, pin.getUser().getString("facebookID"),
 									 pin.getObjectId(), pin.getMessage());
 
 				pinsToDisplay.add(newPin);

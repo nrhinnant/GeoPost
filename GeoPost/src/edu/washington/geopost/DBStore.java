@@ -55,6 +55,7 @@ public class DBStore extends FragmentActivity {
 		user.saveEventually();
 		
 		Pin newPin = new Pin(false, coord, user.getUsername(), 
+							 user.getString("facebookID"),
 							 dbPin.getObjectId(), message);
 		return newPin;
 	}
@@ -96,7 +97,7 @@ public class DBStore extends FragmentActivity {
 	 * @return A copy of p marked as unlocked
 	 */
 	private Pin createUnlockedPin(Pin p) {
-		return new Pin(false, p.getLocation(), p.getUser(), p.getPinId(), 
+		return new Pin(false, p.getLocation(), p.getUser(), p.getFacebookID(), p.getPinId(), 
 					   p.getMessage());
 	}
 	
