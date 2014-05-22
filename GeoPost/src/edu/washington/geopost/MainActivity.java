@@ -501,6 +501,10 @@ public class MainActivity extends FragmentActivity
 			Toast toast = Toast.makeText(getApplicationContext(), "Unable to find your location", 
 										Toast.LENGTH_SHORT);
 			toast.show();
+		} else if (!isNetworkAvailable()) {
+			Toast toast = Toast.makeText(getApplicationContext(), "Network unavailable", 
+					Toast.LENGTH_SHORT);
+			toast.show();
 		} else {	
 			DialogFragment newFragment = new PostFragment();	    
 		    newFragment.show(getSupportFragmentManager(), "post");
@@ -528,6 +532,12 @@ public class MainActivity extends FragmentActivity
 			toast.show();
 			return;
 		}
+		if (!isNetworkAvailable()) {
+			Toast toast = Toast.makeText(getApplicationContext(), "Unable to post: Network unavailable", 
+					Toast.LENGTH_LONG);
+			toast.show();
+			return;
+		} 
     	// check for empty message
     	if (message.length() == 0) {
     		Toast toast = Toast.makeText(getApplicationContext(), "Sorry, cannot post an empty message", 
