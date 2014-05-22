@@ -1,10 +1,17 @@
 package edu.washington.geopost;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
+import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.location.LocationClient;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
@@ -19,7 +26,9 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.VisibleRegion;
 
+import android.location.Address;
 import android.location.Criteria;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -34,6 +43,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 /** 
@@ -44,7 +54,9 @@ public class MainActivity extends FragmentActivity
 						  implements OnMarkerClickListener, 
 									 LocationListener, 
 									 PostFragment.PostDialogListener,
-									 OnCameraChangeListener {
+									 OnCameraChangeListener,
+									 ConnectionCallbacks, OnConnectionFailedListener,
+									 com.google.android.gms.location.LocationListener {
 	
 	// Zoom level upon opening app
 	public static final float INIT_ZOOM = 15;
@@ -56,10 +68,16 @@ public class MainActivity extends FragmentActivity
 	public static final double RANGE_RADIUS = 0.004;
 	// The meters between two lat/lng lines in meters
 	public static final double COORD_IN_METERS = 111319.9;
+	// The radius of the earth in meters
+	public static final int EARTH_RADIUS = 6366000;
+	// The number of milliseconds in a second
+	public static final int SEC_TO_MILLIS = 1000;
+	// The update interval for location in seconds
+	public static final int UPDATE_INTERVAL = 5;
+	// The fastest possible update interval in seconds
+	public static final int FASTEST_UPDATE = 1;
 	
 	// Location related fields 
-	private LocationManager locationManager;
-	private String provider;
 	// The main map that is shown to the user
 	private GoogleMap map;
 	// Check to see if marker window is open
@@ -68,6 +86,11 @@ public class MainActivity extends FragmentActivity
 	private RefreshMapTask refreshThread;
 	// The circle drawn on the map
 	private Circle unlockedRadius;
+	
+	// The location client that handles location
+	private LocationClient locationClient;
+	// The location request which has parameters about location updates
+	private LocationRequest locationRequest;
 	
 	// Database interfaces
 	private DBQuery dbq;
@@ -89,6 +112,23 @@ public class MainActivity extends FragmentActivity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		setUpMapIfNeeded();
+		
+		final int result = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+		if (result != ConnectionResult.SUCCESS) {
+			Toast toast = Toast.makeText(this, "Google Play service is not available: " + result, Toast.LENGTH_LONG);
+			toast.show();
+		}
+		locationClient = new LocationClient(this, this, this);
+		Log.d("LC", "Created location client");
+		locationClient.connect();
+		Log.d("LC", "Connected location client");
+		
+		locationRequest = LocationRequest.create();
+		locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        // Set the update interval to 5 seconds
+        locationRequest.setInterval(UPDATE_INTERVAL * SEC_TO_MILLIS);
+        // Set the fastest update interval to 1 second
+        locationRequest.setFastestInterval(FASTEST_UPDATE * SEC_TO_MILLIS);
 
 		// Setup collection of markers on map to actual pins
 		geoposts = new HashMap<Marker, Pin>();
@@ -103,32 +143,14 @@ public class MainActivity extends FragmentActivity
 		map.setInfoWindowAdapter(new ViewPinWindow(this));
 
 		markerWindowShown = false;
-		locationManager = (LocationManager) getApplicationContext()
-				.getSystemService(Context.LOCATION_SERVICE);
-
-		// Initialize provider (this provider doesn't always work)
-		Criteria criteria = new Criteria();
-		provider = locationManager.getBestProvider(criteria, false);
 
 		map.setMyLocationEnabled(true);
 		map.setOnMarkerClickListener(this);
 		map.setOnCameraChangeListener(this);
 		map.getUiSettings().setRotateGesturesEnabled(false);
 		
-		
-		// Make the app open up to your current location 
-		Location currentLocation = getLastKnownLocation();
-		if (currentLocation != null) {
-			LatLng myLatLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-			map.animateCamera(CameraUpdateFactory.newLatLngZoom(myLatLng, INIT_ZOOM));
-		} else {
-			Toast toast = Toast.makeText(getApplicationContext(), "Unable to find your location", 
-					Toast.LENGTH_SHORT);
-			toast.show();
-		}
-		
 		// Draw the unlocking radius
-		drawCircle(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
+		//drawCircle(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
 		
 		// Create the Async Task that will be used to refresh
 		// pins on the screen
@@ -136,36 +158,42 @@ public class MainActivity extends FragmentActivity
 		
 	}
 	
+	 @Override 
+    protected void onStop() { 
+    	Log.d("OnStop","Stop Periodic Updates");
+        // If the client is connected 
+        if (locationClient.isConnected()) {
+            stopPeriodicUpdates(); 
+        } 
+        /* 
+         * After disconnect() is called, the client is 
+         * considered "dead". 
+         */ 
+        locationClient.disconnect();
+        super.onStop(); 
+    } 
+	 
+	/**
+	 * Stops the location client from updating location
+	 */
+    private void stopPeriodicUpdates() {
+    	locationClient.removeLocationUpdates(this);
+    } 
+    
+    /**
+     * Starts the location client to continually update location
+     */
+    private void startPeriodicUpdates() { 
+    	locationClient.requestLocationUpdates(locationRequest, this);
+    } 
+	
 	/**
 	 * Disable the back button
 	 */
 	@Override
 	public void onBackPressed() {
+		moveTaskToBack(true);
 	}
-	
-	/**
-	 * Loops through available providers and finds one that returns a location which
-	 * is not null with the best accuracy
-	 * @return The most accurate location available or null, if no location
-	 * service is available
-	 */
-    private Location getLastKnownLocation() {
-    	List<String> providers = locationManager.getProviders(true);
-    	Location bestLocation = null;
-    	for (String provider : providers) {
-    		Location l = locationManager.getLastKnownLocation(provider);
-
-    		if (l == null) {
-    			continue;
-    		}
-    		if (bestLocation == null
-    				|| l.getAccuracy() < bestLocation.getAccuracy()) {
-    			bestLocation = l;
-    			this.provider = provider;
-    		}
-    	}
-    	return bestLocation;
-    }
     
 	/**
 	 * Request updates at startup 
@@ -173,7 +201,8 @@ public class MainActivity extends FragmentActivity
 	@Override
 	protected void onResume() {
 		super.onResume();
-		locationManager.requestLocationUpdates(provider, 400, 1, this);
+		//locationManager.requestLocationUpdates(provider, 400, 1, this);
+		locationClient.connect();
 	}
 
 	/**
@@ -182,7 +211,37 @@ public class MainActivity extends FragmentActivity
 	@Override
 	protected void onPause() {
 		super.onPause();
-		locationManager.removeUpdates(this);
+		//locationManager.removeUpdates(this);
+		locationClient.disconnect();
+	}
+	
+	@Override
+	public void onConnected(Bundle arg0) {
+		// Make the app open up to your current location 
+		Location currentLocation = locationClient.getLastLocation();
+		if (currentLocation != null) {
+			LatLng myLatLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+			map.animateCamera(CameraUpdateFactory.newLatLngZoom(myLatLng, INIT_ZOOM));
+		} else {
+			Toast toast = Toast.makeText(getApplicationContext(), "Unable to find your location", 
+					Toast.LENGTH_SHORT);
+			toast.show();
+		}
+		if (unlockedRadius != null) {
+			unlockedRadius.remove();
+		}
+		drawCircle(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
+
+		startPeriodicUpdates();
+	}
+
+	@Override
+	public void onConnectionFailed(ConnectionResult arg0) {
+		Toast.makeText(this, "Connection Failed", Toast.LENGTH_LONG).show();
+	}
+	@Override
+	public void onDisconnected() {
+		Toast.makeText(this, "Disconnected", Toast.LENGTH_LONG).show();
 	}
     
     /**
@@ -354,20 +413,45 @@ public class MainActivity extends FragmentActivity
 	 * @return true if the marker is in range, false otherwise
 	 */
 	private boolean isInRange(Marker marker) {
-		Location l = getLastKnownLocation();
+		//Location l = getLastKnownLocation();
+		Location l = locationClient.getLastLocation();
 		if (l == null) {
 			Toast toast = Toast.makeText(getApplicationContext(), "Could not find your location", 
 										Toast.LENGTH_SHORT);
 			toast.show();
 			return false;
 		}
+		// Get the user's lat/lng coordinates
 		double userLat = l.getLatitude();
 		double userLng = l.getLongitude();
+
+		// Get the pin's lat/lng coordinates
 		Pin p = geoposts.get(marker);
 		double pinLat = p.getLocation().latitude;
 		double pinLng = p.getLocation().longitude;
-		double res = Math.sqrt(Math.pow(userLat - pinLat, 2) + Math.pow(userLng - pinLng, 2));
-		return res <= RANGE_RADIUS;
+		
+		// Return if the distance between points is within unlocked radius
+		double distance = distance(userLat, userLng, pinLat, pinLng);
+		return distance <= coordToMeters(RANGE_RADIUS);
+	}
+	
+	/**
+	 * 
+	 * @param startLat The latitude of the initial point
+	 * @param startLng The longitude of the initial point
+	 * @param endLat The latitude of the end point
+	 * @param endLng The latitude of the end point
+	 * @return	Uses the haversine formula to calculate and return the distance 
+	 * 			between two lat/lng points on the earth in meters
+	 */
+	private double distance(double startLat, double startLng, double endLat, double endLng) {
+	    double dLat = Math.toRadians(endLat - startLat);
+	    double dLon = Math.toRadians(endLng - startLng);
+	    double a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+	    Math.cos(Math.toRadians(startLat)) * Math.cos(Math.toRadians(endLat)) *
+	    Math.sin(dLon/2) * Math.sin(dLon/2);
+	    double c = 2 * Math.asin(Math.sqrt(a));
+	    return EARTH_RADIUS * c;
 	}
 	
 	/**************** Post pin logic ****************/
@@ -382,7 +466,8 @@ public class MainActivity extends FragmentActivity
 	 * @param view the clicked post button
 	 */
 	public void onPostButtonClick(View view) {
-		Location l = getLastKnownLocation();
+		//Location l = getLastKnownLocation();
+		Location l = locationClient.getLastLocation();
 		if (l == null) {
 			Toast toast = Toast.makeText(getApplicationContext(), "Unable to find your location", 
 										Toast.LENGTH_SHORT);
@@ -463,6 +548,10 @@ public class MainActivity extends FragmentActivity
 	 */
 	private double coordToMeters(double difference) {
 		return difference * COORD_IN_METERS;
+	}
+	
+	private double metersToCoord(double difference) {
+		return difference / COORD_IN_METERS;
 	}
 
 	// Inherited by LocationListener 

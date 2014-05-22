@@ -88,9 +88,8 @@ public class DBQuery {
 											 pin.getLocation().getLongitude());
 				
 				// Get the pin's original poster
-				//String poster = pin.getUser().getString("name");
-				String poster = "anonymous";
-
+				String poster = pin.getUser().getString("name");
+				
 		        // Make the new pin and add it to the result set
 				Pin newPin = new Pin(locked, location, 
 									 poster,
