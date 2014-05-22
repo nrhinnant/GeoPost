@@ -6,7 +6,10 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.widget.EditText;
@@ -85,6 +88,22 @@ public class PostFragment extends DialogFragment {
         // Create the AlertDialog object and return it
         return builder.create();
     }
+	
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+	    if (requestCode == 1) {
+	        Bundle extras = data.getExtras();
+	        Bitmap imageBitmap = (Bitmap) extras.get("data");
+	        //mImageView.setImageBitmap(imageBitmap);
+	    }
+	}
+	
+	private void dispatchTakePictureIntent() {
+	    Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+	    if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+	    	startActivityForResult(takePictureIntent, 1);
+	    }
+	}
 	
 	/**
 	 * Retrieve and return the message entered by the user
