@@ -2,6 +2,7 @@ package edu.washington.geopost;
 
 import android.app.Activity;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -17,7 +18,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-
 import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.Session;
@@ -25,6 +25,9 @@ import com.facebook.model.GraphUser;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.ParseRelation;
 import com.parse.ParseUser;
 
 
@@ -98,10 +101,12 @@ public class LoginActivity extends Activity {
 	            } else if (user.isNew()) {
 	            	Log.d(MainActivity.TAG, "User signed up and logged in through Facebook!");
 	            	saveUserInfo();
+	            	getFriends();
 	            	showMainActivity();
 	            } else {
 	            	Log.d(MainActivity.TAG, "User logged in through Facebook!");
 	            	saveUserInfo();
+	            	getFriends();
 	            	showMainActivity();
 	            }
 	        }
@@ -132,12 +137,55 @@ public class LoginActivity extends Activity {
 						ParseUser currentUser = ParseUser.getCurrentUser();
 						currentUser.setUsername(user.getName());
 						currentUser.put("facebookID", user.getId());
-						currentUser.saveInBackground();
+						currentUser.saveEventually();
 
 
 					} else if (response.getError() != null) {
 						Log.d(MainActivity.TAG, response.getError().getErrorMessage());
 
+					}
+				}
+			});
+			request.executeAsync();
+		}
+	}
+	
+	/**
+	 * Saves the user's Facebook friends in the Parse database.
+	 */
+	private void getFriends() {
+		Session session = ParseFacebookUtils.getSession();
+		if (session!= null && session.isOpened()) {
+			Request request = Request.newMyFriendsRequest(ParseFacebookUtils.getSession(), new Request.GraphUserListCallback() {
+				@Override
+				public void onCompleted(List<GraphUser> users, Response response) {
+					if (users != null) {
+						List<String> friendsList = new ArrayList<String>();
+						for (GraphUser user : users) {
+							friendsList.add(user.getId());
+						}
+
+						// Construct a ParseUser query that will find friends whose
+						// facebook IDs are contained in the current user's friend list.
+						ParseQuery<ParseUser> friendQuery = ParseUser.getQuery();
+						friendQuery.whereContainedIn("facebookID", friendsList);
+
+						// find will return a a list of ParseUsers that are friends with the current user
+						List<ParseUser> friendUsers = null;
+						try {
+							friendUsers = friendQuery.find();
+						} catch (ParseException e) {
+							Log.d(MainActivity.TAG, "Could not find facebook friends.");
+							return;
+						}
+
+						// Save the current user's facebook friends in the database
+						ParseUser currentUser = ParseUser.getCurrentUser();
+						ParseRelation<ParseUser> friendsRelation = currentUser.getRelation("friends");
+						for (ParseUser friend : friendUsers) {
+							friendsRelation.add(friend);
+							currentUser.saveEventually();
+						}
 					}
 				}
 			});
