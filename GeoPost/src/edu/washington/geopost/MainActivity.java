@@ -113,11 +113,8 @@ public class MainActivity extends FragmentActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.d("FB", "main onCreate");
 		setContentView(R.layout.activity_main);
-		Log.d("FB", "set content view");
 		setUpMapIfNeeded();
-		Log.d("FB", "main setup done");
 		
 		final int result = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
 		if (result != ConnectionResult.SUCCESS) {
@@ -125,11 +122,8 @@ public class MainActivity extends FragmentActivity
 			toast.show();
 		}
 		
-		Log.d("FB", "main after play check");
 		locationClient = new LocationClient(this, this, this);
-		Log.d("LC", "Created location client");
 		locationClient.connect();
-		Log.d("LC", "Connected location client");
 			
 		locationRequest = LocationRequest.create();
 	    locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -137,7 +131,7 @@ public class MainActivity extends FragmentActivity
 	    locationRequest.setInterval(UPDATE_INTERVAL * SEC_TO_MILLIS);
 	    // Set the fastest update interval to 1 second
 	    locationRequest.setFastestInterval(FASTEST_UPDATE * SEC_TO_MILLIS);
-		Log.d("FB", "after all");
+
 		// Setup collection of markers on map to actual pins
 		geoposts = new HashMap<Marker, Pin>();
 		
@@ -145,7 +139,6 @@ public class MainActivity extends FragmentActivity
 		dbq = new DBQuery();
 		dbs = new DBStore();
 		
-		Log.d("FB", "after db stuff");
 		if (isNetworkAvailable()) {
 			currentUser = dbq.getCurrentUser();
 		} else {
@@ -154,7 +147,6 @@ public class MainActivity extends FragmentActivity
 			toast.show();
 		}
 
-		Log.d("FB", "after current user");
 		// Set the pin pop up windows to use the ViewPinWindow class
 		map.setInfoWindowAdapter(new ViewPinWindow(this));
 
@@ -164,11 +156,6 @@ public class MainActivity extends FragmentActivity
 		map.setOnMarkerClickListener(this);
 		map.setOnCameraChangeListener(this);
 		map.getUiSettings().setRotateGesturesEnabled(false);
-		
-		Log.d("FB", "after map stuff");
-		
-		// Draw the unlocking radius
-		//drawCircle(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
 		
 		// Create the Async Task that will be used to refresh
 		// pins on the screen
@@ -219,7 +206,6 @@ public class MainActivity extends FragmentActivity
 	@Override
 	protected void onResume() {
 		super.onResume();
-		Log.d("FB", "onResume");
 		//locationManager.requestLocationUpdates(provider, 400, 1, this);
 		locationClient.connect();
 	}
@@ -255,6 +241,10 @@ public class MainActivity extends FragmentActivity
 		startPeriodicUpdates();
 	}
 	
+	/**
+	 * Called when the user clicks to enable the GPS on their phone,
+	 * opens up settings page on phone where they can make this change
+	 */
 	public void onEnableLocationPositiveClick(DialogFragment dialog) {
 		Intent gpsOptionsIntent = new Intent(
 				android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
@@ -301,7 +291,6 @@ public class MainActivity extends FragmentActivity
      */
     private void setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
-    	Log.d("FB", "inside setup map");
         if (map == null) {
             map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map))
                                 .getMap();
@@ -602,10 +591,6 @@ public class MainActivity extends FragmentActivity
 	private double coordToMeters(double difference) {
 		return difference * COORD_IN_METERS;
 	}
-	
-	private double metersToCoord(double difference) {
-		return difference / COORD_IN_METERS;
-	}
 
 	// Inherited by LocationListener 
 	@Override
@@ -628,7 +613,9 @@ public class MainActivity extends FragmentActivity
 		
 	}
 	
-	
+	/**
+	 * @return True if the phone is connected to any network, false otherwise
+	 */
 	private boolean isNetworkAvailable() {
 	    ConnectivityManager connectivityManager 
 	          = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
