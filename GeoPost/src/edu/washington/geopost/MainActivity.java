@@ -549,6 +549,12 @@ public class MainActivity extends FragmentActivity
     	LatLng coord = new LatLng(l.getLatitude(), l.getLongitude());
     	
     	Pin pin = dbs.postPin(coord, message);
+    	if (pin == null) {
+    		Toast toast = Toast.makeText(getApplicationContext(), "Unable to post pin due to network issues", 
+					Toast.LENGTH_LONG);
+    		toast.show();
+    		return;
+    	}
         addPin(pin);
     }
     
