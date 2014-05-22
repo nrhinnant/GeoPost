@@ -27,7 +27,7 @@ public class PostFragment extends DialogFragment {
      * Each method passes the DialogFragment in case the host needs to query it
      * as well as coordinates and a message */
     public interface PostDialogListener {
-        public void onDialogPositiveClick(DialogFragment dialog, LatLng coord, String message);
+        public void onDialogPositiveClick(DialogFragment dialog, String message);
     }
     
     // Use this instance of the interface to deliver action events
@@ -74,9 +74,7 @@ public class PostFragment extends DialogFragment {
         builder.setView(inflater.inflate(R.layout.dialog_post, null))
                .setPositiveButton(R.string.button_message, new DialogInterface.OnClickListener() {
                    public void onClick(DialogInterface dialog, int id) {
-                	   double lat = getArguments().getDouble("lat");
-                	   double lng = getArguments().getDouble("lng");
-                       listener.onDialogPositiveClick(PostFragment.this, new LatLng(lat, lng), getMessage());
+                       listener.onDialogPositiveClick(PostFragment.this, getMessage());
                    }
                })
                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {

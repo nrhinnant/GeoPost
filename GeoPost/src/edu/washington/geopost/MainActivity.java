@@ -222,15 +222,17 @@ public class MainActivity extends FragmentActivity
 		if (currentLocation != null) {
 			LatLng myLatLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
 			map.animateCamera(CameraUpdateFactory.newLatLngZoom(myLatLng, INIT_ZOOM));
+			
+			if (unlockedRadius != null) {
+				unlockedRadius.remove();
+			}
+			
+			drawCircle(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
 		} else {
 			Toast toast = Toast.makeText(getApplicationContext(), "Unable to find your location", 
 					Toast.LENGTH_SHORT);
 			toast.show();
 		}
-		if (unlockedRadius != null) {
-			unlockedRadius.remove();
-		}
-		drawCircle(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
 
 		startPeriodicUpdates();
 	}
@@ -466,23 +468,13 @@ public class MainActivity extends FragmentActivity
 	 * @param view the clicked post button
 	 */
 	public void onPostButtonClick(View view) {
-		//Location l = getLastKnownLocation();
 		Location l = locationClient.getLastLocation();
 		if (l == null) {
 			Toast toast = Toast.makeText(getApplicationContext(), "Unable to find your location", 
 										Toast.LENGTH_SHORT);
 			toast.show();
 		} else {	
-			DialogFragment newFragment = new PostFragment();
-			
-			// Pass the current coordinates to the PostFragment
-			Bundle args = new Bundle();
-			double lat = l.getLatitude();
-			double lng = l.getLongitude();
-		    args.putDouble("lat", lat);
-		    args.putDouble("lng", lng);
-		    newFragment.setArguments(args);
-		    
+			DialogFragment newFragment = new PostFragment();	    
 		    newFragment.show(getSupportFragmentManager(), "post");
 		}
 	}
@@ -499,8 +491,15 @@ public class MainActivity extends FragmentActivity
 	 * @param message the message for the new pin
 	 */
     @Override
-    public void onDialogPositiveClick(DialogFragment dialog, LatLng coord, String message) {
-    	
+    public void onDialogPositiveClick(DialogFragment dialog, String message) {
+    	Location l = locationClient.getLastLocation();
+    	// check for no location
+		if (l == null) {
+			Toast toast = Toast.makeText(getApplicationContext(), "Unable to post: cannot find your location", 
+										Toast.LENGTH_SHORT);
+			toast.show();
+			return;
+		}
     	// check for empty message
     	if (message.length() == 0) {
     		Toast toast = Toast.makeText(getApplicationContext(), "Sorry, cannot post an empty message", 
@@ -508,6 +507,8 @@ public class MainActivity extends FragmentActivity
     		toast.show();
     		return;
     	}
+    	
+    	LatLng coord = new LatLng(l.getLatitude(), l.getLongitude());
     	
     	Pin pin = dbs.postPin(coord, message);
         addPin(pin);
@@ -523,7 +524,13 @@ public class MainActivity extends FragmentActivity
 		// Remove the old radius
 		unlockedRadius.remove();
 		// Draw the new radius
-		drawCircle(new LatLng(location.getLatitude(), location.getLongitude()));
+		if (location != null) {
+			drawCircle(new LatLng(location.getLatitude(), location.getLongitude()));
+		} else {
+			Toast toast = Toast.makeText(getApplicationContext(), "Unable to find your location", 
+					Toast.LENGTH_SHORT);
+			toast.show();
+		}
 	}
 	
 	/**
