@@ -20,6 +20,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 
 /**
  * A post fragment is a window displayed on an application. 
@@ -42,6 +43,7 @@ public class PostFragment extends DialogFragment implements OnClickListener {
     
     // Use this instance of the interface to deliver action events
     PostDialogListener listener;
+    ImageView imagePreview;
 	
     /**
      *  Override the Fragment.onAttach() method to instantiate the PostDialogListener
@@ -87,6 +89,7 @@ public class PostFragment extends DialogFragment implements OnClickListener {
         View view = inflater.inflate(R.layout.dialog_post, null);
         ImageButton cam = (ImageButton) view.findViewById(R.id.imageButton1);
         cam.setOnClickListener(this);
+        imagePreview = (ImageView) view.findViewById(R.id.imageView1);
         
         builder.setView(view)
                .setPositiveButton(R.string.button_message, new DialogInterface.OnClickListener() {
@@ -109,7 +112,8 @@ public class PostFragment extends DialogFragment implements OnClickListener {
 	    if (requestCode == 1) {
 	        Bundle extras = data.getExtras();
 	        Bitmap imageBitmap = (Bitmap) extras.get("data");
-	        //mImageView.setImageBitmap(imageBitmap);
+	        imagePreview.setVisibility(View.VISIBLE);
+	        imagePreview.setImageBitmap(imageBitmap);
 	    }
 	}
 	
