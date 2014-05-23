@@ -42,13 +42,13 @@ public class DBQueryTest extends AndroidTestCase {
 	static List<ParseObject> createdObjs = new ArrayList<ParseObject>();
 	private final String appID = "GlrWxWCu5mnGFKUeeQIFg9Upt9AwomBDk3t0OKHa";
 	private final String clientKey = "HRRt6k8GzTclufgMCW8RES8LZgQLTTvKBJAnbD5c";
-	private final String facebookAppID = "248684115322840";
+//	private final String facebookAppID = "248684115322840";
 	private ParseUser testUser;
 	private String parseUserEmail = "parsetestuser@huehuehue.com";
 	private String parseUserName = "Parse Test User";
 	private String parsePassword = "testPassword1234";
-	private String parseTestFBName = "Parse Test User Name";
-	private String parseTestFBID = "123456654321";
+//	private String parseTestFBName = "Parse Test User Name";
+//	private String parseTestFBID = "123456654321";
 	private ParsePin testPin0;
 	private ParsePin testPin1;
 	private ParsePin testPin2;
@@ -81,11 +81,6 @@ public class DBQueryTest extends AndroidTestCase {
 		ParseUser.logIn(parseUserName, parsePassword);
 		
 		testUser = ParseUser.getCurrentUser();
-		
-		
-		testUser.put("name", parseTestFBName);
-		testUser.put("facebookID", parseTestFBID);
-		testUser.save();
 		
 		// Create several pins 
 		// Try to add each to the database
@@ -154,7 +149,8 @@ public class DBQueryTest extends AndroidTestCase {
 		DBQuery dbq = new DBQuery();
 		User user = dbq.getCurrentUser();
 		
-		assertTrue(user.getName().equals(testUser.getString("name")));
+		Log.d("LC", "USERNAME: " + user.getName() + " testusername: " + testUser.getString("name"));
+		assertTrue(user.getName().equals(testUser.getUsername()));
 		assertTrue(user.getFacebookID().equals(testUser.getString("facebookID")));
 		// TODO: Fix this when relations are being tested.
 		//assertTrue(user.getNumPosted() == 3);
