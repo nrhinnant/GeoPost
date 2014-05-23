@@ -87,12 +87,13 @@ public class DBQuery {
 				LatLng location = new LatLng(pin.getLocation().getLatitude(),
 											 pin.getLocation().getLongitude());
 				
-				// Get the pin's original poster
-				String poster = pin.getUser().getString("name");
-				
+				// Get the pin's original poster and their Facebook ID
+				String poster = pin.getUser().getUsername();
+				String facebookID = pin.getUser().getString("facebookID");
+			
 		        // Make the new pin and add it to the result set
 				Pin newPin = new Pin(locked, location, 
-									 poster, pin.getUser().getString("facebookID"),
+									 poster, facebookID,
 									 pin.getObjectId(), pin.getMessage());
 
 				pinsToDisplay.add(newPin);
@@ -114,7 +115,7 @@ public class DBQuery {
 		
 		// Fetch the current user's name and FacebookID
 		ParseUser user = ParseUser.getCurrentUser();
-		name = user.getString("name");
+		name = user.getUsername();
 		facebookID = user.getString("facebookID");
 		
 		// Get the number of pins they've viewed
@@ -134,5 +135,37 @@ public class DBQuery {
 		}
 		
 		return new User(viewedNum, postedNum, name, facebookID);
+	}
+	
+
+	/**
+	 * Returns a set containing the Facebook IDs of the current user's
+	 * friends that are signed up for GeoPost.
+	 * 
+	 * @return A set containing the Facebook IDs of the current user's
+	 * friends that are signed up for GeoPost, or null if there was an error.
+	 */
+	public Set<String> getFriends() {
+		Set<String> friendIDs = new HashSet<String>();
+		
+		// Get a list of the ParseUsers that the current user is friends with
+		ParseUser currentUser = ParseUser.getCurrentUser();
+		ParseRelation<ParseUser> friendsRelation = currentUser.getRelation("friends");
+		ParseQuery<ParseUser> friendsQuery = friendsRelation.getQuery();
+
+		List<ParseUser> friends = new ArrayList<ParseUser>();
+		try {
+			friends = friendsQuery.find();
+		} catch (ParseException e) { 
+			return null;
+		}
+		
+		
+		// Store the friends' Facebook ID's in friendIDs
+		for (ParseUser friend : friends) {
+			friendIDs.add(friend.getString("facebookID"));
+		}
+		
+		return friendIDs;
 	}
 }

@@ -42,11 +42,16 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.MenuItemCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -59,6 +64,7 @@ public class MainActivity extends FragmentActivity
 									 LocationListener, 
 									 PostFragment.PostDialogListener,
 									 EnableLocationFragment.EnableLocationDialogListener,
+									 OnItemSelectedListener,
 									 OnCameraChangeListener,
 									 ConnectionCallbacks, OnConnectionFailedListener,
 									 com.google.android.gms.location.LocationListener {
@@ -339,6 +345,18 @@ public class MainActivity extends FragmentActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+        
+        // Create a drop down menu in the menu bar
+        Spinner spinner = (Spinner) menu.findItem(R.id.sort_options).getActionView();
+        // Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.sorting_array, R.layout.spinner);
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        spinner.setAdapter(adapter);
+        // set listener on spinner
+        spinner.setOnItemSelectedListener(this);
         return true;
     }
     
@@ -363,6 +381,37 @@ public class MainActivity extends FragmentActivity
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+    
+    /**
+     * Called when the user selects an item from the sorting spinner
+     */
+    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+        String option = (String) parent.getItemAtPosition(pos);
+        if (option.equals("All Posts")) {
+        	filterViewed = false;
+    		filterLocked = false;
+    		filterPosted = false;
+        } else if (option.equals("Viewed")) {
+        	filterViewed = false;
+    		filterLocked = true;
+    		filterPosted = true;
+        } else if (option.equals("Locked")) {
+        	filterViewed = true;
+    		filterLocked = false;
+    		filterPosted = true;
+        } else if (option.equals("My Posts")) {
+        	filterViewed = true;
+    		filterLocked = true;
+    		filterPosted = false;
+        }
+    }
+
+    /**
+     * Called from the sorting spinner when nothing is selected
+     */
+    public void onNothingSelected(AdapterView<?> parent) {
+        // Another interface callback
     }
     
     /**
@@ -539,8 +588,8 @@ public class MainActivity extends FragmentActivity
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		Log.d("CAM", "Activity on result for cam");
-		ImageView img = (ImageView) findViewById(R.id.imagePreview);
-		img.setImageResource();
+		//ImageView img = (ImageView) findViewById(R.id.imagePreview);
+		//img.setImageResource();
 	}
 	
 	/**
