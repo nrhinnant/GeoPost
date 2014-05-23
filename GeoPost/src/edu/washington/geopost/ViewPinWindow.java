@@ -1,8 +1,11 @@
 package edu.washington.geopost;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
@@ -50,6 +53,18 @@ public class ViewPinWindow implements InfoWindowAdapter {
 		message.setText(marker.getTitle());
 		
 		return myContentsView;
+	}
+	
+	public void setPhoto(Bitmap photo) {
+		Log.d("VIEW", "resetting photo");
+		ImageView myPhoto = (ImageView) myContentsView.findViewById(R.id.photo);
+		myPhoto.setImageBitmap(photo);
+		myPhoto.setVisibility(View.VISIBLE);
+	}
+	
+	public void closePhoto() {
+		ImageView myPhoto = (ImageView) myContentsView.findViewById(R.id.photo);
+		myPhoto.setVisibility(View.GONE);
 	}
 
 	/**

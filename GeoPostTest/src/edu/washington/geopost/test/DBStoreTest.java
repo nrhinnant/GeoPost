@@ -52,7 +52,7 @@ public class DBStoreTest extends AndroidTestCase {
 	public void testSinglePin() {
 		String message = "This is a test pin";
 		LatLng coord = new LatLng(35.445, 47.555);
-		Pin pin = pinWriter.postPin(coord, message);
+		Pin pin = pinWriter.postPin(coord, message, null);
 		
 		assertTrue(message.equals(pin.getMessage()));
 		assertTrue(coord.equals(pin.getLocation()));
@@ -65,9 +65,9 @@ public class DBStoreTest extends AndroidTestCase {
 		LatLng coord2 = new LatLng(23.455, 57.898);
 		LatLng coord3 = new LatLng(26.999, 58.550);
 		
-		Pin pin1 = pinWriter.postPin(coord1, "Pin1");
-		Pin pin2 = pinWriter.postPin(coord2, "Pin2");
-		Pin pin3 = pinWriter.postPin(coord3, "Pin3");
+		Pin pin1 = pinWriter.postPin(coord1, "Pin1", null);
+		Pin pin2 = pinWriter.postPin(coord2, "Pin2", null);
+		Pin pin3 = pinWriter.postPin(coord3, "Pin3", null);
 		
 		assertTrue("Pin1".equals(pin1.getMessage()));
 		assertTrue(coord1.equals(pin1.getLocation()));
@@ -96,7 +96,7 @@ public class DBStoreTest extends AndroidTestCase {
 	@Test 
 	public void testNullPin() {
 		LatLng nullCoord = null;
-		Pin nullPin = pinWriter.postPin(nullCoord, "Sooooo null");
+		Pin nullPin = pinWriter.postPin(nullCoord, "Sooooo null", null);
 		
 		assertTrue(nullPin == null);
 	}
@@ -105,7 +105,7 @@ public class DBStoreTest extends AndroidTestCase {
 	@Test
 	public void testNullMessage() {
 		LatLng coord = new LatLng(53.22,56.22);
-		Pin nullPin = pinWriter.postPin(coord, null);
+		Pin nullPin = pinWriter.postPin(coord, null, null);
 		
 		assertTrue(nullPin == null);
 	}
@@ -115,7 +115,7 @@ public class DBStoreTest extends AndroidTestCase {
 	public void testSingleUnlock() {
 		String message = "Unlock Me!";
 		LatLng coord = new LatLng(38.55, -47.885);
-		Pin pin = pinWriter.postPin(coord, message);
+		Pin pin = pinWriter.postPin(coord, message, null);
 		
 		assertTrue(pin != null);
 		
@@ -134,9 +134,9 @@ public class DBStoreTest extends AndroidTestCase {
 		LatLng coord2 = new LatLng(23.455, 57.898);
 		LatLng coord3 = new LatLng(26.999, 58.550);
 		
-		Pin pin1 = pinWriter.postPin(coord1, "Pin1");
-		Pin pin2 = pinWriter.postPin(coord2, "Pin2");
-		Pin pin3 = pinWriter.postPin(coord3, "Pin3");
+		Pin pin1 = pinWriter.postPin(coord1, "Pin1", null);
+		Pin pin2 = pinWriter.postPin(coord2, "Pin2", null);
+		Pin pin3 = pinWriter.postPin(coord3, "Pin3", null);
 		
 		assertTrue(pin1 != null);
 		assertTrue(pin2 != null);

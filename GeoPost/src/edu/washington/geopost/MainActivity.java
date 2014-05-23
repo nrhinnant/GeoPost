@@ -121,6 +121,8 @@ public class MainActivity extends FragmentActivity
 	
 	// A map of all pins currently drawn in the app
 	private HashMap<Marker, Pin> geoposts;
+	
+	private ViewPinWindow vpw;
 
 	/**
 	 * @param Bundle The saved instance state of the app
@@ -175,7 +177,8 @@ public class MainActivity extends FragmentActivity
 		}
 
 		// Set the pin pop up windows to use the ViewPinWindow class
-		map.setInfoWindowAdapter(new ViewPinWindow(this));
+		vpw = new ViewPinWindow(this);
+		map.setInfoWindowAdapter(vpw);
 
 		markerWindowShown = false;
 
@@ -518,6 +521,7 @@ public class MainActivity extends FragmentActivity
 		}
 		
 		if (markerWindowShown) { // window is showing, hide it
+			vpw.closePhoto();
 			marker.hideInfoWindow();
 			markerWindowShown = false;
 		} else {  // window not showing, see if we should show it
@@ -527,19 +531,23 @@ public class MainActivity extends FragmentActivity
 				if (p != null) {  // unlocked new pin
 					// TODO: pin now has to be updated in the geoposts map
 					geoposts.put(marker, p);
+					vpw.setPhoto(p.getPhoto());
 					marker.showInfoWindow();
 					markerWindowShown = true;
 				} else {  // unlocking failed
+					vpw.closePhoto();
 					marker.hideInfoWindow();
 					markerWindowShown = false;
 					Log.d("onMarkerClick", "Failed to unlock pin");
 				}
 			} else if (!pin.isLocked()) {  // pin already unlocked
+				vpw.setPhoto(pin.getPhoto());
 				marker.showInfoWindow();
 				markerWindowShown = true;
 				Log.d("onMarkerClick", "viewed previously unlocked pin");
 			} else {  // pin is locked
 				Log.d("onMarkerClick", "clicked on locked/out of range pin");
+				vpw.closePhoto();
 				marker.hideInfoWindow();
 				markerWindowShown = false;
 				Toast toast = Toast.makeText(getApplicationContext(), "Locked", 
@@ -669,18 +677,13 @@ public class MainActivity extends FragmentActivity
     		toast.show();
     		return;
     	}
-    	
+    	Log.d("PostPin", "Before posting");
+    	if (photo == null) {
+    		Log.d("PostPin", "Awww, photo is still null");
+    	}
     	LatLng coord = new LatLng(l.getLatitude(), l.getLongitude());
     	
-    	if (photo != null) {
-	    	Log.d("PHOTO", "before scaling");
-	    	ByteArrayOutputStream bos = new ByteArrayOutputStream();
-	    	photo.compress(Bitmap.CompressFormat.JPEG, 100, bos);
-	    	byte[] scaledPhoto = bos.toByteArray();
-	    	Log.d("PHOTO", "after scaling");
-    	}
-    	
-    	Pin pin = dbs.postPin(coord, message);
+    	Pin pin = dbs.postPin(coord, message, photo);
     	if (pin == null) {
     		Toast toast = Toast.makeText(getApplicationContext(), "Unable to post pin due to network issues", 
 					Toast.LENGTH_LONG);

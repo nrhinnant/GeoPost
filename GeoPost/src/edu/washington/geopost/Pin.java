@@ -1,5 +1,7 @@
 package edu.washington.geopost;
 
+import android.graphics.Bitmap;
+
 import com.google.android.gms.maps.model.LatLng;
 
 /**
@@ -23,6 +25,8 @@ public class Pin {
 	private String message;
 	// The facebook id of the author
 	private String facebookId;
+	// The bitmap of the photo
+	private Bitmap photo;
 	
 	/**
 	 * Creates a new Pin from the given parameters.
@@ -33,13 +37,14 @@ public class Pin {
 	 * @param message The pin's message.
 	 */
 	public Pin(boolean locked, LatLng coord, String username, String facebookId, String pinId,
-			String message) {
+			String message, Bitmap photo) {
 		this.locked = locked;
 		this.coord = coord;
 		this.username = username;
 		this.facebookId = facebookId;
 		this.pinId = pinId;
 		this.message = message;
+		this.photo = photo;
 	}
 	
 	/**
@@ -150,6 +155,22 @@ public class Pin {
 	 */
 	public void setMessage(String message) {
 		this.message = message;
+	}
+	
+	/**
+	 * Returns the pin's photo or null if no photo.
+	 * @return The pin's photo.
+	 */
+	public Bitmap getPhoto() {
+		return photo;
+	}
+	
+	/**
+	 * Sets the pin's message.
+	 * @param message The pin's message.
+	 */
+	public void setPhoto(Bitmap photo) {
+		this.photo = photo;
 	}
 	
 	/**

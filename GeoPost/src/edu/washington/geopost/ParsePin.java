@@ -42,6 +42,14 @@ public class ParsePin extends ParseObject {
 	public ParseUser getUser() {
 		return getParseUser("user");
 	}
+	
+	public void setPhoto(ParseFile photo) {
+		put("photo", photo);
+	}
+	
+	public ParseFile getPhoto() {
+		return getParseFile("photo");
+	}
     
 	/**
 	 * Set the user who posted the pin.

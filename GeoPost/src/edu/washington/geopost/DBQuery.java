@@ -5,10 +5,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseQuery;
 import com.parse.ParseRelation;
@@ -90,11 +93,25 @@ public class DBQuery {
 				// Get the pin's original poster and their Facebook ID
 				String poster = pin.getUser().getUsername();
 				String facebookID = pin.getUser().getString("facebookID");
+				
+				ParseFile photoFile = pin.getParseFile("photo");
+				Bitmap photo = null;
+				if (photoFile != null) {
+					byte[] photoData = null;
+					try {
+						photoData = photoFile.getData();
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						Log.d("PHOTO", "Couldn't read data from ParseFile");
+						e.printStackTrace();
+					}
+					photo = BitmapFactory.decodeByteArray(photoData, 0, photoData.length);
+				}
 			
 		        // Make the new pin and add it to the result set
 				Pin newPin = new Pin(locked, location, 
 									 poster, facebookID,
-									 pin.getObjectId(), pin.getMessage());
+									 pin.getObjectId(), pin.getMessage(), photo);
 
 				pinsToDisplay.add(newPin);
 			}

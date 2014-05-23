@@ -44,7 +44,7 @@ public class PostFragment extends DialogFragment implements OnClickListener {
     // Use this instance of the interface to deliver action events
     PostDialogListener listener;
     ImageView imagePreview;
-    private boolean tookPhoto;
+    private Bitmap finalPhoto;
 	
     /**
      *  Override the Fragment.onAttach() method to instantiate the PostDialogListener
@@ -91,7 +91,6 @@ public class PostFragment extends DialogFragment implements OnClickListener {
         ImageButton cam = (ImageButton) view.findViewById(R.id.imageButton1);
         cam.setOnClickListener(this);
         imagePreview = (ImageView) view.findViewById(R.id.imageView1);
-        tookPhoto = false;
         
         builder.setView(view)
                .setPositiveButton(R.string.button_message, new DialogInterface.OnClickListener() {
@@ -116,14 +115,15 @@ public class PostFragment extends DialogFragment implements OnClickListener {
 	        Bitmap imageBitmap = (Bitmap) extras.get("data");
 	        imagePreview.setVisibility(View.VISIBLE);
 	        imagePreview.setImageBitmap(imageBitmap);
-	        tookPhoto = true;
+	        finalPhoto = imageBitmap;
 	    }
 	}
 	
 	private Bitmap getPhoto() {
 		Log.d("PHOTO", "getPhoto");
-		if (tookPhoto) {
-			return imagePreview.getDrawingCache();
+		if (finalPhoto != null) {
+			Log.d("PostPin", "Yes, took photo");
+			return finalPhoto;
 		} else {
 			return null;
 		}

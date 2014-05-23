@@ -1,10 +1,14 @@
 package edu.washington.geopost;
 
+import java.io.ByteArrayOutputStream;
+
+import android.graphics.Bitmap;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseQuery;
 import com.parse.ParseRelation;
@@ -25,7 +29,7 @@ public class DBStore extends FragmentActivity {
 	 * @param message The pin's message
 	 * @return The created pin, or null if updating the DB failed.
 	 */
-	public Pin postPin(LatLng coord, String message) {
+	public Pin postPin(LatLng coord, String message, Bitmap photo) {
 		if (message == null || coord == null) {
 			return null;
 		}
@@ -39,6 +43,25 @@ public class DBStore extends FragmentActivity {
 												   pinLocation.longitude);
 		dbPin.setLocation(location);
 		dbPin.setMessage(message);
+		
+		Log.d("PostPin", "Before photo");
+		if (photo != null) {
+	    	Log.d("PHOTO", "before scaling");
+	    	ByteArrayOutputStream bos = new ByteArrayOutputStream();
+	    	photo.compress(Bitmap.CompressFormat.JPEG, 100, bos);
+	    	byte[] scaledPhoto = bos.toByteArray();
+	    	Log.d("PHOTO", "after scaling");
+	    	ParseFile photoFile = new ParseFile("pinPhoto.jpg", scaledPhoto);
+	    	try {
+				photoFile.save();
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				Log.d("PostPin", "ParseException with ParseFile.save()");
+			}
+	    	Log.d("PostPin", "Finished photo save");
+	    	dbPin.setPhoto(photoFile);
+		}
+		Log.d("PostPin", "After photo");
 		
 		try {
 			dbPin.save();
@@ -56,7 +79,7 @@ public class DBStore extends FragmentActivity {
 		
 		Pin newPin = new Pin(false, coord, user.getUsername(), 
 							 user.getString("facebookID"),
-							 dbPin.getObjectId(), message);
+							 dbPin.getObjectId(), message, photo);
 		return newPin;
 	}
 	
@@ -98,7 +121,7 @@ public class DBStore extends FragmentActivity {
 	 */
 	private Pin createUnlockedPin(Pin p) {
 		return new Pin(false, p.getLocation(), p.getUser(), p.getFacebookID(), p.getPinId(), 
-					   p.getMessage());
+					   p.getMessage(), p.getPhoto());
 	}
 	
 	/**
