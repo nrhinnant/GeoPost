@@ -576,7 +576,10 @@ public class MainActivity extends FragmentActivity
 				if (p != null) {  // unlocked new pin
 					// TODO: pin now has to be updated in the geoposts map
 					geoposts.put(marker, p);
-					vpw.setPhoto(p.getPhoto());
+					Bitmap photo = p.getPhoto();
+					if (photo != null) {
+						vpw.setPhoto(photo);
+					}
 					marker.showInfoWindow();
 					markerWindowShown = true;
 				} else {  // unlocking failed
@@ -586,7 +589,10 @@ public class MainActivity extends FragmentActivity
 					Log.d("onMarkerClick", "Failed to unlock pin");
 				}
 			} else if (!pin.isLocked()) {  // pin already unlocked
-				vpw.setPhoto(pin.getPhoto());
+				Bitmap photo = pin.getPhoto();
+				if (photo != null) {
+					vpw.setPhoto(photo);
+				}
 				marker.showInfoWindow();
 				markerWindowShown = true;
 				Log.d("onMarkerClick", "viewed previously unlocked pin");

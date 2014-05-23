@@ -59,6 +59,8 @@ public class ViewPinWindow implements InfoWindowAdapter {
 		Log.d("VIEW", "resetting photo");
 		ImageView myPhoto = (ImageView) myContentsView.findViewById(R.id.photo);
 		myPhoto.setImageBitmap(photo);
+		myPhoto.getLayoutParams().height = 400;
+		myPhoto.getLayoutParams().width = 400;
 		myPhoto.setVisibility(View.VISIBLE);
 	}
 	
