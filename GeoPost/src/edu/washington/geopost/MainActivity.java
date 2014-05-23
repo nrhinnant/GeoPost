@@ -71,13 +71,13 @@ public class MainActivity extends FragmentActivity
 									 com.google.android.gms.location.LocationListener {
 	
 	// Zoom level upon opening app
-	public static final float INIT_ZOOM = 15;
+	public static final float INIT_ZOOM = 16;
 	// TODO: Put this in the strings.xml
 	public static final String TAG = "GeoPost";
 	// Thickness of the unlocking circle border line
 	public static final float BORDER_THICKNESS = 4;
 	// Scale of the unlocking circle in lat/long coord difference
-	public static final double RANGE_RADIUS = 0.004;
+	public static final double RANGE_RADIUS = 0.0015;
 	// The meters between two lat/lng lines in meters
 	public static final double COORD_IN_METERS = 111319.9;
 	// The radius of the earth in meters
