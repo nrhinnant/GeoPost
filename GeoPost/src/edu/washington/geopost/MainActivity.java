@@ -106,11 +106,13 @@ public class MainActivity extends FragmentActivity
 	private DBStore dbs;
 	
 	// Sorting fields
-	private boolean filterViewed;
-	private boolean filterLocked;
-	private boolean filterPosted;
+	private boolean includeViewed;
+	private boolean includeLocked;
+	private boolean includePosted;
+	private boolean includeFriends;
 	
 	private User currentUser;
+	private Set<String> friends;
 	
 	// A map of all pins currently drawn in the app
 	private HashMap<Marker, Pin> geoposts;
@@ -128,9 +130,10 @@ public class MainActivity extends FragmentActivity
 		setUpMapIfNeeded();
 		
 		// Set filters to show all posts
-		filterViewed = false;
-		filterLocked = false;
-		filterPosted = false;
+		includeViewed = true;
+		includeLocked = true;
+		includePosted = true;
+		includeFriends = true;
 		
 		final int result = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
 		if (result != ConnectionResult.SUCCESS) {
@@ -155,8 +158,11 @@ public class MainActivity extends FragmentActivity
 		dbq = new DBQuery();
 		dbs = new DBStore();
 		
+		friends = new HashSet<String>();
+		
 		if (isNetworkAvailable()) {
 			currentUser = dbq.getCurrentUser();
+			friends = dbq.getFriends();
 		} else {
 			Toast toast = Toast.makeText(getApplicationContext(), "Network unavailable", 
 					Toast.LENGTH_LONG);
@@ -290,24 +296,28 @@ public class MainActivity extends FragmentActivity
     	if (pin.getFacebookID() != null && 
     			pin.getFacebookID().equals(currentUser.getFacebookID())) {
     		// pin is user's posted pin
-    		if (filterPosted) {
+    		if (!includePosted) {
     			visible = false;
     		}
     		color = BitmapDescriptorFactory.HUE_VIOLET;
     	} else if (!pin.isLocked()) {
     		// pin is unlocked
-    		if (filterViewed) {
+    		if (!includeViewed) {
     			visible = false;
     		}
     		color = (float) 220.0;
     	} else {
     		// pin is locked
-    		if (filterLocked) {
+    		if (!includeLocked) {
     			visible = false;
     		}
     	}
+    	if (includeFriends) {
+			if (!friends.contains(pin.getFacebookID())) {
+				visible = false;
+			}
+		}
     	
-    	// TODO use pin.getUser() instead of "anonymous"
     	Marker m = map.addMarker(new MarkerOptions()
     	.title(pin.getMessage())
     	.snippet(pin.getUser())
@@ -386,23 +396,60 @@ public class MainActivity extends FragmentActivity
      */
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
         String option = (String) parent.getItemAtPosition(pos);
+        includeViewed = false;
+		includeLocked = false;
+		includePosted = false;
+		includeFriends = false;
         if (option.equals("All Posts")) {
-        	filterViewed = false;
-    		filterLocked = false;
-    		filterPosted = false;
+        	includeViewed = true;
+    		includeLocked = true;
+    		includePosted = true;
         } else if (option.equals("Viewed")) {
-        	filterViewed = false;
-    		filterLocked = true;
-    		filterPosted = true;
+        	includeViewed = true;
         } else if (option.equals("Locked")) {
-        	filterViewed = true;
-    		filterLocked = false;
-    		filterPosted = true;
+    		includeLocked = true;
         } else if (option.equals("My Posts")) {
-        	filterViewed = true;
-    		filterLocked = true;
-    		filterPosted = false;
+    		includePosted = true;
+        } else if (option.equals("Friends")) {
+    		includeFriends = true;
+    		includeLocked = true;
+    		includePosted = true;
         }
+        
+        // refresh the current pins
+        refreshLocalPins();
+    }
+    
+    /**
+     * Loop through all pins stored locally and set the correct ones to be visible
+     */
+    private void refreshLocalPins() {
+    	for (Marker m : geoposts.keySet()) {
+    		Pin pin = geoposts.get(m);
+    		m.setVisible(true);
+    		if (pin.getFacebookID() != null && 
+        			pin.getFacebookID().equals(currentUser.getFacebookID())) {
+        		// pin is user's posted pin
+        		if (!includePosted) {
+        			m.setVisible(false);
+        		}
+        	} else if (!pin.isLocked()) {
+        		// pin is unlocked
+        		if (!includeViewed) {
+        			m.setVisible(false);
+        		}
+        	} else if (pin.isLocked()) {
+        		// pin is locked
+        		if (!includeLocked) {
+        			m.setVisible(false);
+        		}
+        	}
+    		if (includeFriends) {
+    			if (!friends.contains(pin.getFacebookID())) {
+    				m.setVisible(false);
+    			}
+    		}
+    	}
     }
 
     /**

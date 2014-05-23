@@ -3,6 +3,7 @@
     <string-array
         name="sorting_array">
         <item>All Posts</item>
+        <item>Friends</item>
         <item>Viewed</item>
         <item>Locked</item>
         <item>My Posts</item>
