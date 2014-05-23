@@ -38,12 +38,13 @@ public class PostFragment extends DialogFragment implements OnClickListener {
      * Each method passes the DialogFragment in case the host needs to query it
      * as well as coordinates and a message */
     public interface PostDialogListener {
-        public void onDialogPositiveClick(DialogFragment dialog, String message);
+        public void onDialogPositiveClick(DialogFragment dialog, String message, Bitmap photo);
     }
     
     // Use this instance of the interface to deliver action events
     PostDialogListener listener;
     ImageView imagePreview;
+    private boolean tookPhoto;
 	
     /**
      *  Override the Fragment.onAttach() method to instantiate the PostDialogListener
@@ -90,11 +91,12 @@ public class PostFragment extends DialogFragment implements OnClickListener {
         ImageButton cam = (ImageButton) view.findViewById(R.id.imageButton1);
         cam.setOnClickListener(this);
         imagePreview = (ImageView) view.findViewById(R.id.imageView1);
+        tookPhoto = false;
         
         builder.setView(view)
                .setPositiveButton(R.string.button_message, new DialogInterface.OnClickListener() {
                    public void onClick(DialogInterface dialog, int id) {
-                       listener.onDialogPositiveClick(PostFragment.this, getMessage());
+                       listener.onDialogPositiveClick(PostFragment.this, getMessage(), getPhoto());
                    }
                })
                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -109,12 +111,22 @@ public class PostFragment extends DialogFragment implements OnClickListener {
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		Log.d("CAM", "on activity result for cam");
-	    if (requestCode == 1) {
+	    if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
 	        Bundle extras = data.getExtras();
 	        Bitmap imageBitmap = (Bitmap) extras.get("data");
 	        imagePreview.setVisibility(View.VISIBLE);
 	        imagePreview.setImageBitmap(imageBitmap);
+	        tookPhoto = true;
 	    }
+	}
+	
+	private Bitmap getPhoto() {
+		Log.d("PHOTO", "getPhoto");
+		if (tookPhoto) {
+			return imagePreview.getDrawingCache();
+		} else {
+			return null;
+		}
 	}
 	
 	/**
@@ -122,6 +134,7 @@ public class PostFragment extends DialogFragment implements OnClickListener {
 	 * @return the message entered by the user
 	 */
 	private String getMessage() {
+		Log.d("PHOTO", "getMessage");
 		EditText e = (EditText) getDialog().findViewById(R.id.post_text);
 		return e.getText().toString();
 	}

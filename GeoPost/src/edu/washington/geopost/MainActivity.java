@@ -1,5 +1,6 @@
 package edu.washington.geopost;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,6 +40,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -644,7 +646,8 @@ public class MainActivity extends FragmentActivity
 	 * @param message the message for the new pin
 	 */
     @Override
-    public void onDialogPositiveClick(DialogFragment dialog, String message) {
+    public void onDialogPositiveClick(DialogFragment dialog, String message, Bitmap photo) {
+    	Log.d("PHOTO", "onDialogPositiveClick start");
     	Location l = locationClient.getLastLocation();
     	// check for no location
 		if (l == null) {
@@ -668,6 +671,14 @@ public class MainActivity extends FragmentActivity
     	}
     	
     	LatLng coord = new LatLng(l.getLatitude(), l.getLongitude());
+    	
+    	if (photo != null) {
+	    	Log.d("PHOTO", "before scaling");
+	    	ByteArrayOutputStream bos = new ByteArrayOutputStream();
+	    	photo.compress(Bitmap.CompressFormat.JPEG, 100, bos);
+	    	byte[] scaledPhoto = bos.toByteArray();
+	    	Log.d("PHOTO", "after scaling");
+    	}
     	
     	Pin pin = dbs.postPin(coord, message);
     	if (pin == null) {
