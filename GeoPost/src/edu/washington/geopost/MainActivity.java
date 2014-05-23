@@ -134,29 +134,24 @@ public class MainActivity extends FragmentActivity
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		setUpMapIfNeeded();
-		
-		// Set filters to show all posts
-		includeViewed = true;
-		includeLocked = true;
-		includePosted = true;
-		includeFriends = true;
 		
 		final int result = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
 		if (result != ConnectionResult.SUCCESS) {
+			Log.d("DEBUG", "MainActivity - Google Play messed up");
 			Toast toast = Toast.makeText(this, "Google Play service is not available: " + result, Toast.LENGTH_LONG);
 			toast.show();
 		}
 		
 		locationClient = new LocationClient(this, this, this);
 		locationClient.connect();
-			
-		locationRequest = LocationRequest.create();
-	    locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-	    // Set the update interval to 5 seconds
-	    locationRequest.setInterval(UPDATE_INTERVAL * SEC_TO_MILLIS);
-	    // Set the fastest update interval to 1 second
-	    locationRequest.setFastestInterval(FASTEST_UPDATE * SEC_TO_MILLIS);
+	    
+	    setUpMapIfNeeded();
+		
+		// Set filters to show all posts
+		includeViewed = true;
+		includeLocked = true;
+		includePosted = true;
+		includeFriends = true;
 
 		// Setup collection of markers on map to actual pins
 		geoposts = new HashMap<Marker, Pin>();
@@ -165,32 +160,66 @@ public class MainActivity extends FragmentActivity
 		dbq = new DBQuery();
 		dbs = new DBStore();
 		
-		friends = new HashSet<String>();
+		//friends = new HashSet<String>();
+		Log.d("DEBUG", "MainActivity - onCreate, just before network stuff");
 		
 		if (isNetworkAvailable()) {
-			currentUser = dbq.getCurrentUser();
-			friends = dbq.getFriends();
+			new GetUserTask().execute();
+			Log.d("DEBUG", "MainActivity - onCreate, grabbed current user");
+			new GetFriendsTask().execute();
+			Log.d("DEBUG", "MainActivity - onCreate, grabbed friends");
 		} else {
 			Toast toast = Toast.makeText(getApplicationContext(), "Network unavailable", 
 					Toast.LENGTH_LONG);
 			toast.show();
 		}
-
+		Log.d("DEBUG", "MainActivity - onCreate, successful network stuff");
 		// Set the pin pop up windows to use the ViewPinWindow class
 		vpw = new ViewPinWindow(this);
 		map.setInfoWindowAdapter(vpw);
 
 		markerWindowShown = false;
 
+		Log.d("DEBUG", "MainActivity - before map stuff");
 		map.setMyLocationEnabled(true);
 		map.setOnMarkerClickListener(this);
 		map.setOnCameraChangeListener(this);
 		map.getUiSettings().setRotateGesturesEnabled(false);
 		
+		Log.d("DEBUG", "MainActivity - after map stuff");
+		
 		// Create the Async Task that will be used to refresh
 		// pins on the screen
 		refreshThread = new RefreshMapTask();
+		Log.d("DEBUG", "MainActivity - end of onCreate");
+	}
+	
+	private class GetFriendsTask extends AsyncTask<Void, Void, Set<String>> {
+		@Override
+		protected Set<String> doInBackground(Void... params) {
+			Log.d("DEBUG", "Friends background start");
+			Set<String> results = dbq.getFriends();
+			return results;
+		}
 		
+		protected void onPostExecute(Set<String> results) {
+			Log.d("DEBUG", "Friends background end");
+			friends = results;
+		}	
+	}
+	
+	private class GetUserTask extends AsyncTask<Void, Void, User> {
+		@Override
+		protected User doInBackground(Void... params) {
+			Log.d("DEBUG", "User background start");
+			User user = dbq.getCurrentUser();
+			return user;
+		}
+		
+		protected void onPostExecute(User user) {
+			Log.d("DEBUG", "User background end");
+			currentUser = user;
+		}
 	}
 	
 	 @Override 
@@ -252,6 +281,13 @@ public class MainActivity extends FragmentActivity
 	
 	@Override
 	public void onConnected(Bundle arg0) {
+		Log.d("DEBUG", "onConnected begin");
+		locationRequest = LocationRequest.create();
+	    locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+	    // Set the update interval to 5 seconds
+	    locationRequest.setInterval(UPDATE_INTERVAL * SEC_TO_MILLIS);
+	    // Set the fastest update interval to 1 second
+	    locationRequest.setFastestInterval(FASTEST_UPDATE * SEC_TO_MILLIS);
 		// Make the app open up to your current location 
 		Location currentLocation = locationClient.getLastLocation();
 		if (currentLocation != null) {
@@ -267,7 +303,7 @@ public class MainActivity extends FragmentActivity
 			DialogFragment newFragment = new EnableLocationFragment();
 			newFragment.show(getSupportFragmentManager(), "enableLocation");
 		}
-
+		Log.d("DEBUG", "onConnected end");
 		startPeriodicUpdates();
 	}
 	
@@ -283,10 +319,12 @@ public class MainActivity extends FragmentActivity
 
 	@Override
 	public void onConnectionFailed(ConnectionResult arg0) {
+		Log.d("DEBUG", "onConnectedFailed");
 		Toast.makeText(this, "Connection Failed", Toast.LENGTH_LONG).show();
 	}
 	@Override
 	public void onDisconnected() {
+		Log.d("DEBUG", "onDisconnected");
 		Toast.makeText(this, "Disconnected", Toast.LENGTH_LONG).show();
 	}
     
@@ -295,10 +333,16 @@ public class MainActivity extends FragmentActivity
      * @param pin the pin to be added
      */
     private void addPin(Pin pin){
+    	if (friends == null) {
+    		friends = dbq.getFriends();
+    	}
     	float color = BitmapDescriptorFactory.HUE_RED;
     	boolean visible = true;
     	Log.d("addPin", pin.getUser());
     	if (currentUser == null) {
+    		if (!isNetworkAvailable()) {
+    			Log.d("DEBUG", "MAJOR ERROR - will crash trying to get current user with no network");
+    		}
     		currentUser = dbq.getCurrentUser();
     	}
     	if (pin.getFacebookID() != null && 
@@ -359,6 +403,7 @@ public class MainActivity extends FragmentActivity
 	 */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+    	Log.d("DEBUG", "onCreateOptionsMenu");
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         
@@ -638,6 +683,7 @@ public class MainActivity extends FragmentActivity
 	// Has to override so it gets sent to the correct fragment
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		Log.d("DEBUG", "onActivityResult");
 		Log.d("CAM", "Inside main onActivityResult");
 	   super.onActivityResult(requestCode, resultCode, data);
 	}
@@ -677,10 +723,7 @@ public class MainActivity extends FragmentActivity
     		toast.show();
     		return;
     	}
-    	Log.d("PostPin", "Before posting");
-    	if (photo == null) {
-    		Log.d("PostPin", "Awww, photo is still null");
-    	}
+
     	LatLng coord = new LatLng(l.getLatitude(), l.getLongitude());
     	
     	Pin pin = dbs.postPin(coord, message, photo);
