@@ -136,4 +136,36 @@ public class DBQuery {
 		
 		return new User(viewedNum, postedNum, name, facebookID);
 	}
+	
+
+	/**
+	 * Returns a set containing the Facebook IDs of the current user's
+	 * friends that are signed up for GeoPost.
+	 * 
+	 * @return A set containing the Facebook IDs of the current user's
+	 * friends that are signed up for GeoPost, or null if there was an error.
+	 */
+	public Set<String> getFriends() {
+		Set<String> friendIDs = new HashSet<String>();
+		
+		// Get a list of the ParseUsers that the current user is friends with
+		ParseUser currentUser = ParseUser.getCurrentUser();
+		ParseRelation<ParseUser> friendsRelation = currentUser.getRelation("friends");
+		ParseQuery<ParseUser> friendsQuery = friendsRelation.getQuery();
+
+		List<ParseUser> friends = new ArrayList<ParseUser>();
+		try {
+			friends = friendsQuery.find();
+		} catch (ParseException e) { 
+			return null;
+		}
+		
+		
+		// Store the friends' Facebook ID's in friendIDs
+		for (ParseUser friend : friends) {
+			friendIDs.add(friend.getString("facebookID"));
+		}
+		
+		return friendIDs;
+	}
 }
