@@ -436,9 +436,6 @@ public class MainActivity extends FragmentActivity
             case R.id.action_profile:
             	openProfileActivity();
                 return true;
-            case R.id.action_logout:
-            	logout();
-            	return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
