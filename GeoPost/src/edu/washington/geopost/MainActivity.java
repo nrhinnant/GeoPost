@@ -466,7 +466,7 @@ public class MainActivity extends FragmentActivity
         } else if (option.equals("Friends")) {
     		includeFriends = true;
     		includeLocked = true;
-    		includePosted = true;
+    		includeViewed = true;
         }
         
         // refresh the current pins
