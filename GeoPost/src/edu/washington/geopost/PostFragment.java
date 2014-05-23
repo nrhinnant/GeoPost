@@ -11,8 +11,13 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.DialogFragment;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageButton;
 
 /**
  * A post fragment is a window displayed on an application. 
@@ -53,7 +58,8 @@ public class PostFragment extends DialogFragment {
             throw new ClassCastException(activity.toString()
                     + " must implement NoticeDialogListener");
         }
-    }
+        
+	}
     
     /**
      * Create the dialog view. 
@@ -66,6 +72,7 @@ public class PostFragment extends DialogFragment {
      */
 	@Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+		Log.d("CAM", "oncreatedialog");
         // Use the Builder class for convenient dialog construction
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         
@@ -91,17 +98,11 @@ public class PostFragment extends DialogFragment {
 	
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		Log.d("CAM", "on activity result for cam");
 	    if (requestCode == 1) {
 	        Bundle extras = data.getExtras();
 	        Bitmap imageBitmap = (Bitmap) extras.get("data");
 	        //mImageView.setImageBitmap(imageBitmap);
-	    }
-	}
-	
-	private void dispatchTakePictureIntent() {
-	    Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-	    if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
-	    	startActivityForResult(takePictureIntent, 1);
 	    }
 	}
 	
