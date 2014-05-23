@@ -41,6 +41,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.MenuItemCompat;
 import android.util.Log;
@@ -624,19 +625,11 @@ public class MainActivity extends FragmentActivity
 		}
 	}
 	
-	public void onCameraButtonClick(View view) {
-		Log.d("CAM", "on cam click");
-		Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-	    if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-	        startActivityForResult(takePictureIntent, 1);
-	    }
-	}
-	
+	// Has to override so it gets sent to the correct fragment
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		Log.d("CAM", "Activity on result for cam");
-		//ImageView img = (ImageView) findViewById(R.id.imagePreview);
-		//img.setImageResource();
+		Log.d("CAM", "Inside main onActivityResult");
+	   super.onActivityResult(requestCode, resultCode, data);
 	}
 	
 	/**

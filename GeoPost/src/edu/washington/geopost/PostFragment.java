@@ -5,8 +5,10 @@ import com.google.android.gms.maps.model.LatLng;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -28,7 +30,7 @@ import android.widget.ImageButton;
  * @author Ethan Goldman-Kirst
  *
  */
-public class PostFragment extends DialogFragment {
+public class PostFragment extends DialogFragment implements OnClickListener {
 	
 	/* The activity that creates an instance of this dialog fragment must
      * implement this interface in order to receive event callbacks.
@@ -81,7 +83,12 @@ public class PostFragment extends DialogFragment {
         
         // Sets the content dialog to be dialog_post
         // Also sets a Post and Cancel button
-        builder.setView(inflater.inflate(R.layout.dialog_post, null))
+        
+        View view = inflater.inflate(R.layout.dialog_post, null);
+        ImageButton cam = (ImageButton) view.findViewById(R.id.imageButton1);
+        cam.setOnClickListener(this);
+        
+        builder.setView(view)
                .setPositiveButton(R.string.button_message, new DialogInterface.OnClickListener() {
                    public void onClick(DialogInterface dialog, int id) {
                        listener.onDialogPositiveClick(PostFragment.this, getMessage());
@@ -113,6 +120,16 @@ public class PostFragment extends DialogFragment {
 	private String getMessage() {
 		EditText e = (EditText) getDialog().findViewById(R.id.post_text);
 		return e.getText().toString();
+	}
+
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		Log.d("CAM", "on cam click");
+		Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+	    if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+	        startActivityForResult(takePictureIntent, 1);
+	    }
 	}
 	
 }

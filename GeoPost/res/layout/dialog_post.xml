@@ -19,8 +19,7 @@
         android:id="@+id/imageButton1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/camera_icon"
-        android:onClick="onCameraButtonClick" />
+        android:src="@drawable/camera_icon" />
     
     <ImageView
         android:id="@+id/imagePreview"
