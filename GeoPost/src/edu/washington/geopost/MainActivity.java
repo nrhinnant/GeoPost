@@ -36,6 +36,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -46,6 +47,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
@@ -620,6 +622,21 @@ public class MainActivity extends FragmentActivity
 			DialogFragment newFragment = new PostFragment();	    
 		    newFragment.show(getSupportFragmentManager(), "post");
 		}
+	}
+	
+	public void onCameraButtonClick(View view) {
+		Log.d("CAM", "on cam click");
+		Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+	    if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+	        startActivityForResult(takePictureIntent, 1);
+	    }
+	}
+	
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		Log.d("CAM", "Activity on result for cam");
+		//ImageView img = (ImageView) findViewById(R.id.imagePreview);
+		//img.setImageResource();
 	}
 	
 	/**
