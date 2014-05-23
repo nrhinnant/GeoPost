@@ -129,7 +129,7 @@ public class LoginActivity extends Activity {
 		Session session = ParseFacebookUtils.getSession();
 		if (session != null && session.isOpened()) {
 
-			Request request = Request.newMeRequest(ParseFacebookUtils.getSession(), new Request.GraphUserCallback() {
+			Request request = Request.newMeRequest(session, new Request.GraphUserCallback() {
 				@Override
 				public void onCompleted(GraphUser user, Response response) {
 					// handle response
@@ -157,7 +157,7 @@ public class LoginActivity extends Activity {
 	private void getFriends() {
 		Session session = ParseFacebookUtils.getSession();
 		if (session!= null && session.isOpened()) {
-			Request request = Request.newMyFriendsRequest(ParseFacebookUtils.getSession(), new Request.GraphUserListCallback() {
+			Request request = Request.newMyFriendsRequest(session, new Request.GraphUserListCallback() {
 				@Override
 				public void onCompleted(List<GraphUser> users, Response response) {
 					if (users != null) {
@@ -183,8 +183,8 @@ public class LoginActivity extends Activity {
 						ParseRelation<ParseUser> friendsRelation = currentUser.getRelation("friends");
 						for (ParseUser friend : friendUsers) {
 							friendsRelation.add(friend);
-							currentUser.saveEventually();
 						}
+						currentUser.saveEventually();
 					}
 				}
 			});
