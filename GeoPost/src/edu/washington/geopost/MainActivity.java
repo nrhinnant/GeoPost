@@ -199,6 +199,7 @@ public class MainActivity extends FragmentActivity
 		protected Set<String> doInBackground(Void... params) {
 			Log.d("DEBUG", "Friends background start");
 			Set<String> results = dbq.getFriends();
+			Log.d("DEBUG", "found Friends");
 			return results;
 		}
 		
@@ -213,6 +214,7 @@ public class MainActivity extends FragmentActivity
 		protected User doInBackground(Void... params) {
 			Log.d("DEBUG", "User background start");
 			User user = dbq.getCurrentUser();
+			Log.d("DEBUG", "got user");
 			return user;
 		}
 		
