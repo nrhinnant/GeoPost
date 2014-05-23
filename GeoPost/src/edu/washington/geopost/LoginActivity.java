@@ -77,6 +77,7 @@ public class LoginActivity extends Activity {
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		ParseFacebookUtils.finishAuthentication(requestCode, resultCode, data);
+		Log.d("DEBUG", "onActivityResult finished Authentication");
 		if (!isNetworkAvailable()) {
 			Toast toast = Toast.makeText(getApplicationContext(), "Network unavailable", 
 					Toast.LENGTH_LONG);
@@ -97,14 +98,14 @@ public class LoginActivity extends Activity {
 	        public void done(ParseUser user, ParseException err) {
 	            LoginActivity.this.progressDialog.dismiss();
 	            if (user == null) {
-	            	Log.d(MainActivity.TAG, "User cancelled the Facebook login.");
+	            	Log.d("DEBUG", "User cancelled the Facebook login.");
 	            } else if (user.isNew()) {
-	            	Log.d(MainActivity.TAG, "User signed up and logged in through Facebook!");
+	            	Log.d("DEBUG", "User signed up and logged in through Facebook!");
 	            	saveUserInfo();
 	            	getFriends();
 	            	showMainActivity();
 	            } else {
-	            	Log.d(MainActivity.TAG, "User logged in through Facebook!");
+	            	Log.d("DEBUG", "User logged in through Facebook!");
 	            	saveUserInfo();
 	            	getFriends();
 	            	showMainActivity();
@@ -164,7 +165,6 @@ public class LoginActivity extends Activity {
 						for (GraphUser user : users) {
 							friendsList.add(user.getId());
 						}
-
 						// Construct a ParseUser query that will find friends whose
 						// facebook IDs are contained in the current user's friend list.
 						ParseQuery<ParseUser> friendQuery = ParseUser.getQuery();
@@ -178,7 +178,6 @@ public class LoginActivity extends Activity {
 							Log.d(MainActivity.TAG, "Could not find facebook friends.");
 							return;
 						}
-
 						// Save the current user's facebook friends in the database
 						ParseUser currentUser = ParseUser.getCurrentUser();
 						ParseRelation<ParseUser> friendsRelation = currentUser.getRelation("friends");
