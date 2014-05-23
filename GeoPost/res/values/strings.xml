@@ -5,6 +5,7 @@
     <string name="action_help">Help</string>
     <string name="action_profile">Profile</string>
     <string name="action_logout">Log Out</string>
+    <string name="action_sort">Sort By:</string>
     <string name="button_message">Post</string>
     <string name="post_message">Enter a message:</string>
     <string name="cancel">Cancel</string>
@@ -27,7 +28,7 @@
     <!-- DO NOT COMMIT CHANGES TO THESE PLACEHOLDERS!, YEE BE WARNED
     	 These are used in auto build system
      -->
-    <string name="facebook_app_id">FACEBOOK_ID</string>
+   	<string name="facebook_app_id">FACEBOOK_ID</string>
     <string name="parse_app_id">PARSE_ID</string>
     <string name="parse_client_id">PARSE_CLNT_ID</string>
     <string name="google_maps_release_key">GOOGLE_MAPS_RLS_KEY</string>
