@@ -6,9 +6,7 @@ import com.facebook.widget.ProfilePictureView;
 
 import android.content.Intent;
 import android.test.ActivityInstrumentationTestCase2;
-import android.widget.Button;
 import android.widget.TextView;
-import edu.washington.geopost.MainActivity;
 import edu.washington.geopost.ProfileActivity;
 
 public class ProfileActivityTest extends ActivityInstrumentationTestCase2<ProfileActivity> {
