@@ -45,13 +45,8 @@ public class SystemTests  extends ActivityInstrumentationTestCase2<LoginActivity
 	@Test
 	/* This test will run properly if and only if the following conditions are met
 	 * 
-	 * 		There is a user logged in to facebook
 	 * 		There is a location provider running on the phone
 	 * 
-	 * I just learned that Robotium cannot interact with the facebook login webview. 
-	 * We thus can't autologin users for facebook. This is a huge setback for me because
-	 * it means a true system test that logs into facebook etc is more or less impossible
-	 * without a more robust framework. Regardless...
 	 */
 	public void testUseCaseLogInAndDrop() {
 		solo.waitForActivity(edu.washington.geopost.LoginActivity.class);

@@ -1,5 +1,7 @@
 package edu.washington.geopost.test;
 
+import org.junit.After;
+
 import android.app.Instrumentation.ActivityMonitor;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
@@ -27,7 +29,6 @@ public class LoginActivityTest extends
 	public void setUp() throws Exception {
 		solo = new Solo(getInstrumentation(), getActivity());
 		am = getInstrumentation().addMonitor(MainActivity.class.getName(), null, false);	
-		ParseUser.logOut();
 	}
 	
 	public void testOnLoginButtonClicked() {
@@ -49,6 +50,11 @@ public class LoginActivityTest extends
 		assertNotNull(ParseUser.getCurrentUser());
 
 		getActivity().finish();
+		ParseUser.logOut();
+	}
+	
+	@After
+	public void tearDown() {
 		ParseUser.logOut();
 	}
 }
