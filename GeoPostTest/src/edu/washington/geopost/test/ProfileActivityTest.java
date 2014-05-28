@@ -45,7 +45,8 @@ public class ProfileActivityTest extends ActivityInstrumentationTestCase2<Profil
 
 	@Test
 	public void testDisplayedUsernameNotNull() {
-		TextView nameView = (TextView) activity.findViewById(edu.washington.geopost.R.id.username);
+		TextView nameView = 
+				(TextView) activity.findViewById(edu.washington.geopost.R.id.username);
 		final String username = nameView.getText().toString();
 		assertNotNull(username);
 	}
@@ -54,14 +55,16 @@ public class ProfileActivityTest extends ActivityInstrumentationTestCase2<Profil
 	public void testUsernameDisplayedMatchesActualUsername() {
 		final String expected = 
 				activity.getIntent().getStringExtra("edu.washington.geopost.USERNAME");
-		TextView nameView = (TextView) activity.findViewById(edu.washington.geopost.R.id.username);
+		TextView nameView = 
+				(TextView) activity.findViewById(edu.washington.geopost.R.id.username);
 		final String actual = nameView.getText().toString();
 		assertEquals(expected, actual);
 	}
 	
 	@Test
 	public void testDisplayedNumPostedNotNull() {
-		TextView numPostedView = (TextView) activity.findViewById(edu.washington.geopost.R.id.num_posted);
+		TextView numPostedView = 
+				(TextView) activity.findViewById(edu.washington.geopost.R.id.num_posted);
 		final String numPosted = numPostedView.getText().toString();
 		assertNotNull(numPosted);
 	}
@@ -70,14 +73,16 @@ public class ProfileActivityTest extends ActivityInstrumentationTestCase2<Profil
 	public void testNumPostedDisplayedMatchesActualNumPosted() {
 		final int expectedNum = 
 				activity.getIntent().getIntExtra("edu.washington.geopost.NUM_POSTED", 0);
-		TextView numPostedView = (TextView) activity.findViewById(edu.washington.geopost.R.id.num_posted);
+		TextView numPostedView = 
+				(TextView) activity.findViewById(edu.washington.geopost.R.id.num_posted);
 		final String actual = numPostedView.getText().toString();
 		assertEquals("Posted: " + expectedNum , actual);
 	}
 	
 	@Test
 	public void testDisplayedNumViewNotNull() {
-		TextView numViewedView = (TextView) activity.findViewById(edu.washington.geopost.R.id.num_viewed);
+		TextView numViewedView = 
+				(TextView) activity.findViewById(edu.washington.geopost.R.id.num_viewed);
 		final String numViewed = numViewedView.getText().toString();
 		assertNotNull(numViewed);
 	}
@@ -86,7 +91,8 @@ public class ProfileActivityTest extends ActivityInstrumentationTestCase2<Profil
 	public void testNumViewedDisplayedMatchesActualNumViewed() {
 		final int expectedNum = 
 				activity.getIntent().getIntExtra("edu.washington.geopost.NUM_VIEWED", 0);
-		TextView numViewedView = (TextView) activity.findViewById(edu.washington.geopost.R.id.num_viewed);
+		TextView numViewedView = 
+				(TextView) activity.findViewById(edu.washington.geopost.R.id.num_viewed);
 		final String actual = numViewedView.getText().toString();
 		assertEquals("Unlocked: " + expectedNum , actual);
 	}
