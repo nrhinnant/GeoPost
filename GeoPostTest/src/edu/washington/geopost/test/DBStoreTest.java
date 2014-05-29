@@ -1,12 +1,19 @@
 package edu.washington.geopost.test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Test;
 
 import android.test.AndroidTestCase;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.parse.Parse;
+import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 import edu.washington.geopost.DBStore;
 import edu.washington.geopost.ParsePin;
@@ -36,7 +43,15 @@ public class DBStoreTest extends AndroidTestCase {
 	private static DBStore pinWriter;
 	private String appID;
 	private String clientKey;
+	private static List<ParseObject> createdObjs = new ArrayList<ParseObject>();  // For removal of pins.
+	private ParseQuery<ParsePin> query = new ParseQuery<ParsePin>(ParsePin.class);
 	
+	// User login information
+	private ParseUser testUser;
+	private static final String PARSE_USER_EMAIL = "parsetestuser@huehuehue.com";
+	private static final String PARSE_USER_NAME = "Parse Test User";
+	private static final String PARSE_PASSWORD = "testPassword1234";
+		
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
@@ -44,7 +59,44 @@ public class DBStoreTest extends AndroidTestCase {
 		clientKey = "HRRt6k8GzTclufgMCW8RES8LZgQLTTvKBJAnbD5c";
 		Parse.initialize(getContext(), appID, clientKey);
 		ParseObject.registerSubclass(ParsePin.class);
-		pinWriter = new DBStore ();
+		pinWriter = new DBStore();
+		
+		testUser = new ParseUser();
+		testUser.setEmail(PARSE_USER_EMAIL);
+		testUser.setUsername(PARSE_USER_NAME);
+		testUser.setPassword(PARSE_PASSWORD);
+		
+		ParseUser.logOut();
+		try {
+			testUser.signUp();
+		} catch (ParseException e) {
+			if (e.getCode() != e.USERNAME_TAKEN){
+				throw e;
+			}
+		}
+		
+		try {
+			ParseUser.logIn(PARSE_USER_NAME, PARSE_PASSWORD);
+		} catch (ParseException e) {
+			throw e;
+		}
+		
+		testUser = ParseUser.getCurrentUser();
+	}
+	
+	/**
+	 * Tear down after each test case runs.
+	 */
+	@Override
+	public void tearDown() throws Exception {
+		super.tearDown();
+		// Delete all the elements added to the database after all tests run.
+		try {
+			ParseObject.deleteAll(createdObjs);
+		} catch (ParseException e) {
+			Log.d("mybugs", "Couldn't delete objects from the database.");
+			e.printStackTrace();
+		}
 	}
 	
 	//Test a single pin drop
@@ -53,6 +105,14 @@ public class DBStoreTest extends AndroidTestCase {
 		String message = "This is a test pin";
 		LatLng coord = new LatLng(35.445, 47.555);
 		Pin pin = pinWriter.postPin(coord, message, null);
+		
+		// Add the created ParsePin to the list so it can be
+		// removed at the end of the test.
+		try {
+			createdObjs.add(query.get(pin.getPinId()));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
 		
 		assertTrue(message.equals(pin.getMessage()));
 		assertTrue(coord.equals(pin.getLocation()));
@@ -69,6 +129,16 @@ public class DBStoreTest extends AndroidTestCase {
 		Pin pin2 = pinWriter.postPin(coord2, "Pin2", null);
 		Pin pin3 = pinWriter.postPin(coord3, "Pin3", null);
 		
+		// Add the created ParsePin to the list so it can be
+		// removed at the end of the test.
+		try {
+			createdObjs.add(query.get(pin1.getPinId()));
+			createdObjs.add(query.get(pin2.getPinId()));
+			createdObjs.add(query.get(pin3.getPinId()));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+				
 		assertTrue("Pin1".equals(pin1.getMessage()));
 		assertTrue(coord1.equals(pin1.getLocation()));
 		
@@ -116,6 +186,14 @@ public class DBStoreTest extends AndroidTestCase {
 		String message = "Unlock Me!";
 		LatLng coord = new LatLng(38.55, -47.885);
 		Pin pin = pinWriter.postPin(coord, message, null);
+	
+		// Add the created ParsePin to the list so it can be
+		// removed at the end of the test.
+		try {
+			createdObjs.add(query.get(pin.getPinId()));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
 		
 		assertTrue(pin != null);
 		
@@ -137,6 +215,16 @@ public class DBStoreTest extends AndroidTestCase {
 		Pin pin1 = pinWriter.postPin(coord1, "Pin1", null);
 		Pin pin2 = pinWriter.postPin(coord2, "Pin2", null);
 		Pin pin3 = pinWriter.postPin(coord3, "Pin3", null);
+		
+		// Add the created ParsePin to the list so it can be
+		// removed at the end of the test.
+		try {
+			createdObjs.add(query.get(pin1.getPinId()));
+			createdObjs.add(query.get(pin2.getPinId()));
+			createdObjs.add(query.get(pin3.getPinId()));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
 		
 		assertTrue(pin1 != null);
 		assertTrue(pin2 != null);
