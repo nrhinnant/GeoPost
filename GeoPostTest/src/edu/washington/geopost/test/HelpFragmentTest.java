@@ -5,9 +5,6 @@ import org.junit.Test;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.test.ActivityInstrumentationTestCase2;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
 import edu.washington.geopost.HelpFragment;
 import edu.washington.geopost.MainActivity;
 
