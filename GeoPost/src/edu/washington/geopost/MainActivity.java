@@ -842,9 +842,6 @@ public class MainActivity extends FragmentActivity
 		}
 	}
 	
-	// Asynchronous task used to refresh the pins on the map.
-	// The querying to the database is done in the background
-	// and draws the results once it gets resulting pins
 	/**
 	 * 
 	 * @author Matt 
@@ -856,6 +853,7 @@ public class MainActivity extends FragmentActivity
 	private class RefreshMapTask extends AsyncTask<Object, Void, Set<Pin>> {
 
 		/**
+		 * Queries the database for pins in view as background task
 		 * @param LatLng sw The southwest corner of the user's view
 		 * @param LatLng ne The northeast corner of the user's view
 		 * @return Set<Pin> The resulting pins from the database that
@@ -877,12 +875,13 @@ public class MainActivity extends FragmentActivity
 		}
 		
 		/**
+		 * This is called after doInBackground returns, with its return value
+		 * Draws the pins onto the map
 		 * @param Set<Pin> The pins from the background task that
 		 * 					need to be drawn onto the map
-		 * Draws the pins onto the map
 		 */
 		protected void onPostExecute(Set<Pin> pins) {
-			Log.d("Background!", "executing");
+			Log.d("onPostExecute", "executing, pin drawing");
 			drawMarkers(pins);
 		}	
 	}
