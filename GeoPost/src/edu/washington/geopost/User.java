@@ -62,36 +62,4 @@ public class User {
 	public String getFacebookID() {
 		return facebookID;
 	}
-	
-	/**
-	 * Sets the number of pins the user has viewed.
-	 * @param viewedNum The number of pins the user has viewed.
-	 */
-	public void setNumViewed(int viewedNum) {
-		this.viewedNum = viewedNum;
-	}
-	
-	/**
-	 * Sets the number of pins the user has posted.
-	 * @param postedNum The number of pins the user has posted.
-	 */
-	public void setNumPosted(int postedNum) {
-		this.postedNum = postedNum;
-	}
-	
-	/**
-	 * Sets the user's name.
-	 * @param name The user's name.
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
-	
-	/**
-	 * Sets the user's Facebook ID.
-	 * @param facebookID The user's Facebook ID.
-	 */
-	public void setFacebookID(String facebookID) {
-		this.facebookID = facebookID;
-	}
 }
