@@ -60,6 +60,9 @@ public class DBQuery {
 		// current user and set up the query for the list of pins they've
 		// viewed inside the bounding box.
 		ParseUser user = ParseUser.getCurrentUser();
+		if (user == null) {
+			return new HashSet<Pin>();
+		}
 		ParseRelation<ParsePin> viewedRelation = user.getRelation("viewed");
 		ParseQuery<ParsePin> viewedQuery = viewedRelation.getQuery();
 		viewedQuery.whereWithinGeoBox("location", sw, ne);
@@ -138,6 +141,9 @@ public class DBQuery {
 		
 		// Fetch the current user's name and FacebookID
 		ParseUser user = ParseUser.getCurrentUser();
+		if (user == null) {
+			return null;
+		}
 		name = user.getUsername();
 		facebookID = user.getString("facebookID");
 		
@@ -170,8 +176,13 @@ public class DBQuery {
 	 *         error fetching the data
 	 */
 	public Set<String> getFriends() {
+		Set<String> friendIDs = new HashSet<String>();
+		
 		// Get a list of the ParseUsers with which the current user is friends
 		ParseUser currentUser = ParseUser.getCurrentUser();
+		if (currentUser == null) {
+			return friendIDs;
+		}
 		ParseRelation<ParseUser> friendsRelation = 
 				currentUser.getRelation("friends");
 		ParseQuery<ParseUser> friendsQuery = friendsRelation.getQuery();
@@ -183,9 +194,7 @@ public class DBQuery {
 			return null;
 		}
 		
-		// Create, fill, and return the Set of Facebook IDs
-		Set<String> friendIDs = new HashSet<String>();
-		
+		// fill, and return the Set of Facebook IDs
 		for (ParseUser friend : friends) {
 			friendIDs.add(friend.getString("facebookID"));
 		}
