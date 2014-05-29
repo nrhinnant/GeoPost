@@ -1,10 +1,5 @@
 package edu.washington.geopost;
 
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -12,11 +7,17 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 
+/**
+ * A HelpFragment displays a help page. 
+ * The page consists of a title, a main view, and an "OK" button
+ * 
+ * @author Ethan
+ *
+ */
 public class HelpFragment extends DialogFragment {
 	/**
      * Create the dialog view. 
-     * Uses the dialog_post layout and sets listeners on button clicks. 
-     * Dispatch to listeners on a positive button click. 
+     * Uses the dialog_help layout and sets a title and positive button
      * 
      * @param savedInstanceState parameters passed into this method. 
      * 			Should include a latitude and longitude
