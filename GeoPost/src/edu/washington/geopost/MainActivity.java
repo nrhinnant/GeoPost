@@ -891,10 +891,9 @@ public class MainActivity extends FragmentActivity
 	 * Takes a set of Pin objects and ensures that they are displayed on the map,
 	 * removes any pins that are currently displayed if they are not also in the 
 	 * supplied set.
-	 * @param pins, set of pins to draw onto the map
-	 * if pins is null, the map should be cleared
+	 * @param pins, set of pins to draw onto the map, passing null causes map to be cleared
 	 */
-	public void drawMarkers(Set<Pin> pins){
+	public void drawMarkers(Set<Pin> pins) {
 		assert(geoposts != null);
 		if (pins == null){
 			geoposts.clear();
@@ -908,27 +907,22 @@ public class MainActivity extends FragmentActivity
 		/*
 		 * First remove old pins that aren't in view now
 		 */
-		HashSet<Marker> temp = new HashSet<Marker>();
-		for(Marker m : geoposts.keySet()){
+		HashSet<Marker> currentMarkers = new HashSet<Marker>(geoposts.keySet());
+		for(Marker m : currentMarkers){
 			Pin p = geoposts.get(m);
 			if (!pins.contains(p)){
 				// m is no longer in our scope
-				temp.add(m);
+				m.remove();
+				geoposts.remove(m);
 			}
-		}
-		
-		// Now remove the markers from the map and geoposts
-		for (Marker m : temp) {
-			m.remove();
-			geoposts.remove(m);
 		}
 		
 		/*
 		 * Now add new pins that weren't drawn before
 		 */
-		HashSet<Pin> pinvalues = new HashSet<Pin>(geoposts.values());
+		HashSet<Pin> currentPins = new HashSet<Pin>(geoposts.values());
 		for (Pin p : pins){
-			if (!pinvalues.contains(p)){
+			if (!currentPins.contains(p)){
 				// this will add p to geoposts
 				Log.d("drawMarkers", "added pin to map");
 				addPin(p);
@@ -936,5 +930,4 @@ public class MainActivity extends FragmentActivity
 		}
 		Log.d("drawMarkers", "drew markers");
 	}
-	
 }
