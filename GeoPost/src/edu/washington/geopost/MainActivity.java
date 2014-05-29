@@ -617,17 +617,16 @@ public class MainActivity extends FragmentActivity
 	 * @return true if the marker is in range, false otherwise
 	 */
 	private boolean isInRange(Marker marker) {
-		//Location l = getLastKnownLocation();
-		Location l = locationClient.getLastLocation();
-		if (l == null) {
+		Location loc = locationClient.getLastLocation();
+		if (loc == null) {
 			Toast toast = Toast.makeText(getApplicationContext(), "Could not find your location", 
 										Toast.LENGTH_SHORT);
 			toast.show();
 			return false;
 		}
 		// Get the user's lat/lng coordinates
-		double userLat = l.getLatitude();
-		double userLng = l.getLongitude();
+		double userLat = loc.getLatitude();
+		double userLng = loc.getLongitude();
 
 		// Get the pin's lat/lng coordinates
 		Pin p = geoposts.get(marker);
@@ -640,7 +639,7 @@ public class MainActivity extends FragmentActivity
 	}
 	
 	/**
-	 * 
+	 * Gets distance between two latlng points
 	 * @param startLat The latitude of the initial point
 	 * @param startLng The longitude of the initial point
 	 * @param endLat The latitude of the end point
@@ -648,12 +647,15 @@ public class MainActivity extends FragmentActivity
 	 * @return	Uses the haversine formula to calculate and return the distance 
 	 * 			between two lat/lng points on the earth in meters
 	 */
-	private double distance(double startLat, double startLng, double endLat, double endLng) {
+	private double distance(double startLat, double startLng,
+							double endLat, double endLng) {
 	    double dLat = Math.toRadians(endLat - startLat);
 	    double dLon = Math.toRadians(endLng - startLng);
 	    double a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-	    Math.cos(Math.toRadians(startLat)) * Math.cos(Math.toRadians(endLat)) *
-	    Math.sin(dLon/2) * Math.sin(dLon/2);
+	    		   Math.cos(Math.toRadians(startLat)) *
+	    		   Math.cos(Math.toRadians(endLat)) *
+	    		   Math.sin(dLon/2) * Math.sin(dLon/2);
+	    
 	    double c = 2 * Math.asin(Math.sqrt(a));
 	    return EARTH_RADIUS * c;
 	}
@@ -670,8 +672,8 @@ public class MainActivity extends FragmentActivity
 	 * @param view the clicked post button
 	 */
 	public void onPostButtonClick(View view) {
-		Location l = locationClient.getLastLocation();
-		if (l == null) {
+		Location loc = locationClient.getLastLocation();
+		if (loc == null) {
 			Toast toast = Toast.makeText(getApplicationContext(), "Unable to find your location", 
 										Toast.LENGTH_SHORT);
 			toast.show();
@@ -685,12 +687,11 @@ public class MainActivity extends FragmentActivity
 		}
 	}
 	
-	// Has to override so it gets sent to the correct fragment
-	@Override
+	@Override  // Has to override so it gets sent to the correct fragment
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		Log.d("DEBUG", "onActivityResult");
 		Log.d("CAM", "Inside main onActivityResult");
-	   super.onActivityResult(requestCode, resultCode, data);
+		super.onActivityResult(requestCode, resultCode, data);
 	}
 	
 	/**
@@ -707,9 +708,9 @@ public class MainActivity extends FragmentActivity
     @Override
     public void onDialogPositiveClick(DialogFragment dialog, String message, Bitmap photo) {
     	Log.d("PHOTO", "onDialogPositiveClick start");
-    	Location l = locationClient.getLastLocation();
+    	Location loc = locationClient.getLastLocation();
     	// check for no location
-		if (l == null) {
+		if (loc == null) {
 			Toast toast = Toast.makeText(getApplicationContext(), "Unable to post: cannot find your location", 
 										Toast.LENGTH_SHORT);
 			toast.show();
@@ -729,7 +730,7 @@ public class MainActivity extends FragmentActivity
     		return;
     	}
 
-    	LatLng coord = new LatLng(l.getLatitude(), l.getLongitude());
+    	LatLng coord = new LatLng(loc.getLatitude(), loc.getLongitude());
     	
     	Pin pin = dbs.postPin(coord, message, photo);
     	if (pin == null) {
@@ -743,8 +744,8 @@ public class MainActivity extends FragmentActivity
     
     /**************** location listener ****************/
     /**
-     * @param Location The new location the user has moved to
      * Redraws the user's unlocking radius to center around the new location
+     * @param Location The new location the user has moved to
      */
 	@Override
 	public void onLocationChanged(Location location) {
@@ -763,7 +764,7 @@ public class MainActivity extends FragmentActivity
 	}
 	
 	/**
-	 * 
+	 * Draw the unlock range circle on the map
 	 * @param center The coordinate center where the user is located on the map
 	 * 				which serves as the epicenter of the circle to draw
 	 */
@@ -787,27 +788,26 @@ public class MainActivity extends FragmentActivity
 	}
 
 	// Inherited by LocationListener 
+	// We take no action in these events
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
-		// TODO Auto-generated method stub
-		
+		return;
 	}
 
 	// Inherited by LocationListener 
 	@Override
 	public void onProviderEnabled(String provider) {
-		// TODO Auto-generated method stub
-		
+		return;
 	}
 
 	// Inherited by LocationListener 
 	@Override
 	public void onProviderDisabled(String provider) {
-		// TODO Auto-generated method stub
-		
+		return;
 	}
 	
 	/**
+	 * Check if we have network
 	 * @return True if the phone is connected to any network, false otherwise
 	 */
 	private boolean isNetworkAvailable() {
@@ -820,8 +820,8 @@ public class MainActivity extends FragmentActivity
 	/**************** Map refresh logic ****************/
 	
 	/**
-	 * Activated when camera is changed, panning or zooming.  This method will trigger a call to
-	 * updateMap() to redraw the relevant pins
+	 * Activated when camera is changed, panning or zooming.  
+	 * This method will trigger a call to updateMap() to redraw the relevant pins
 	 * @param CameraPosition The position of the user's camera
 	 */
 	@Override
@@ -830,10 +830,13 @@ public class MainActivity extends FragmentActivity
 		refreshThread.cancel(true); // If another query to onCameraChange is still
 									// running, stop this so that this new change is seen
 		VisibleRegion vr = map.getProjection().getVisibleRegion();
-		if (vr != null){
+		if (vr != null) {
 			LatLng sw = vr.latLngBounds.southwest;
 			LatLng ne = vr.latLngBounds.northeast;
-			Log.d("updateMap", " sw,lat " + sw.latitude + " sw,lng " + sw.longitude + " ne,lat " + ne.latitude + " ne,lng " + ne.longitude);
+			Log.d("updateMap", " sw,lat " + sw.latitude + 
+							   " sw,lng " + sw.longitude + 
+							   " ne,lat " + ne.latitude + 
+							   " ne,lng " + ne.longitude);
 		
 			// Create background task that will query the database
 			// and upon return, draw the updated pin/markers on the map
@@ -868,7 +871,7 @@ public class MainActivity extends FragmentActivity
 			LatLng ne = (LatLng) params[1];
 				
 			Set<Pin> p = dbq.getPins(sw, ne);
-			if (p == null){
+			if (p == null) {
 				Log.d("doInBackground", "null query");
 			}
 			return p;
