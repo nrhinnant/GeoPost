@@ -1,9 +1,7 @@
 package edu.washington.geopost.test;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 import org.junit.Test;
@@ -14,7 +12,6 @@ import android.util.Log;
 import com.google.android.gms.maps.model.LatLng;
 import com.parse.Parse;
 import com.parse.ParseException;
-import com.parse.ParseFacebookUtils;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
@@ -25,27 +22,23 @@ import edu.washington.geopost.Pin;
 import edu.washington.geopost.User;
 
 /**
- * 
  * DBQueryTest contains unit tests for the functionality of the DBQuery class.
  * @author Andrew Repp, Katie Madonna
- *
  */
-
-// We need to consider how to set up a user for testing. One thing to
-// look into would be the ParseAnonymousUtils class, which has documentation at
-// https://parse.com/docs/android/api/com/parse/ParseAnonymousUtils.html
-// It might be able to help.
 
 public class DBQueryTest extends AndroidTestCase {
 	private static final int NUMBER_OF_TESTS = 3; // one additional for testAndroidTestCaseSetupProperly
+	private static final String APP_ID = "GlrWxWCu5mnGFKUeeQIFg9Upt9AwomBDk3t0OKHa";
+	private static final String CLIENT_KEY = "HRRt6k8GzTclufgMCW8RES8LZgQLTTvKBJAnbD5c";
+	
+	// User login information
+	private static final String PARSE_USER_EMAIL = "parsetestuser@huehuehue.com";
+	private static final String PARSE_USER_NAME = "Parse Test User";
+	private static final String PARSE_PASSWORD = "testPassword1234";
+	
 	private static int testsRun = 0;
-	static List<ParseObject> createdObjs = new ArrayList<ParseObject>();
-	private final String appID = "GlrWxWCu5mnGFKUeeQIFg9Upt9AwomBDk3t0OKHa";
-	private final String clientKey = "HRRt6k8GzTclufgMCW8RES8LZgQLTTvKBJAnbD5c";
+	private static List<ParseObject> createdObjs;
 	private ParseUser testUser;
-	private String parseUserEmail = "parsetestuser@huehuehue.com";
-	private String parseUserName = "Parse Test User";
-	private String parsePassword = "testPassword1234";
 	private ParsePin testPin0;
 	private ParsePin testPin1;
 	private ParsePin testPin2;
@@ -56,15 +49,16 @@ public class DBQueryTest extends AndroidTestCase {
 	 */
 	@Override
 	public void setUp() throws Exception {
-		testsRun++;
-		Parse.initialize(getContext(), appID, clientKey);
-		ParseObject.registerSubclass(ParsePin.class);
 		super.setUp();
+		createdObjs = new ArrayList<ParseObject>();
+		testsRun++;
+		Parse.initialize(getContext(), APP_ID, CLIENT_KEY);
+		ParseObject.registerSubclass(ParsePin.class);
 		
 		testUser = new ParseUser();
-		testUser.setEmail(parseUserEmail);
-		testUser.setUsername(parseUserName);
-		testUser.setPassword(parsePassword);
+		testUser.setEmail(PARSE_USER_EMAIL);
+		testUser.setUsername(PARSE_USER_NAME);
+		testUser.setPassword(PARSE_PASSWORD);
 		
 		ParseUser.logOut();
 		try {
@@ -75,7 +69,7 @@ public class DBQueryTest extends AndroidTestCase {
 			}
 		}
 		
-		ParseUser.logIn(parseUserName, parsePassword);
+		ParseUser.logIn(PARSE_USER_NAME, PARSE_PASSWORD);
 		
 		testUser = ParseUser.getCurrentUser();
 		
@@ -148,9 +142,8 @@ public class DBQueryTest extends AndroidTestCase {
 		
 		assertTrue(user.getName().equals(testUser.getUsername()));
 		assertTrue(user.getFacebookID().equals(testUser.getString("facebookID")));
-		// TODO: Fix this when relations are being tested.
-		//assertTrue(user.getNumPosted() == 3);
-		//assertTrue(user.getNumViewed() == 0);
+		assertTrue(user.getNumPosted() == 3);
+		assertTrue(user.getNumViewed() == 0);
 	}
 	
 	/**
