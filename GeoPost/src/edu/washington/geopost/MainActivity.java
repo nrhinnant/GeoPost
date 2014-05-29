@@ -1,11 +1,30 @@
 package edu.washington.geopost;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.location.Location;
+import android.location.LocationListener;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
@@ -27,40 +46,12 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.VisibleRegion;
 
-import android.location.Address;
-import android.location.Criteria;
-import android.location.Geocoder;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.provider.MediaStore;
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.view.MenuItemCompat;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.Toast;
-
 /** 
+ * This is the activity of geopost that displays the map of pins 
+ * to the user.  It also displays controls to them for posting and
+ * filtering pins as well as viewing thier profile
+ * 
  * @author Matt, Mike, Ethan
- *
  */
 public class MainActivity extends FragmentActivity 
 						  implements OnMarkerClickListener, 
@@ -69,10 +60,11 @@ public class MainActivity extends FragmentActivity
 									 EnableLocationFragment.EnableLocationDialogListener,
 									 OnItemSelectedListener,
 									 OnCameraChangeListener,
-									 ConnectionCallbacks, OnConnectionFailedListener,
+									 ConnectionCallbacks, 
+									 OnConnectionFailedListener,
 									 com.google.android.gms.location.LocationListener {
 	
-	// Zoom level upon opening app
+	// Zoom level upon opening app, 16 is on the order of UW campus size
 	public static final float INIT_ZOOM = 16;
 	// TODO: Put this in the strings.xml
 	public static final String TAG = "GeoPost";
@@ -80,7 +72,7 @@ public class MainActivity extends FragmentActivity
 	public static final float BORDER_THICKNESS = 4;
 	// Scale of the unlocking circle in lat/long coord difference
 	public static final double RANGE_RADIUS = 0.0015;
-	// The meters between two lat/lng lines in meters
+	// The meters between two lat/lng lines
 	public static final double COORD_IN_METERS = 111319.9;
 	// The radius of the earth in meters
 	public static final int EARTH_RADIUS = 6366000;
@@ -116,19 +108,21 @@ public class MainActivity extends FragmentActivity
 	private boolean includePosted;
 	private boolean includeFriends;
 	
+	// Current user and their facebook friends
 	private User currentUser;
 	private Set<String> friends;
 	
 	// A map of all pins currently drawn in the app
 	private HashMap<Marker, Pin> geoposts;
 	
+	// Window for pin being displayed
 	private ViewPinWindow vpw;
 
 	/**
-	 * @param Bundle The saved instance state of the app
 	 * Called upon opening of the activity. Initializes all of the
 	 * UI components, location, database interfaces, and makes
 	 * initial call to zoom in on location and get pins to put on map.
+	 * @param Bundle The saved instance state of the app
 	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -137,8 +131,9 @@ public class MainActivity extends FragmentActivity
 		
 		final int result = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
 		if (result != ConnectionResult.SUCCESS) {
-			Log.d("DEBUG", "MainActivity - Google Play messed up");
-			Toast toast = Toast.makeText(this, "Google Play service is not available: " + result, Toast.LENGTH_LONG);
+			Log.d("DEBUG", "MainActivity - Google Play messed up, result = " + result);
+			Toast toast = Toast.makeText(this, 
+						"Google Play service is not available", Toast.LENGTH_LONG);
 			toast.show();
 		}
 		
@@ -173,7 +168,7 @@ public class MainActivity extends FragmentActivity
 					Toast.LENGTH_LONG);
 			toast.show();
 		}
-		Log.d("DEBUG", "MainActivity - onCreate, successful network stuff");
+		Log.d("DEBUG", "MainActivity - onCreate, successful network setup/handling");
 		// Set the pin pop up windows to use the ViewPinWindow class
 		vpw = new ViewPinWindow(this);
 		map.setInfoWindowAdapter(vpw);
@@ -224,7 +219,11 @@ public class MainActivity extends FragmentActivity
 		}
 	}
 	
-	 @Override 
+	/**
+	 * Called on Activity stop, stop location updates and disconnect
+	 * location client.
+	 */
+	@Override 
     protected void onStop() { 
     	Log.d("OnStop","Stop Periodic Updates");
         // If the client is connected 
@@ -262,13 +261,13 @@ public class MainActivity extends FragmentActivity
 	}
     
 	/**
-	 * Request updates at startup 
+	 * Request updates for location and check map setup 
 	 */
 	@Override
 	protected void onResume() {
 		super.onResume();
-		//locationManager.requestLocationUpdates(provider, 400, 1, this);
 		locationClient.connect();
+		setUpMapIfNeeded();
 	}
 
 	/**
@@ -277,7 +276,6 @@ public class MainActivity extends FragmentActivity
 	@Override
 	protected void onPause() {
 		super.onPause();
-		//locationManager.removeUpdates(this);
 		locationClient.disconnect();
 	}
 	
@@ -293,14 +291,17 @@ public class MainActivity extends FragmentActivity
 		// Make the app open up to your current location 
 		Location currentLocation = locationClient.getLastLocation();
 		if (currentLocation != null) {
-			LatLng myLatLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+			LatLng myLatLng = new LatLng(currentLocation.getLatitude(), 
+										 currentLocation.getLongitude());
+
 			map.animateCamera(CameraUpdateFactory.newLatLngZoom(myLatLng, INIT_ZOOM));
 			
 			if (unlockedRadius != null) {
 				unlockedRadius.remove();
 			}
 			
-			drawCircle(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
+			drawCircle(new LatLng(currentLocation.getLatitude(), 
+								  currentLocation.getLongitude()));
 		} else {
 			DialogFragment newFragment = new EnableLocationFragment();
 			newFragment.show(getSupportFragmentManager(), "enableLocation");
@@ -324,6 +325,7 @@ public class MainActivity extends FragmentActivity
 		Log.d("DEBUG", "onConnectedFailed");
 		Toast.makeText(this, "Connection Failed", Toast.LENGTH_LONG).show();
 	}
+	
 	@Override
 	public void onDisconnected() {
 		Log.d("DEBUG", "onDisconnected");
