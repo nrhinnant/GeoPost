@@ -331,7 +331,9 @@ public class MainActivity extends FragmentActivity
 	}
     
     /**
-     * Add a pin to the map
+     * Add a pin to the map, determines visibility and color details
+     * for specific pin and adds it to main collection as well as
+     * draws it on the map.
      * @param pin the pin to be added
      */
     private void addPin(Pin pin){
@@ -373,27 +375,24 @@ public class MainActivity extends FragmentActivity
 		}
     	
     	Marker m = map.addMarker(new MarkerOptions()
-    	.title(pin.getMessage())
-    	.snippet(pin.getUser())
-    	.position(pin.getLocation())
-    	.icon(BitmapDescriptorFactory.defaultMarker(color))
-    	.visible(visible));
+    							 .title(pin.getMessage())
+    							 .snippet(pin.getUser())
+    							 .position(pin.getLocation())
+    							 .icon(BitmapDescriptorFactory.defaultMarker(color))
+    							 .visible(visible));
     	
     	geoposts.put(m, pin);
     }
      
     /**
-     * Initialize the map if possible
+     * Initialize the map if it is not already, ensures map
+     * is avaliable to activity
      */
     private void setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
         if (map == null) {
             map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map))
                                 .getMap();
-            // Check if we were successful in obtaining the map.
-            if (map != null) {
-                // The Map is verified. It is now safe to manipulate the map.
-            }
         }
     }
     
@@ -402,6 +401,8 @@ public class MainActivity extends FragmentActivity
 	/**
 	 * Creates the options menu on start up of the activity.
 	 * Currently, always returns true.
+	 * @param menu, menu to place items in
+	 * @return true to have menu displayed
 	 */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -427,6 +428,8 @@ public class MainActivity extends FragmentActivity
      * Handle menu item selections
      * 
      * @param item the clicked menu item
+     * @return true if event was handled, false to have default
+     * onOptionsItemSelected happen.
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -529,37 +532,30 @@ public class MainActivity extends FragmentActivity
     	// get the user again to update posts and views
     	currentUser = dbq.getCurrentUser();
     	
-    	User u = currentUser;
-    	assert(u != null);
-    	intent.putExtra("edu.washington.geopost.USERNAME", u.getName());
-    	intent.putExtra("edu.washington.geopost.FACEBOOKID", u.getFacebookID());
-    	intent.putExtra("edu.washington.geopost.NUM_POSTED", u.getNumPosted());
-    	intent.putExtra("edu.washington.geopost.NUM_VIEWED", u.getNumViewed());
+    	assert(currentUser != null);
+    	intent.putExtra("edu.washington.geopost.USERNAME", currentUser.getName());
+    	intent.putExtra("edu.washington.geopost.FACEBOOKID", currentUser.getFacebookID());
+    	intent.putExtra("edu.washington.geopost.NUM_POSTED", currentUser.getNumPosted());
+    	intent.putExtra("edu.washington.geopost.NUM_VIEWED", currentUser.getNumViewed());
     	startActivity(intent);
     }
-    
-    /**
-     * Log out the user
-     */
-    private void logout() {
-    	//TODO: this
-    }
-    
+   
     /************ View pin logic ***************/
 
     /**
-     * On clicking a marker, show the marker window if there is not already one shown. 
-     * Otherwise, hide the marker window. 
+     * On clicking a marker, show the marker window if there is not 
+     * already one shown. Otherwise, hide the marker window. 
      * 
      * @param marker the clicked marker (or pin)
-     * @return true if event was handled, returning false causes default behavior to run
+     * @return true if event was handled, returning false causes default 
+     * onMarkerClick to run, which will incorrectly display the window here.
      */
 	@Override
 	public boolean onMarkerClick(Marker marker) {
 		Log.d("onMarkerClick", "marker clicked");
 		assert(marker != null);
 		Pin pin = geoposts.get(marker);
-		if (pin == null){
+		if (pin == null) {
 			Log.d("onMarkerClick", "clicked on marker not found in map");
 			return true;
 		}
@@ -573,7 +569,6 @@ public class MainActivity extends FragmentActivity
 				Log.d("onMarkerClick", "attempting to unlock in-range pin");
 				Pin p = dbs.unlockPin(pin);
 				if (p != null) {  // unlocked new pin
-					// TODO: pin now has to be updated in the geoposts map
 					geoposts.put(marker, p);
 					Bitmap photo = p.getPhoto();
 					if (photo != null) {
