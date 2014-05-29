@@ -18,6 +18,8 @@ public class HelpFragmentTest extends ActivityInstrumentationTestCase2<MainActiv
 	protected void setUp() throws Exception {
 		super.setUp();
 		activity = getActivity();
+		fragment = new HelpFragment();
+		fragment.show(activity.getSupportFragmentManager(), "help");
 	}
 	
 	@Override
@@ -28,5 +30,6 @@ public class HelpFragmentTest extends ActivityInstrumentationTestCase2<MainActiv
 	@Test
 	public void testPreconditions() {
 		assertNotNull("activity is null", activity);
+		assertNotNull("fragment is null", fragment);
 	}
 }
