@@ -3,7 +3,6 @@ package edu.washington.geopost;
 import java.io.ByteArrayOutputStream;
 
 import android.graphics.Bitmap;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -15,35 +14,37 @@ import com.parse.ParseRelation;
 import com.parse.ParseUser;
 
 /**
- * 
  * DBStore sends information to the Parse database using parameterized queries.
  * 
  * @authors Neil Hinnant, Andrew Repp
- * 
  */
 
-public class DBStore extends FragmentActivity {
+public class DBStore {
 	/**
-	 * Creates and adds a new pin to the pin DB
-	 * @param coord The coordinates for this new pin
-	 * @param message The pin's message
-	 * @return The created pin, or null if updating the DB failed.
+	 * Creates and adds a new pin to the pin database
+	 * @param coord The new pin's coordinates. Must not be null
+	 * @param message The new pin's message. Must not be null
+	 * @param photo The new pin's photo. Null if the pin doesn't have a photo
+	 * @return The created pin, or null if updating the database failed or the
+	 *         coordinates or message is null
 	 */
 	public Pin postPin(LatLng coord, String message, Bitmap photo) {
+		// Check the message and coordinates are valid
 		if (message == null || coord == null) {
 			return null;
 		}
 		
-		// Make the ParsePin to save to the database and set its fields\
+		// Make the ParsePin to save to the database and set its fields
 		ParsePin dbPin = new ParsePin();
 		ParseUser user = ParseUser.getCurrentUser();
 		dbPin.setUser(user);
-		LatLng pinLocation = coord;
-		ParseGeoPoint location = new ParseGeoPoint(pinLocation.latitude,
-												   pinLocation.longitude);
+		ParseGeoPoint location = new ParseGeoPoint(coord.latitude,
+												   coord.longitude);
 		dbPin.setLocation(location);
 		dbPin.setMessage(message);
 		
+		// Check if we have a photo. If we do, try to save it to the database
+		// and update the pin to have this photo.
 		Log.d("PostPin", "Before photo");
 		if (photo != null) {
 	    	Log.d("PHOTO", "before scaling");
@@ -54,15 +55,16 @@ public class DBStore extends FragmentActivity {
 	    	ParseFile photoFile = new ParseFile("pinPhoto.jpg", scaledPhoto);
 	    	try {
 				photoFile.save();
+		    	Log.d("PostPin", "Successfully finished photo save");
+		    	dbPin.setPhoto(photoFile);
 			} catch (ParseException e) {
-				// TODO Auto-generated catch block
 				Log.d("PostPin", "ParseException with ParseFile.save()");
 			}
-	    	Log.d("PostPin", "Finished photo save");
-	    	dbPin.setPhoto(photoFile);
 		}
 		Log.d("PostPin", "After photo");
 		
+		// Attempt to save the pin to the database. If there's an error, return
+		// null.
 		try {
 			dbPin.save();
 		} catch (ParseException e) { // Error saving pin
@@ -78,8 +80,8 @@ public class DBStore extends FragmentActivity {
 		user.saveEventually();
 		
 		Pin newPin = new Pin(false, coord, user.getUsername(), 
-							 user.getString("facebookID"),
-							 dbPin.getObjectId(), message, photo);
+							 user.getString("facebookID"), dbPin.getObjectId(),
+							 message, photo);
 		return newPin;
 	}
 	
@@ -101,15 +103,13 @@ public class DBStore extends FragmentActivity {
 			return null;
 		}
 		
-		// If we successfully got the ParsePin, get the current user, add the
-		// ParsePin to that user's set of viewed pins, and save the updated
+		// Because we successfully got the ParsePin, get the current user, add
+		// the ParsePin to that user's set of viewed pins, and save the updated
 		// state to the database.
-		if (dbPin != null) {
-			ParseUser user = ParseUser.getCurrentUser();
-			ParseRelation<ParsePin> viewedPins = user.getRelation("viewed");
-			viewedPins.add(dbPin);
-			user.saveEventually();
-		}
+		ParseUser user = ParseUser.getCurrentUser();
+		ParseRelation<ParsePin> viewedPins = user.getRelation("viewed");
+		viewedPins.add(dbPin);
+		user.saveEventually();
 		
 		return createUnlockedPin(pin);
 	}
@@ -120,25 +120,7 @@ public class DBStore extends FragmentActivity {
 	 * @return A copy of p marked as unlocked
 	 */
 	private Pin createUnlockedPin(Pin p) {
-		return new Pin(false, p.getLocation(), p.getUser(), p.getFacebookID(), p.getPinId(), 
-					   p.getMessage(), p.getPhoto());
+		return new Pin(false, p.getLocation(), p.getUser(), p.getFacebookID(),
+					   p.getPinId(), p.getMessage(), p.getPhoto());
 	}
-	
-	/**
-	 * Determines whether the application has internet connectivity
-	 * @return true if connected, false otherwise
-	 */
-	/*
-	// We're unsure if we'll need this in the future, so we'll leave it
-	// here for now.
-	private boolean isNetworkConnected() {
-		ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo activeNetworkInfo = manager.getActiveNetworkInfo();
-		if (activeNetworkInfo == null) {
-			return false;
-		} else {
-			return activeNetworkInfo.isConnected();
-		}
-	}
-	*/
 }
