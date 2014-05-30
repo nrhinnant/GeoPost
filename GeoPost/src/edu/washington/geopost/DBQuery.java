@@ -99,6 +99,10 @@ public class DBQuery {
 			// Get the pin's original poster and their Facebook ID
 			if (pin.getUser() == null) {
 				Log.d("getPins", "pin.getUser() is null");
+				// If the pin's getUser is null, it will crash
+				// when trying to find facebook ID. This could happen
+				// when we mess with database manually and accidentally
+				// delete a user who has pins
 				continue;
 			}
 			String poster = pin.getUser().getUsername();
