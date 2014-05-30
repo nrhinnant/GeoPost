@@ -54,7 +54,7 @@ import com.google.android.gms.maps.model.VisibleRegion;
  * @author Matt, Mike, Ethan
  */
 public class MainActivity extends FragmentActivity implements
-		OnMarkerClickListener, LocationListener,
+		OnMarkerClickListener,
 		PostFragment.PostDialogListener,
 		EnableLocationFragment.EnableLocationDialogListener,
 		OnItemSelectedListener, OnCameraChangeListener, ConnectionCallbacks,
@@ -62,6 +62,7 @@ public class MainActivity extends FragmentActivity implements
 		com.google.android.gms.location.LocationListener {
 
 	// Zoom level upon opening app, 16 is on the order of UW campus size
+	// No units are specified, range of zoom is 2.0 to 21.0 (bigger => closer)
 	public static final float INIT_ZOOM = 16;
 	// TODO: Put this in the strings.xml
 	public static final String TAG = "GeoPost";
@@ -158,7 +159,7 @@ public class MainActivity extends FragmentActivity implements
 
 		// friends = new HashSet<String>();
 		Log.d("DEBUG", "MainActivity - onCreate, just before network stuff");
-
+		
 		if (isNetworkAvailable()) {
 			new GetUserTask().execute();
 			Log.d("DEBUG", "MainActivity - onCreate, grabbed current user");
@@ -831,25 +832,6 @@ public class MainActivity extends FragmentActivity implements
 	 */
 	private double coordToMeters(double difference) {
 		return difference * COORD_IN_METERS;
-	}
-
-	// Inherited by LocationListener
-	// We take no action in these events
-	@Override
-	public void onStatusChanged(String provider, int status, Bundle extras) {
-		return;
-	}
-
-	// Inherited by LocationListener
-	@Override
-	public void onProviderEnabled(String provider) {
-		return;
-	}
-
-	// Inherited by LocationListener
-	@Override
-	public void onProviderDisabled(String provider) {
-		return;
 	}
 
 	/**
