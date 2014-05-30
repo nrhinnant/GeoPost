@@ -57,8 +57,9 @@ public class DBStore {
 				photoFile.save();
 		    	Log.d("PostPin", "Successfully finished photo save");
 		    	dbPin.setPhoto(photoFile);
-			} catch (ParseException e) {
+			} catch (ParseException e) { // Error saving photo
 				Log.d("PostPin", "ParseException with ParseFile.save()");
+				return null;
 			}
 		}
 		Log.d("PostPin", "After photo");

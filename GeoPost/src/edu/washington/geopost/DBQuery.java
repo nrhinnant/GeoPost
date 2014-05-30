@@ -103,6 +103,9 @@ public class DBQuery {
 			// Get the pin's photo if it has one
 			ParseFile photoFile = pin.getParseFile("photo");
 			Bitmap photo = null;
+			boolean photoSuccessful = true; // true if no photo or photo
+											// successfully obtained from
+											// database, false otherwise
 			if (photoFile != null) {
 				byte[] photoData;
 				try {
@@ -111,17 +114,22 @@ public class DBQuery {
 														  photoData.length);
 				} catch (ParseException e) {
 					// There was an error reading the ParseFile, so we can't
-					// include the photo in the returned Pin. We'll just leave
-					// it as null.
+					// include the photo in the returned Pin. We set the
+					// boolean to false so that we don't include the Pin in the
+					// set of returned pins.
 					Log.d("PHOTO", "Couldn't read data from ParseFile");
+					photoSuccessful = false;
 				}
 			}
 		
-	        // Make the new Pin and add it to the result set
-			Pin newPin = new Pin(locked, location, poster, facebookID,
-								 pin.getObjectId(), pin.getMessage(), photo);
-
-			pinsToDisplay.add(newPin);
+			if (photoSuccessful) {
+		        // Make the new Pin and add it to the result set
+				Pin newPin = new Pin(locked, location, poster, facebookID,
+									 pin.getObjectId(), pin.getMessage(), 
+									 photo);
+	
+				pinsToDisplay.add(newPin);
+			}
 		}
 		
 		return pinsToDisplay;
@@ -194,7 +202,7 @@ public class DBQuery {
 			return null;
 		}
 		
-		// fill, and return the Set of Facebook IDs
+		// fill and return the Set of Facebook IDs
 		for (ParseUser friend : friends) {
 			friendIDs.add(friend.getString("facebookID"));
 		}
