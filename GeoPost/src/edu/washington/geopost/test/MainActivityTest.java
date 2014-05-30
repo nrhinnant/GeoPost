@@ -83,9 +83,9 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 		View view = solo.getView(Spinner.class, VIEWED_POSTS);
 		solo.clickOnView(view);
 		assertTrue(activity.isIncludeViewed());
-		assertTrue(activity.isIncludeLocked());
-		assertTrue(activity.isIncludePosted());
-		assertTrue(activity.isIncludeFriends());
+		assertFalse(activity.isIncludeLocked());
+		assertFalse(activity.isIncludePosted());
+		assertFalse(activity.isIncludeFriends());
 	}
 	
 	@Test 
@@ -114,8 +114,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 		solo.clickOnView(view);
 		assertTrue(activity.isIncludeViewed());
 		assertTrue(activity.isIncludeLocked());
-		assertTrue(activity.isIncludePosted());
-		assertFalse(activity.isIncludeFriends());
+		assertFalse(activity.isIncludePosted());
+		assertTrue(activity.isIncludeFriends());
 	}
 	
 	@Test
