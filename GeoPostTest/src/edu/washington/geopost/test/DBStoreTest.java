@@ -20,64 +20,56 @@ import edu.washington.geopost.ParsePin;
 import edu.washington.geopost.Pin;
 
 /**
- * 
  * DBStoreTest contains unit tests for the functionality of the DBStore class.
- * @author Andrew Repp, Neil Hinnant
- *
+ * @authors Neil Hinnant, Katie Madonna, Andrew Repp
  */
 
-// First, we need to consider how to set up a user for testing. One thing to
-// look into would be the ParseAnonymousUtils class, which has documentation at
-// https://parse.com/docs/android/api/com/parse/ParseAnonymousUtils.html
-// It might be able to help.
-// 
-// Second, we need to consider how to handle the fact that we're saving the
-// results in the background. Handling threads is tricky. We might want to
-// switch from using background threads to do the saving, just to make the
-// testing easier. Unfortunately, this might have a significant effect on
-// performance. Instead, we might want to look into a CountDownLatch, described
-// at http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/CountDownLatch.html
-
 public class DBStoreTest extends AndroidTestCase {
-	
-	private static DBStore pinWriter;
-	private String appID;
-	private String clientKey;
-	private static List<ParseObject> createdObjs = new ArrayList<ParseObject>();  // For removal of pins.
-	private ParseQuery<ParsePin> query = new ParseQuery<ParsePin>(ParsePin.class);
+	private static final String APP_ID = "GlrWxWCu5mnGFKUeeQIFg9Upt9AwomBDk3t0OKHa";
+	private static final String CLIENT_KEY = "HRRt6k8GzTclufgMCW8RES8LZgQLTTvKBJAnbD5c";
 	
 	// User login information
-	private ParseUser testUser;
 	private static final String PARSE_USER_EMAIL = "parsetestuser@huehuehue.com";
-	private static final String PARSE_USER_NAME = "Parse Test User";
+	private static final String PARSE_USERNAME = "Parse Test User";
 	private static final String PARSE_PASSWORD = "testPassword1234";
-		
+	
+	private static DBStore pinWriter;
+	private static List<ParseObject> createdObjs;  // For removal of pins.
+	private static ParseQuery<ParsePin> query;
+	private static ParseUser testUser;
+	
+	/**
+	 *  Sets up the test class for each individual test.
+	 */
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
-		appID = "GlrWxWCu5mnGFKUeeQIFg9Upt9AwomBDk3t0OKHa";
-		clientKey = "HRRt6k8GzTclufgMCW8RES8LZgQLTTvKBJAnbD5c";
-		Parse.initialize(getContext(), appID, clientKey);
+		Parse.initialize(getContext(), APP_ID, CLIENT_KEY);
 		ParseObject.registerSubclass(ParsePin.class);
 		pinWriter = new DBStore();
+		createdObjs = new ArrayList<ParseObject>();
+		query = ParseQuery.getQuery(ParsePin.class);
+		
+		ParseUser.logOut();
 		
 		testUser = new ParseUser();
 		testUser.setEmail(PARSE_USER_EMAIL);
-		testUser.setUsername(PARSE_USER_NAME);
+		testUser.setUsername(PARSE_USERNAME);
 		testUser.setPassword(PARSE_PASSWORD);
-		
-		ParseUser.logOut();
 		try {
 			testUser.signUp();
 		} catch (ParseException e) {
-			if (e.getCode() != e.USERNAME_TAKEN){
+			if (e.getCode() != ParseException.USERNAME_TAKEN) {
+				Log.d("DBStoreTest setUp", "error signing up user, but user"
+						+ "name not already taken");
 				throw e;
 			}
 		}
 		
 		try {
-			ParseUser.logIn(PARSE_USER_NAME, PARSE_PASSWORD);
+			ParseUser.logIn(PARSE_USERNAME, PARSE_PASSWORD);
 		} catch (ParseException e) {
+			Log.d("DBStoreTest setUp", "error logging in user");
 			throw e;
 		}
 		
@@ -85,21 +77,25 @@ public class DBStoreTest extends AndroidTestCase {
 	}
 	
 	/**
-	 * Tear down after each test case runs.
+	 * Tears down the test class after each individual test.
 	 */
 	@Override
 	public void tearDown() throws Exception {
 		super.tearDown();
-		// Delete all the elements added to the database after all tests run.
+		
+		// Delete all the elements added to the database after the test ran.
 		try {
 			ParseObject.deleteAll(createdObjs);
 		} catch (ParseException e) {
-			Log.d("mybugs", "Couldn't delete objects from the database.");
+			Log.d("DBStoreTest tearDown", "Couldn't delete objects from the"
+					+ "database.");
 			e.printStackTrace();
 		}
 	}
 	
-	//Test a single pin drop
+	/**
+	 * Tests that adding a single pin to the database works correctly.
+	 */
 	@Test
 	public void testSinglePin() {
 		String message = "This is a test pin";
@@ -114,11 +110,18 @@ public class DBStoreTest extends AndroidTestCase {
 			e.printStackTrace();
 		}
 		
-		assertTrue(message.equals(pin.getMessage()));
-		assertTrue(coord.equals(pin.getLocation()));
+		assertNotNull(pin);
+		assertFalse(pin.isLocked());
+		assertEquals(coord, pin.getLocation());
+		assertEquals(testUser.getUsername(), pin.getUser());
+		assertEquals(message, pin.getMessage());
+		assertNull(pin.getPhoto());
 	}
 	
-	//Test a multiple pin drop
+	/**
+	 * Tests that adding multiple pins to the database in a row works 
+	 * correctly.
+	 */
 	@Test
 	public void testMultiPin() {
 		LatLng coord1 = new LatLng(25.225, 56.553);
@@ -129,7 +132,7 @@ public class DBStoreTest extends AndroidTestCase {
 		Pin pin2 = pinWriter.postPin(coord2, "Pin2", null);
 		Pin pin3 = pinWriter.postPin(coord3, "Pin3", null);
 		
-		// Add the created ParsePin to the list so it can be
+		// Add the created ParsePins to the list so they can be
 		// removed at the end of the test.
 		try {
 			createdObjs.add(query.get(pin1.getPinId()));
@@ -138,50 +141,96 @@ public class DBStoreTest extends AndroidTestCase {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-				
-		assertTrue("Pin1".equals(pin1.getMessage()));
-		assertTrue(coord1.equals(pin1.getLocation()));
 		
-		assertTrue("Pin2".equals(pin2.getMessage()));
-		assertTrue(coord2.equals(pin2.getLocation()));
-		
-		assertTrue("Pin3".equals(pin3.getMessage()));
-		assertTrue(coord3.equals(pin3.getLocation()));
+		assertNotNull(pin1);
+		assertFalse(pin1.isLocked());
+		assertEquals(coord1, pin1.getLocation());
+		assertEquals(testUser.getUsername(), pin1.getUser());
+		assertEquals("Pin1", pin1.getMessage());
+		assertNull(pin1.getPhoto());
+
+		assertNotNull(pin2);
+		assertFalse(pin2.isLocked());
+		assertEquals(coord2, pin2.getLocation());
+		assertEquals("Pin2", pin2.getMessage());
+		assertEquals(testUser.getUsername(), pin2.getUser());
+		assertNull(pin2.getPhoto());
+
+		assertNotNull(pin3);
+		assertFalse(pin3.isLocked());
+		assertEquals(coord3, pin3.getLocation());
+		assertEquals("Pin3", pin3.getMessage());
+		assertEquals(testUser.getUsername(), pin2.getUser());
+		assertNull(pin2.getPhoto());
 	}
 	
-	//TODO
-	//Test a duplicate location pin drop (with different messages)
-	//What is the behavior here? I'm not sure we've defined it. 
-	//I seem to recall we wanted dupes to overwrite.
+	/**
+	 * Tests that saving two pins at the same coordinates works correctly.
+	 */
+	@Test
+	public void testDuplicatePin() {
+		LatLng coord = new LatLng(47.325, -18.25);
+		Pin first = pinWriter.postPin(coord, "First Message", null);
+		Pin second = pinWriter.postPin(coord, "Second Message", null);
+		
+		// Add the created ParsePins to the list so they can be
+		// removed at the end of the test.
+		try {
+			createdObjs.add(query.get(first.getPinId()));
+			createdObjs.add(query.get(second.getPinId()));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+
+		assertNotNull(first);
+		assertFalse(first.isLocked());
+		assertEquals(coord, first.getLocation());
+		assertEquals("First Message", first.getMessage());
+		assertEquals(testUser.getUsername(), first.getUser());
+		assertNull(first.getPhoto());
+
+		assertNotNull(second);
+		assertFalse(second.isLocked());
+		assertEquals(coord, second.getLocation());
+		assertEquals("Second Message", second.getMessage());
+		assertEquals(testUser.getUsername(), second.getUser());
+		assertNull(second.getPhoto());
+	}
 	
-	//This might actually be a system test? It requires using DBQuery
-//	@Test
-//	public void testDuplicatePin() {
-//		LatLng coord = new LatLng(47.325, -18.25);
-//		Pin first = pinWriter.postPin(coord, "First Message");
-//		Pin second = pinWriter.postPin(coord, "Second Message");
-//	}
-	
-	//Test a null pin drop
+	/**
+	 * Tests that trying to post a pin with null coordinates fails.
+	 */
 	@Test 
-	public void testNullPin() {
-		LatLng nullCoord = null;
-		Pin nullPin = pinWriter.postPin(nullCoord, "Sooooo null", null);
+	public void testNullCoord() {
+		Pin nullCoordPin = pinWriter.postPin(null, "Sooooo null", null);
 		
-		assertTrue(nullPin == null);
+		assertNull(nullCoordPin);
 	}
 	
-	//Test null message
+	/**
+	 * Tests that trying to post a pin with a null message fails.
+	 */
 	@Test
 	public void testNullMessage() {
-		LatLng coord = new LatLng(53.22,56.22);
-		Pin nullPin = pinWriter.postPin(coord, null, null);
+		LatLng coord = new LatLng(53.22, 56.22);
+		Pin nullMessagePin = pinWriter.postPin(coord, null, null);
 		
-		assertTrue(nullPin == null);
+		assertNull(nullMessagePin);
 	}
 	
-	//Test single pin unlock
-	@Test 
+	// TODO: Right now, testSingleUnlock() and testMultiUnlock() pass, but for
+	// a trivial reason. Since we're using the same testUser to post and to
+	// unlock, the pin will always be unlocked for them, because when you post
+	// a pin it is automatically unlocked for you. Therefore, we need to have a
+	// different user post the pin(s), in order to confirm that we actually
+	// successfully change the locked status. We could have a check before the
+	// call to unlock to show that the pin is currently locked, then a check
+	// after to show that the pin became unlocked.
+	
+	/**
+	 * Tests that unlocking a single pin works correctly.
+	 */
+	@Test
 	public void testSingleUnlock() {
 		String message = "Unlock Me!";
 		LatLng coord = new LatLng(38.55, -47.885);
@@ -195,17 +244,17 @@ public class DBStoreTest extends AndroidTestCase {
 			e.printStackTrace();
 		}
 		
-		assertTrue(pin != null);
+		assertNotNull(pin);
 		
 		Pin uPin = pinWriter.unlockPin(pin);
-		assertTrue(uPin != null);
-		assertTrue(!uPin.isLocked());
+		assertNotNull(uPin);
+		assertFalse(uPin.isLocked());
 	}
 	
-	//TODO I think we have a problem here.. How can I test whether or 
-	//not we're unlocking a pin we're allowed to? That logic may be improperly 
-	//abstracted?
-	//Test multiple pin unlock
+
+	/**
+	 * Tests that unlocking multiple pins in a row works correctly.
+	 */
 	@Test
 	public void testMultiUnlock() {
 		LatLng coord1 = new LatLng(25.225, 56.553);
@@ -226,34 +275,28 @@ public class DBStoreTest extends AndroidTestCase {
 			e.printStackTrace();
 		}
 		
-		assertTrue(pin1 != null);
-		assertTrue(pin2 != null);
-		assertTrue(pin3 != null);
+		assertNotNull(pin1);
+		assertNotNull(pin2);
+		assertNotNull(pin3);
 		
 		Pin uPin1 = pinWriter.unlockPin(pin1);
-		assertTrue(uPin1 != null);
-		assertTrue(!uPin1.isLocked());
+		assertNotNull(uPin1);
+		assertFalse(uPin1.isLocked());
 
 		Pin uPin2 = pinWriter.unlockPin(pin2);
-		assertTrue(uPin2 != null);
-		assertTrue(!uPin2.isLocked());
+		assertNotNull(uPin2);
+		assertFalse(uPin2.isLocked());
 
 		Pin uPin3 = pinWriter.unlockPin(pin3);
-		assertTrue(uPin3 != null);
-		assertTrue(!uPin3.isLocked());
+		assertNotNull(uPin3);
+		assertFalse(uPin3.isLocked());
 	}
 	
-	//Test unlock null pin
+	/**
+	 * Tests that unlocking a null pin fails.
+	 */
 	@Test
 	public void testNullUnlock() {
-		assertTrue(pinWriter.unlockPin(null) == null);
-	}
-	
-	//Sample test
-	@Test
-	public void testExample() {
-		// I SAW THIS TEST FAIL
-		// IS THIS EVEN JAVA
-		assertTrue(true);
+		assertNull(pinWriter.unlockPin(null));
 	}
 }
