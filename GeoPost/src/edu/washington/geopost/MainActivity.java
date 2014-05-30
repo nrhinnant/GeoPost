@@ -173,6 +173,10 @@ public class MainActivity extends FragmentActivity implements
 				"MainActivity - onCreate, successful network setup/handling");
 		// Set the pin pop up windows to use the ViewPinWindow class
 		vpw = new ViewPinWindow(this);
+		if (vpw == null)
+			Log.d("LC", "VPW IS NULL");
+		if (map == null)
+			Log.d("LC", "MAP IS NULL");
 		map.setInfoWindowAdapter(vpw);
 
 		markerWindowShown = false;
