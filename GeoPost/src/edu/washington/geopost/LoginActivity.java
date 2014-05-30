@@ -25,28 +25,26 @@ import com.facebook.model.GraphUser;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
-import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseRelation;
 import com.parse.ParseUser;
 
 
 /**
+ * This activity provides the functionality for users to log in to the app.
  * 
- * The user logs in from this activity.
- * 
- * @author Megan Drasnin
- *
+ * @authors Megan Drasnin, Andrew Repp
  */
 
 public class LoginActivity extends Activity {
-
-	
 	private Button loginButton;
 	private Dialog progressDialog;
 	
 	/**
-	 * Displays the login button
+	 * Displays the login button and skips to the main app if the user is
+	 * already logged in.
+	 * @param savedInstanceState the data saved by the app the last time it
+	 *                           shutdown, or null if there is no such data
 	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -55,23 +53,26 @@ public class LoginActivity extends Activity {
 
 		loginButton = (Button) findViewById(R.id.loginButton);
 		loginButton.setOnClickListener(new View.OnClickListener() {
+			// Hooks up the login button to its listener
 			@Override
 			public void onClick(View v) {
 				onLoginButtonClicked();
 			}
 		});
 
-		// Check if there is a currently logged in user
-		// and they are linked to a Facebook account.
+		// Check if there is a currently logged in user and they are linked to
+		// a Facebook account. If they are, skip to the main map activity.
 		ParseUser currentUser = ParseUser.getCurrentUser();
 		if ((currentUser != null) && ParseFacebookUtils.isLinked(currentUser)) {
-			// Go to the map activity
 			showMainActivity();
 		}
 	}
 	
 	/**
 	 * Finishes Facebook authentication.
+	 * @param requestCode the code identifying who made the request
+	 * @param resultCode the code containing information on the result
+	 * @param data the data returned by the activity, if any
 	 */
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -79,8 +80,8 @@ public class LoginActivity extends Activity {
 		ParseFacebookUtils.finishAuthentication(requestCode, resultCode, data);
 		Log.d("DEBUG", "onActivityResult finished Authentication");
 		if (!isNetworkAvailable()) {
-			Toast toast = Toast.makeText(getApplicationContext(), "Network unavailable", 
-					Toast.LENGTH_LONG);
+			Toast toast = Toast.makeText(getApplicationContext(),
+					"Network unavailable", Toast.LENGTH_LONG);
 			toast.show();
 		}
 	}
@@ -92,20 +93,24 @@ public class LoginActivity extends Activity {
 	    LoginActivity.this.progressDialog = ProgressDialog.show(
 	            LoginActivity.this, "", "Logging in...", true);
 	    // TODO: Change permissions
-	    List<String> permissions = Arrays.asList("public_profile", "email", "user_friends" );
+	    List<String> permissions = Arrays.asList("public_profile", "email",
+	    										 "user_friends");
+	    
+	    // Attempt to log the user in. If the login is successful, save
+	    // important data for later and proceed to the main app.
 	    ParseFacebookUtils.logIn(permissions, this, new LogInCallback() {
 	        @Override
 	        public void done(ParseUser user, ParseException err) {
 	            LoginActivity.this.progressDialog.dismiss();
-	            if (user == null) {
+	            if (user == null) { // error
 	            	Log.d("DEBUG", "User cancelled the Facebook login.");
-	            } else if (user.isNew()) {
-	            	Log.d("DEBUG", "User signed up and logged in through Facebook!");
-	            	saveUserInfo();
-	            	getFriends();
-	            	showMainActivity();
-	            } else {
-	            	Log.d("DEBUG", "User logged in through Facebook!");
+	            } else { // success
+	            	if (user.isNew()) {
+	            		Log.d("DEBUG", "User signed up and logged in through"
+	            				+ "Facebook!");
+	            	} else {
+	            		Log.d("DEBUG", "User logged in through Facebook!");
+	            	}
 	            	saveUserInfo();
 	            	getFriends();
 	            	showMainActivity();
@@ -115,7 +120,7 @@ public class LoginActivity extends Activity {
 	}
 
 	/**
-	 * Shows the map activity.
+	 * Displays the map activity.
 	 */
 	private void showMainActivity() {
 		Intent intent = new Intent(this, MainActivity.class);
@@ -123,27 +128,26 @@ public class LoginActivity extends Activity {
 	}
 	
 	/**
-	 * Saves the user's Facebook ID and name from Facebook in the Parse database.
+	 * Saves the user's Facebook ID and name from Facebook in the Parse 
+	 * database.
 	 */
 	private void saveUserInfo() {
 		Session session = ParseFacebookUtils.getSession();
 		if (session != null && session.isOpened()) {
-
-			Request request = Request.newMeRequest(session, new Request.GraphUserCallback() {
+			// Make the request to Facebook's Graph to get the data
+			Request request = Request.newMeRequest(session, 
+					new Request.GraphUserCallback() {
+				// handle response
 				@Override
 				public void onCompleted(GraphUser user, Response response) {
-					// handle response
-					if (user != null) {
-
+					if (user != null) { // successfully got data about user
 						ParseUser currentUser = ParseUser.getCurrentUser();
 						currentUser.setUsername(user.getName());
 						currentUser.put("facebookID", user.getId());
 						currentUser.saveEventually();
-
-
-					} else if (response.getError() != null) {
-						Log.d(MainActivity.TAG, response.getError().getErrorMessage());
-
+					} else if (response.getError() != null) { // error to display
+						Log.d(MainActivity.TAG, 
+								response.getError().getErrorMessage());
 					}
 				}
 			});
@@ -156,31 +160,41 @@ public class LoginActivity extends Activity {
 	 */
 	private void getFriends() {
 		Session session = ParseFacebookUtils.getSession();
-		if (session!= null && session.isOpened()) {
-			Request request = Request.newMyFriendsRequest(session, new Request.GraphUserListCallback() {
+		if (session != null && session.isOpened()) {
+			// Make the request to Facebook's Graph to get the data
+			Request request = Request.newMyFriendsRequest(session,
+					new Request.GraphUserListCallback() {
 				@Override
-				public void onCompleted(List<GraphUser> users, Response response) {
-					if (users != null) {
+				public void onCompleted(List<GraphUser> users,
+						Response response) {
+					if (users != null) { // successfully got user's friends
 						List<String> friendsList = new ArrayList<String>();
 						for (GraphUser user : users) {
 							friendsList.add(user.getId());
 						}
-						// Construct a ParseUser query that will find friends whose
-						// facebook IDs are contained in the current user's friend list.
+						
+						// Construct a ParseUser query that will find friends
+						// whose Facebook IDs are contained in the current
+						// user's friend list.
 						ParseQuery<ParseUser> friendQuery = ParseUser.getQuery();
 						friendQuery.whereContainedIn("facebookID", friendsList);
 
-						// find will return a a list of ParseUsers that are friends with the current user
+						// find will return a a list of ParseUsers that are 
+						// friends with the current user
 						List<ParseUser> friendUsers = null;
 						try {
 							friendUsers = friendQuery.find();
-						} catch (ParseException e) {
-							Log.d(MainActivity.TAG, "Could not find facebook friends.");
+						} catch (ParseException e) { // error finding friends
+							Log.d(MainActivity.TAG, "Could not find facebook "
+									+ "friends.");
 							return;
 						}
-						// Save the current user's facebook friends in the database
+						
+						// Save the current user's Facebook friends in the 
+						// database in the user's friends relation
 						ParseUser currentUser = ParseUser.getCurrentUser();
-						ParseRelation<ParseUser> friendsRelation = currentUser.getRelation("friends");
+						ParseRelation<ParseUser> friendsRelation = 
+								currentUser.getRelation("friends");
 						for (ParseUser friend : friendUsers) {
 							friendsRelation.add(friend);
 						}
@@ -193,8 +207,8 @@ public class LoginActivity extends Activity {
 	}
 	
 	/**
-	 * 
-	 * @return True if the phone is connected to any network, false otherwise
+	 * Determines if the phone is connected to a network.
+	 * @return true if the phone is connected to any network, false otherwise
 	 */
 	private boolean isNetworkAvailable() {
 	    ConnectivityManager connectivityManager 
@@ -202,6 +216,4 @@ public class LoginActivity extends Activity {
 	    NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
 	    return activeNetworkInfo != null && activeNetworkInfo.isConnected();
 	}
-
-	
 }
