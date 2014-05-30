@@ -7,7 +7,6 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.test.ActivityInstrumentationTestCase2;
 import android.widget.Button;
-import edu.washington.geopost.HelpFragment;
 import edu.washington.geopost.PostFragment;
 import edu.washington.geopost.MainActivity;
 
