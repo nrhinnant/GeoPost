@@ -463,10 +463,6 @@ public class MainActivity extends FragmentActivity implements
 	public void onItemSelected(AdapterView<?> parent, View view, int pos,
 			long id) {
 		String option = (String) parent.getItemAtPosition(pos);
-		includeViewed = false;
-		includeLocked = false;
-		includePosted = false;
-		includeFriends = false;
 		if (option.equals("All Posts")) {
 			includeViewed = true;
 			includeLocked = true;

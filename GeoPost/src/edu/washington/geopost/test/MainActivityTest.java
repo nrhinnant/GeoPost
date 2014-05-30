@@ -43,10 +43,10 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 		activity = getActivity();
 		solo = new Solo(getInstrumentation(), activity);
 		
-		assertFalse(activity.isIncludeViewed());
-		assertFalse(activity.isIncludeLocked());
-		assertFalse(activity.isIncludePosted());
-		assertFalse(activity.isIncludeFriends());
+		assertTrue(activity.isIncludeViewed());
+		assertTrue(activity.isIncludeLocked());
+		assertTrue(activity.isIncludePosted());
+		assertTrue(activity.isIncludeFriends());
 	}
 	
 	@Override
