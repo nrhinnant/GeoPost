@@ -10,7 +10,10 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.Spinner;
 
 import com.parse.ParseUser;
 import com.robotium.solo.Solo;
@@ -21,6 +24,14 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	private MainActivity activity;
 	private Solo solo;
 	private static final String TAG = "MainActivityTest";
+	//The below integers represent the position of the 
+	//corresponding option in the pin sorting spinner.
+	//These values can be found in res/values/stringarrays.xml
+	private static final int ALL_POSTS = 0;
+	private static final int VIEWED_POSTS = 2;
+	private static final int LOCKED_POSTS = 3;
+	private static final int MY_POSTS = 4;
+	private static final int FRIENDS_POSTS = 1;
 	
 	public MainActivityTest() {
 		super(MainActivity.class);
@@ -52,13 +63,44 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 		assertEquals(expected, actual);
 	}
 	
+//	@Test
+//	public void testAllPostsSelected() {
+//		View view = solo.getView(Spinner.class, ALL_POSTS);
+//		solo.clickOnView(view);
+//		assertTrue(MainActivity.isIncludeViewed());
+//	}
+//	
+//	@Test
+//	public void testViewedPostsSelected() {
+//		View view = solo.getView(Spinner.class, VIEWED_POSTS);
+//		solo.clickOnView(view);
+//	}
+//	
+//	@Test 
+//	public void testLockedPostsSelected() {
+//		View view = solo.getView(Spinner.class, LOCKED_POSTS);
+//		solo.clickOnView(view);
+//	}
+//	
+//	@Test
+//	public void testMyPostsSelected() {
+//		View view = solo.getView(Spinner.class, MY_POSTS);
+//		solo.clickOnView(view);
+//	}
+//	
+//	@Test
+//	public void testFriendsPostsSelected() {
+//		View view = solo.getView(Spinner.class, FRIENDS_POSTS);
+//		solo.clickOnView(view);
+//	}
+	
 	@Test
 	public void testPostButtonClickOpensFragment() {
 		//solo.waitForActivity(MainActivity.class.getName());
 		solo.clickOnText("Post");
 		solo.clickOnText("Cancel");
 	}
-	
+	@Test
 	public void testMockPost() {
 		//solo.waitForActivity(MainActivity.class.getName());
 		solo.clickOnText("Post");
@@ -66,4 +108,6 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 		solo.enterText(0, "Test Post. Please Ignore Param 2");
 		solo.clickOnText("Post");
 	}
+	
+
 }
