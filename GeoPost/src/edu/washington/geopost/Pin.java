@@ -49,15 +49,6 @@ public class Pin {
 		this.photo = photo;
 	}
 	
-	/**
-	 * Creates a new Pin from the given parameters.
-	 * @param location The coordinates of the pin
-	 * @param pid The pin's id
-	 * @param message The text of the pin's message
-	 */
-	public Pin(LatLng coord, String pinId, String message) {
-		this(false, coord, null, null, pinId, message, null);
-	}
 
 	/**
 	 * Returns <tt>true</tt> if the pin is locked.
@@ -67,19 +58,6 @@ public class Pin {
 		return locked;
 	}
 	
-	/**
-	 * Locks the pin.
-	 */
-	public void lock() {
-		locked = true;
-	}
-	
-	/**
-	 * Unlocks the pin.
-	 */
-	public void unlock() {
-		locked = false;
-	}
 	
 	/**
 	 * Returns the pin's location.
@@ -89,13 +67,6 @@ public class Pin {
 		return coord;
 	}
 	
-	/**
-	 * Sets the pin's location.
-	 * @param coord The pin's location
-	 */
-	public void setLocation(LatLng coord) {
-		this.coord = coord;
-	}
 	
 	/**
 	 * Returns the username of the user who posted the pin.
@@ -106,28 +77,13 @@ public class Pin {
 	}
 	
 	/**
-	 * Sets the user who posted the pin.
-	 * @param username The username of the user who posted the pin
-	 */
-	public void setUser(String username) {
-		this.username = username;
-	}
-	
-	/**
 	 * Returns the Facebook ID of the user who posted the pin.
 	 * @return The Facebook ID of the user who posted the pin
 	 */
 	public String getFacebookID() {
 		return facebookId;
 	}
-	
-	/**
-	 * Sets the Facebook ID of the user who posted the pin.
-	 * @param facebookId The Facebook ID of the user who posted the pin
-	 */
-	public void setFacebookID(String facebookId) {
-		this.facebookId = facebookId;
-	}
+
 	
 	/**
 	 * Returns the pin's ID.
@@ -135,14 +91,6 @@ public class Pin {
 	 */
 	public String getPinId() {
 		return pinId;
-	}
-	
-	/**
-	 * Sets the pin's ID.
-	 * @param pinId The pin's ID
-	 */
-	public void setPinId(String pinId) {
-		this.pinId = pinId;
 	}
 	
 	/**
@@ -168,15 +116,7 @@ public class Pin {
 	public Bitmap getPhoto() {
 		return photo;
 	}
-	
-	/**
-	 * Sets the pin's photo.
-	 * @param photo The pin's photo
-	 */
-	public void setPhoto(Bitmap photo) {
-		this.photo = photo;
-	}
-	
+
 	/**
 	 * Standard hashcode function for pin.
 	 * @return int hashcode for the pin
