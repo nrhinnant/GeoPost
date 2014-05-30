@@ -64,7 +64,7 @@ public class LoginActivity extends Activity {
 		// a Facebook account. If they are, skip to the main map activity.
 		ParseUser currentUser = ParseUser.getCurrentUser();
 		if ((currentUser != null) && ParseFacebookUtils.isLinked(currentUser)) {
-			showMainActivity();
+			showMainActivity(false);
 		}
 	}
 	
@@ -103,15 +103,17 @@ public class LoginActivity extends Activity {
 	            if (user == null) { // error
 	            	Log.d("DEBUG", "User cancelled the Facebook login.");
 	            } else { // success
+	            	boolean isNewUser = false;
 	            	if (user.isNew()) {
 	            		Log.d("DEBUG", "User signed up and logged in through"
 	            				+ "Facebook!");
+	            		isNewUser = true;
 	            	} else {
 	            		Log.d("DEBUG", "User logged in through Facebook!");
 	            	}
 	            	saveUserInfo();
 	            	getFriends();
-	            	showMainActivity();
+	            	showMainActivity(isNewUser);
 	            }
 	        }
 	    });
@@ -119,9 +121,11 @@ public class LoginActivity extends Activity {
 
 	/**
 	 * Displays the map activity.
+	 * @param isNewUser true iff the user is new
 	 */
-	private void showMainActivity() {
+	private void showMainActivity(boolean newUser) {
 		Intent intent = new Intent(this, MainActivity.class);
+		intent.putExtra("NewUser", newUser);
 		startActivity(intent);
 	}
 	
