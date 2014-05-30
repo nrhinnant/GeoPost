@@ -3,7 +3,7 @@
 
     <string name="app_name">GeoPost</string>
     <string name="action_help">Help</string>
-    <string name="action_profile">Profile</string>
+    <string name="action_profile">Stats</string>
     <string name="action_logout">Log Out</string>
     <string name="action_sort">Sort By:</string>
     <string name="button_message">Post</string>

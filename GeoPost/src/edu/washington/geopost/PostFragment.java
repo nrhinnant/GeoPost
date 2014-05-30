@@ -1,14 +1,10 @@
 package edu.washington.geopost;
 
-import com.google.android.gms.maps.model.LatLng;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -17,7 +13,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -28,7 +23,7 @@ import android.widget.ImageView;
  * information that will be transmitted to listeners on clicking
  * of the positive button. 
  * 
- * @author Ethan Goldman-Kirst
+ * @author Ethan
  *
  */
 public class PostFragment extends DialogFragment implements OnClickListener {
@@ -107,6 +102,14 @@ public class PostFragment extends DialogFragment implements OnClickListener {
         return builder.create();
     }
 	
+	/**
+	 * Called when camera activity finishes. 
+	 * Saves the image taken by the user
+	 * 
+	 * @param requestCode who the result came from
+	 * @param resultCode result code from child activity
+	 * @param data the data returned from the camera intent
+	 */
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		Log.d("CAM", "on activity result for cam");
@@ -119,6 +122,11 @@ public class PostFragment extends DialogFragment implements OnClickListener {
 	    }
 	}
 	
+	/**
+	 * Returns the photo taken by the user
+	 * 
+	 * @return the photo taken by the user
+	 */
 	private Bitmap getPhoto() {
 		Log.d("PHOTO", "getPhoto");
 		if (finalPhoto != null) {
@@ -131,6 +139,7 @@ public class PostFragment extends DialogFragment implements OnClickListener {
 	
 	/**
 	 * Retrieve and return the message entered by the user
+	 * 
 	 * @return the message entered by the user
 	 */
 	private String getMessage() {
@@ -139,9 +148,14 @@ public class PostFragment extends DialogFragment implements OnClickListener {
 		return e.getText().toString();
 	}
 
+	/**
+	 * Called on click of the camera button
+	 * Starts an activity to take a picture
+	 * 
+	 * @param v a view of the the clicked button
+	 */
 	@Override
 	public void onClick(View v) {
-		// TODO Auto-generated method stub
 		Log.d("CAM", "on cam click");
 		Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 	    if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {

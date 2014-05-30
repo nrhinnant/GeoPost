@@ -92,9 +92,7 @@ public class LoginActivity extends Activity {
 	private void onLoginButtonClicked() {
 	    LoginActivity.this.progressDialog = ProgressDialog.show(
 	            LoginActivity.this, "", "Logging in...", true);
-	    // TODO: Change permissions
-	    List<String> permissions = Arrays.asList("public_profile", "email",
-	    										 "user_friends");
+	    List<String> permissions = Arrays.asList("public_profile", "user_friends");
 	    
 	    // Attempt to log the user in. If the login is successful, save
 	    // important data for later and proceed to the main app.

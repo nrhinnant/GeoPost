@@ -21,7 +21,7 @@ import com.parse.ParseUser;
  * DBQuery retrieves information from the Parse database using parameterized
  * queries.
  * 
- * @authors Katie Madonna, Andrew Repp
+ * @authors Katie Madonna, Andrew Repp, Megan Drasnin
  */
 
 public class DBQuery {
