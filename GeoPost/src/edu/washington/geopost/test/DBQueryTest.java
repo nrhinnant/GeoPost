@@ -35,6 +35,7 @@ public class DBQueryTest extends AndroidTestCase {
 	private static final String PARSE_USER_NAME = "Parse Test User";
 	private static final String PARSE_PASSWORD = "testPassword1234";
 	
+	private static DBQuery dbq = new DBQuery();
 	private static List<ParseObject> createdObjs;
 	private ParseUser testUser;
 	private ParsePin testPin0;
@@ -61,7 +62,7 @@ public class DBQueryTest extends AndroidTestCase {
 		try {
 			testUser.signUp();
 		} catch (ParseException e) {
-			if (e.getCode() != e.USERNAME_TAKEN){
+			if (e.getCode() != ParseException.USERNAME_TAKEN){
 				throw e;
 			}
 		}
@@ -136,21 +137,22 @@ public class DBQueryTest extends AndroidTestCase {
 	 */
 	@Test
 	public void testCurrentUser() {
-		DBQuery dbq = new DBQuery();
 		User user = dbq.getCurrentUser();
 		
 		assertTrue(user.getName().equals(testUser.getUsername()));
-		assertTrue(user.getFacebookID().equals(testUser.getString("facebookID")));
+		// Ideally we would check this but it looks like manually adding doesn't
+		// store any relations. Both return zero.
+		//
 		//assertTrue(user.getNumPosted() == 3);
-		//assertTrue(user.getNumViewed() == 0);
+		//assertTrue(user.getNumViewed() == 3);
 	}
 	
 	/**
-	 * Test for DBQuery getPins method.
+	 * Test for DBQuery getPins method for pins within a typical case
+	 * boundary box.
 	 */
 	@Test
 	public void testGetPins() {
-		DBQuery dbq = new DBQuery();
 		Set<Pin> pins = dbq.getPins(new LatLng(0.0, 0.0), new LatLng(0.4, 0.4));
 		
 		assertTrue(pins.size() > 2);
@@ -162,5 +164,56 @@ public class DBQueryTest extends AndroidTestCase {
 		assertTrue(pins.contains(testPin1));
 		assertTrue(pins.contains(testPin2));
 		*/
+	}
+	
+	/**
+	 * Test get pins with a pin on the boundary
+	 */
+	@Test
+	public void testGetPinsOnBoundary() {
+		Set<Pin> pins = dbq.getPins(new LatLng(0.0, 0.0), new LatLng(0.2, 0.3));
+		assertTrue(pins.size() > 2);
+	}
+	
+	/**
+	 * Test get pins with the same coordinates for the corners of the box.
+	 */
+	@Test
+	public void testGetPinsSameCoords() {
+		Set<Pin> pins = dbq.getPins(new LatLng(0.2, 0.3), new LatLng(0.2, 0.3));
+		assertNull(pins);  // an invalid query so null is returned.
+	}
+	
+	/**
+	 * Test get pins with both corners at the same latitude or longitude.
+	 */
+	@Test
+	public void testGetPinsOnALine() {
+		// Same latitude
+		Set<Pin> pins = dbq.getPins(new LatLng(0.0, 0.0), new LatLng(0.0, 0.4));
+		assertNull(pins);  // an invalid query so null is returned.
+		
+		// Same longitude
+		pins = dbq.getPins(new LatLng(0.0, 0.0), new LatLng(0.4, 0.0));
+		assertNull(pins);  // an invalid query so null is returned.
+	}
+	
+	/**
+	 * Test get pins with reversed coordinates.
+	 */
+	@Test
+	public void testGetPinsReversedBox() {
+		Set<Pin> pins = dbq.getPins(new LatLng(0.4, 0.4), new LatLng(0.0, 0.0));
+		assertNull(pins);  // an invalid query so null is returned.
+	}
+	
+	/**
+	 * Tests the getFriends method of DBQuery for a non-Facebook user.
+	 */
+	@Test
+	public void testGetFriendsForNonFacebookUser() {
+		// Ideally we could have a Facebook user with friends to verify this
+		// works if the user has a facebookId.
+		assertTrue(dbq.getFriends().isEmpty());		
 	}
 }
