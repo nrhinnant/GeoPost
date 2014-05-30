@@ -2,15 +2,17 @@ package edu.washington.geopost.test;
 
 import org.junit.Test;
 
+import android.app.AlertDialog;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.test.ActivityInstrumentationTestCase2;
+import android.widget.Button;
 import edu.washington.geopost.PostFragment;
 import edu.washington.geopost.MainActivity;
 
 public class PostFragmentTest extends ActivityInstrumentationTestCase2<MainActivity> {
 	private MainActivity activity;
-	private DialogFragment fragment;
+	private Fragment fragment;
 	
 	public PostFragmentTest() {
 		super(MainActivity.class);
@@ -20,8 +22,10 @@ public class PostFragmentTest extends ActivityInstrumentationTestCase2<MainActiv
 	protected void setUp() throws Exception {
 		super.setUp();
 		activity = getActivity();
-		fragment = new PostFragment();
-		fragment.show(activity.getSupportFragmentManager(), "post");
+		DialogFragment tempFragment = new PostFragment();
+		tempFragment.show(activity.getSupportFragmentManager(), "post");
+		getInstrumentation().waitForIdleSync();
+		fragment = activity.getSupportFragmentManager().findFragmentByTag("post");
 	}
 	
 	@Override
@@ -37,10 +41,41 @@ public class PostFragmentTest extends ActivityInstrumentationTestCase2<MainActiv
 	
 	@Test
 	public void testFragmentIsBeingShown() {
-		getInstrumentation().waitForIdleSync();
-		Fragment postFragment = 
-				activity.getSupportFragmentManager().findFragmentByTag("post");
-		assertTrue(postFragment instanceof DialogFragment);
-		assertTrue(((DialogFragment) postFragment).getShowsDialog());
+		assertTrue(fragment instanceof DialogFragment);
+		assertTrue(((DialogFragment) fragment).getShowsDialog());
+	}
+	
+	@Test
+	public void testPositiveButtonNotNull() {
+		AlertDialog dialog = (AlertDialog) ((DialogFragment) fragment).getDialog();
+		Button b = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+		assertNotNull("positive button is null", b);
+	}
+	
+	@Test
+	public void testNegativeButtonNotNull() {
+		AlertDialog dialog = (AlertDialog) ((DialogFragment) fragment).getDialog();
+		Button b = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+		assertNotNull("negative button is null", b);
+	}
+	
+	@Test
+	public void testPositiveButtonMessage() {
+		AlertDialog dialog = (AlertDialog) ((DialogFragment) fragment).getDialog();
+		Button b = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+		final String expected = 
+				activity.getString(edu.washington.geopost.R.string.button_message);
+		final String actual = b.getText().toString();
+		assertEquals(expected, actual);
+	}
+	
+	@Test
+	public void testNegativeButtonMessage() {
+		AlertDialog dialog = (AlertDialog) ((DialogFragment) fragment).getDialog();
+		Button b = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+		final String expected = 
+				activity.getString(edu.washington.geopost.R.string.cancel);
+		final String actual = b.getText().toString();
+		assertEquals(expected, actual);
 	}
 }
