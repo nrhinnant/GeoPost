@@ -32,6 +32,10 @@ public class DBStoreTest extends AndroidTestCase {
 	private static final String PARSE_USER_EMAIL = "parsetestuser@huehuehue.com";
 	private static final String PARSE_USERNAME = "Parse Test User";
 	private static final String PARSE_PASSWORD = "testPassword1234";
+
+	private static final String PARSE_USER_EMAIL_2 = "parsetestuser2@cse403.com";
+	private static final String PARSE_USERNAME_2 = "Parse Test User 2";
+	private static final String PARSE_PASSWORD_2 = "testPassword5678";
 	
 	private static DBStore pinWriter;
 	private static List<ParseObject> createdObjs;  // For removal of pins.
@@ -102,7 +106,7 @@ public class DBStoreTest extends AndroidTestCase {
 		LatLng coord = new LatLng(35.445, 47.555);
 		Pin pin = pinWriter.postPin(coord, message, null);
 		
-		// Add the created ParsePin to the list so it can be
+		// Add the created Pin to the list so it can be
 		// removed at the end of the test.
 		try {
 			createdObjs.add(query.get(pin.getPinId()));
@@ -132,7 +136,7 @@ public class DBStoreTest extends AndroidTestCase {
 		Pin pin2 = pinWriter.postPin(coord2, "Pin2", null);
 		Pin pin3 = pinWriter.postPin(coord3, "Pin3", null);
 		
-		// Add the created ParsePins to the list so they can be
+		// Add the created Pins to the list so they can be
 		// removed at the end of the test.
 		try {
 			createdObjs.add(query.get(pin1.getPinId()));
@@ -173,7 +177,7 @@ public class DBStoreTest extends AndroidTestCase {
 		Pin first = pinWriter.postPin(coord, "First Message", null);
 		Pin second = pinWriter.postPin(coord, "Second Message", null);
 		
-		// Add the created ParsePins to the list so they can be
+		// Add the created Pins to the list so they can be
 		// removed at the end of the test.
 		try {
 			createdObjs.add(query.get(first.getPinId()));
@@ -218,25 +222,25 @@ public class DBStoreTest extends AndroidTestCase {
 		assertNull(nullMessagePin);
 	}
 	
-	// TODO: Right now, testSingleUnlock() and testMultiUnlock() pass, but for
-	// a trivial reason. Since we're using the same testUser to post and to
-	// unlock, the pin will always be unlocked for them, because when you post
-	// a pin it is automatically unlocked for you. Therefore, we need to have a
-	// different user post the pin(s), in order to confirm that we actually
-	// successfully change the locked status. We could have a check before the
-	// call to unlock to show that the pin is currently locked, then a check
-	// after to show that the pin became unlocked.
-	
 	/**
 	 * Tests that unlocking a single pin works correctly.
 	 */
 	@Test
 	public void testSingleUnlock() {
+		// Get a different user to post the Pin
+		ParseUser postUser = switchToPostUser();
+		assertNotNull(postUser);
+		
+		// Create the Pin
 		String message = "Unlock Me!";
 		LatLng coord = new LatLng(38.55, -47.885);
 		Pin pin = pinWriter.postPin(coord, message, null);
+		assertNotNull(pin);
+		
+		// Create a locked version for the test user to unlock
+		Pin lockedPin = getLockedVersionOfPin(pin);
 	
-		// Add the created ParsePin to the list so it can be
+		// Add the created Pin to the list so it can be
 		// removed at the end of the test.
 		try {
 			createdObjs.add(query.get(pin.getPinId()));
@@ -244,11 +248,17 @@ public class DBStoreTest extends AndroidTestCase {
 			e.printStackTrace();
 		}
 		
-		assertNotNull(pin);
+		// Switch back to the test user to unlock the pin
+		assertTrue(switchToTestUser());
 		
-		Pin uPin = pinWriter.unlockPin(pin);
-		assertNotNull(uPin);
-		assertFalse(uPin.isLocked());
+		// Check that the pin is locked 
+		assertNotNull(lockedPin);
+		assertTrue(lockedPin.isLocked());
+		
+		// Do the unlocking and check that it worked
+		Pin unlockedPin = pinWriter.unlockPin(lockedPin);
+		assertNotNull(unlockedPin);
+		assertFalse(unlockedPin.isLocked());
 	}
 	
 
@@ -257,6 +267,11 @@ public class DBStoreTest extends AndroidTestCase {
 	 */
 	@Test
 	public void testMultiUnlock() {
+		// Get a different user to post the Pin
+		ParseUser postUser = switchToPostUser();
+		assertNotNull(postUser);
+		
+		// Create the Pins
 		LatLng coord1 = new LatLng(25.225, 56.553);
 		LatLng coord2 = new LatLng(23.455, 57.898);
 		LatLng coord3 = new LatLng(26.999, 58.550);
@@ -265,8 +280,17 @@ public class DBStoreTest extends AndroidTestCase {
 		Pin pin2 = pinWriter.postPin(coord2, "Pin2", null);
 		Pin pin3 = pinWriter.postPin(coord3, "Pin3", null);
 		
-		// Add the created ParsePin to the list so it can be
-		// removed at the end of the test.
+		assertNotNull(pin1);
+		assertNotNull(pin2);
+		assertNotNull(pin3);
+		
+		// Create locked versions for the test user to unlock
+		Pin lockedPin1 = getLockedVersionOfPin(pin1);
+		Pin lockedPin2 = getLockedVersionOfPin(pin2);
+		Pin lockedPin3 = getLockedVersionOfPin(pin3);
+		
+		// Add the created Pins to the list so they can be
+		// removed at the end of the test
 		try {
 			createdObjs.add(query.get(pin1.getPinId()));
 			createdObjs.add(query.get(pin2.getPinId()));
@@ -275,19 +299,27 @@ public class DBStoreTest extends AndroidTestCase {
 			e.printStackTrace();
 		}
 		
-		assertNotNull(pin1);
-		assertNotNull(pin2);
-		assertNotNull(pin3);
+		// Switch back to the test user to unlock the pins
+		assertTrue(switchToTestUser());
 		
-		Pin uPin1 = pinWriter.unlockPin(pin1);
+		// Check that the pins are locked
+		assertNotNull(lockedPin1);
+		assertTrue(lockedPin1.isLocked());
+		assertNotNull(lockedPin2);
+		assertTrue(lockedPin2.isLocked());
+		assertNotNull(lockedPin3);
+		assertTrue(lockedPin3.isLocked());
+		
+		// Do the unlocking and check that it worked
+		Pin uPin1 = pinWriter.unlockPin(lockedPin1);
 		assertNotNull(uPin1);
 		assertFalse(uPin1.isLocked());
 
-		Pin uPin2 = pinWriter.unlockPin(pin2);
+		Pin uPin2 = pinWriter.unlockPin(lockedPin2);
 		assertNotNull(uPin2);
 		assertFalse(uPin2.isLocked());
 
-		Pin uPin3 = pinWriter.unlockPin(pin3);
+		Pin uPin3 = pinWriter.unlockPin(lockedPin3);
 		assertNotNull(uPin3);
 		assertFalse(uPin3.isLocked());
 	}
@@ -298,5 +330,63 @@ public class DBStoreTest extends AndroidTestCase {
 	@Test
 	public void testNullUnlock() {
 		assertNull(pinWriter.unlockPin(null));
+	}
+	
+	/**
+	 * Switches to a different user in order to have a different user post a
+	 * Pin than the testUser.
+	 * @return a user suitable for posting Pins (different from testUser)
+	 */
+	private ParseUser switchToPostUser() {
+		ParseUser.logOut();
+		
+		ParseUser postUser = new ParseUser();
+		
+		postUser.setEmail(PARSE_USER_EMAIL_2);
+		postUser.setUsername(PARSE_USERNAME_2);
+		postUser.setPassword(PARSE_PASSWORD_2);
+		try {
+			postUser.signUp();
+		} catch (ParseException e) {
+			if (e.getCode() != ParseException.USERNAME_TAKEN) {
+				e.printStackTrace();
+				return null;
+			}
+		}
+		
+		try {
+			ParseUser.logIn(PARSE_USERNAME_2, PARSE_PASSWORD_2);
+		} catch (ParseException e) {
+			e.printStackTrace();
+			return null;
+		}
+		return postUser;
+	}
+	
+	/**
+	 * Logs out the current user and switches to the testUser.
+	 * @return true if the testUser was successfully logged in, false otherwise
+	 */
+	private boolean switchToTestUser() {
+		ParseUser.logOut();
+		
+		try {
+			ParseUser.logIn(PARSE_USERNAME, PARSE_PASSWORD);
+		} catch (ParseException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+	
+	/**
+	 * Returns a locked version of the given Pin.
+	 * @param pin The Pin to get a locked version of
+	 * @return A copy of the given Pin marked as locked
+	 */
+	private Pin getLockedVersionOfPin(Pin pin) {
+		return new Pin(true, pin.getLocation(), pin.getUser(), 
+					   pin.getFacebookID(), pin.getPinId(), pin.getMessage(),
+					   pin.getPhoto());
 	}
 }
