@@ -762,7 +762,7 @@ public class MainActivity extends FragmentActivity implements
 		Pin pin = dbs.postPin(coord, message, photo);
 		if (pin == null) {
 			Toast toast = Toast.makeText(getApplicationContext(),
-					"Unable to post pin due to network issues",
+					"Posting failed. Please try again.",
 					Toast.LENGTH_LONG);
 			toast.show();
 			return;
