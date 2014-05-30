@@ -43,14 +43,6 @@ public class ParsePin extends ParseObject {
 		return getParseUser("user");
 	}
 	
-	public void setPhoto(ParseFile photo) {
-		put("photo", photo);
-	}
-	
-	public ParseFile getPhoto() {
-		return getParseFile("photo");
-	}
-    
 	/**
 	 * Set the user who posted the pin.
 	 * @param user ParseUser representing the poster of the pin.
@@ -58,7 +50,23 @@ public class ParsePin extends ParseObject {
 	public void setUser(ParseUser user) {
 		put("user", user);
 	}
+	
+	/**
+	 * Gets the photo stored in the pin.
+	 * @return ParseFile photo stored in the pin.
+	 */
+	public ParseFile getPhoto() {
+		return getParseFile("photo");
+	}
     
+	/**
+	 * Sets the photo file for the pin.
+	 * @param ParseFile photo to store in the pin.
+	 */
+	public void setPhoto(ParseFile photo) {
+		put("photo", photo);
+	}
+	
 	/**
 	 * Get the location where the pin was posted.
 	 * @return ParseGeoPoint location where the pin was posted.
@@ -95,21 +103,15 @@ public class ParsePin extends ParseObject {
 		if (!(o instanceof ParsePin))
 			return false;
 		ParsePin p = (ParsePin) o;
+		
+		// To avoid null pointer
+		if (getObjectId() == null && p.getObjectId() == null) {
+			return true;
+		}
+		
 		return getObjectId().equals(p.getObjectId());
 	}
 	
-	/**
-	 * 
-	 */
-	public boolean equals2(Object o) {
-		if (!(o instanceof ParsePin)) 
-			return false;
-		ParsePin p = (ParsePin) o;
-		return p.getString("name").equals(this.getString("name")) &&
-			   p.getString("facebookID").equals(this.getString("facebookID")) &&
-			   p.getLocation().equals(this.getLocation());
-		
-	}
 	/**
 	 * Returns string representation of pin which
 	 * is the pin's id
