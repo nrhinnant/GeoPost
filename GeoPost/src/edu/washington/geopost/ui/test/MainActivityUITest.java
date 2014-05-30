@@ -2,19 +2,22 @@ package edu.washington.geopost.ui.test;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import android.test.ActivityInstrumentationTestCase2;
+
 import com.parse.ParseUser;
 import com.robotium.solo.Solo;
-import edu.washington.geopost.LoginActivity;
 
-public class MainActivityUITest extends ActivityInstrumentationTestCase2<LoginActivity> {
+import edu.washington.geopost.MainActivity;
+
+public class MainActivityUITest extends ActivityInstrumentationTestCase2<MainActivity> {
 	int SHORT_TIMEOUT = 5000;
 	private Solo solo;
 	public MainActivityUITest() {
-		super(LoginActivity.class);
+		super(MainActivity.class);
 	}
 	
-	public MainActivityUITest(Class<LoginActivity> activityClass) {
+	public MainActivityUITest(Class<MainActivity> activityClass) {
 		super(activityClass);
 	}
 	
@@ -24,11 +27,11 @@ public class MainActivityUITest extends ActivityInstrumentationTestCase2<LoginAc
 	}
 
 	@Test
-	public void testProfileActivityLaunch() {
+	public void testPostActivityLaunch() {
 		boolean postActivityResult = false;
 		if (ParseUser.getCurrentUser() == null) {
 			solo.clickOnButton("Post");
-			postActivityResult = solo.waitForFragmentByTag(edu.washington.geopost.PostFragment.class.getName(), SHORT_TIMEOUT);
+			postActivityResult = solo.waitForLogMessage("Post Clicked");
 			assertTrue(postActivityResult);
 		} else {
 			fail();

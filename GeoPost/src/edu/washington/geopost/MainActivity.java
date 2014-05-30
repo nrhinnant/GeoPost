@@ -704,6 +704,7 @@ public class MainActivity extends FragmentActivity implements
 	 *            the clicked post button
 	 */
 	public void onPostButtonClick(View view) {
+		Log.d("LC", "Post Clicked");
 		Location loc = locationClient.getLastLocation();
 		if (loc == null) {
 			Toast toast = Toast.makeText(getApplicationContext(),
