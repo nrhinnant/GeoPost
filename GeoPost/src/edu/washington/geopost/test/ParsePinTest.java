@@ -189,7 +189,7 @@ public class ParsePinTest extends AndroidTestCase {
 		try {
 			pin0.hashCode();
 			assertTrue(false);
-		} catch(NullPointerException e) {
+		} catch (NullPointerException e) {
 			assertTrue(true);
 		}
 	}

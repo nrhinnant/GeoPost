@@ -64,7 +64,7 @@ public class MainActivity extends FragmentActivity implements
 	// Zoom level upon opening app, 16 is on the order of UW campus size
 	// No units are specified, range of zoom is 2.0 to 21.0 (bigger => closer)
 	public static final float INIT_ZOOM = 16;
-	// TODO: Put this in the strings.xml
+	// Tag for the app
 	public static final String TAG = "GeoPost";
 	// Thickness of the unlocking circle border line
 	public static final float BORDER_THICKNESS = 4;
@@ -100,11 +100,13 @@ public class MainActivity extends FragmentActivity implements
 	private DBQuery dbq;
 	private DBStore dbs;
 
-	// Sorting fields
-	private boolean includeViewed;
-	private boolean includeLocked;
-	private boolean includePosted;
-	private boolean includeFriends;
+	// Sorting option
+	private enum SortingOption {
+		ALL, FB_FRIENDS, LOCKED,
+		VIEWED, MY_POSTS
+	}
+	
+	SortingOption sortingOption;
 
 	// Current user and their facebook friends
 	private User currentUser;
@@ -145,10 +147,7 @@ public class MainActivity extends FragmentActivity implements
 		setUpMapIfNeeded();
 
 		// Set filters to show all posts
-		includeViewed = true;
-		includeLocked = true;
-		includePosted = true;
-		includeFriends = true;
+		sortingOption = SortingOption.ALL;
 
 		// Setup collection of markers on map to actual pins
 		geoposts = new HashMap<Marker, Pin>();
@@ -352,7 +351,6 @@ public class MainActivity extends FragmentActivity implements
 			friends = dbq.getFriends();
 		}
 		float color = BitmapDescriptorFactory.HUE_RED;
-		boolean visible = true;
 		Log.d("addPin", pin.getUser());
 		if (currentUser == null) {
 			if (!isNetworkAvailable()) {
@@ -361,35 +359,18 @@ public class MainActivity extends FragmentActivity implements
 			}
 			currentUser = dbq.getCurrentUser();
 		}
-		if (pin.getFacebookID() != null
-				&& pin.getFacebookID().equals(currentUser.getFacebookID())) {
+		if (wasPostedByUser(pin)) {
 			// pin is user's posted pin
-			if (!includePosted) {
-				visible = false;
-			}
 			color = BitmapDescriptorFactory.HUE_VIOLET;
 		} else if (!pin.isLocked()) {
 			// pin is unlocked
-			if (!includeViewed) {
-				visible = false;
-			}
-			color = (float) 220.0;
-		} else {
-			// pin is locked
-			if (!includeLocked) {
-				visible = false;
-			}
-		}
-		if (includeFriends) {
-			if (!friends.contains(pin.getFacebookID())) {
-				visible = false;
-			}
-		}
+			color = (float) 220.0; // blue
+		}		
 
 		Marker m = map.addMarker(new MarkerOptions().title(pin.getMessage())
 				.snippet(pin.getUser()).position(pin.getLocation())
 				.icon(BitmapDescriptorFactory.defaultMarker(color))
-				.visible(visible));
+				.visible(getVisible(pin)));
 
 		geoposts.put(m, pin);
 	}
@@ -469,30 +450,15 @@ public class MainActivity extends FragmentActivity implements
 			long id) {
 		String option = (String) parent.getItemAtPosition(pos);
 		if (option.equals("All Posts")) {
-			includeViewed = true;
-			includeLocked = true;
-			includePosted = true;
-			includeFriends = false;
+			sortingOption = SortingOption.ALL;
 		} else if (option.equals("Viewed")) {
-			includeViewed = true;
-			includeLocked = false;
-			includePosted = false;
-			includeFriends = false;
+			sortingOption = SortingOption.VIEWED;
 		} else if (option.equals("Locked")) {
-			includeViewed = false;
-			includeLocked = true;
-			includePosted = false;
-			includeFriends = false;
+			sortingOption = SortingOption.LOCKED;
 		} else if (option.equals("My Posts")) {
-			includeViewed = false;
-			includeLocked = false;
-			includePosted = true;
-			includeFriends = false;
+			sortingOption = SortingOption.MY_POSTS;
 		} else if (option.equals("Friends")) {
-			includeViewed = true;
-			includeLocked = true;
-			includePosted = false;
-			includeFriends = true;
+			sortingOption = SortingOption.FB_FRIENDS;
 		}
 
 		// refresh the current pins
@@ -506,30 +472,46 @@ public class MainActivity extends FragmentActivity implements
 	private void refreshLocalPins() {
 		for (Marker m : geoposts.keySet()) {
 			Pin pin = geoposts.get(m);
-			m.setVisible(true);
-			if (pin.getFacebookID() != null
-					&& pin.getFacebookID().equals(currentUser.getFacebookID())) {
-				// pin is user's posted pin
-				if (!includePosted) {
-					m.setVisible(false);
-				}
-			} else if (!pin.isLocked()) {
-				// pin is unlocked
-				if (!includeViewed) {
-					m.setVisible(false);
-				}
-			} else if (pin.isLocked()) {
-				// pin is locked
-				if (!includeLocked) {
-					m.setVisible(false);
-				}
-			}
-			if (includeFriends) {
-				if (!friends.contains(pin.getFacebookID())) {
-					m.setVisible(false);
-				}
-			}
+			m.setVisible(getVisible(pin));
 		}
+	}
+	
+	/**
+	 * Return whether the given pin should be displayed given
+	 * the current filter option. 
+	 * 
+	 * @param p the pin to be displayed or not
+	 * @return true if the pin should be visible, false otherwise
+	 */
+	private boolean getVisible(Pin p) {
+		switch (sortingOption) {
+		case LOCKED:
+			return p.isLocked();
+		
+		case VIEWED:
+			return !p.isLocked() && 
+					!wasPostedByUser(p);
+			
+		case MY_POSTS:
+			return wasPostedByUser(p);
+			
+		case FB_FRIENDS:
+			return friends.contains(p.getFacebookID());
+			
+		default:
+			return true;
+		}
+	}
+	
+	/**
+	 * Return whether the given pin was posted by the current user
+	 * 
+	 * @param p the pin to check
+	 * @return true if the current user posted p, false otherwise
+	 */
+	private boolean wasPostedByUser(Pin p) {
+		return p.getFacebookID() != null
+				&& p.getFacebookID().equals(currentUser.getFacebookID());
 	}
 
 	/**
@@ -978,27 +960,32 @@ public class MainActivity extends FragmentActivity implements
 	 * @return the value of includeViewed
 	 */
 	public boolean isIncludeViewed() {
-		return includeViewed;
+		return sortingOption == SortingOption.ALL ||
+				sortingOption == SortingOption.VIEWED ||
+				sortingOption == SortingOption.FB_FRIENDS;
 	}
 
 	/**
 	 * @return the value of includeLocked
 	 */
 	public boolean isIncludeLocked() {
-		return includeLocked;
+		return sortingOption == SortingOption.ALL ||
+				sortingOption == SortingOption.LOCKED ||
+				sortingOption == SortingOption.FB_FRIENDS;
 	}
 
 	/**
 	 * @return the value of includePosted
 	 */
 	public boolean isIncludePosted() {
-		return includePosted;
+		return sortingOption == SortingOption.ALL ||
+				sortingOption == SortingOption.MY_POSTS;
 	}
 
 	/**
 	 * @return the value of includeFriends
 	 */
 	public boolean isIncludeFriends() {
-		return includeFriends;
+		return sortingOption == SortingOption.FB_FRIENDS;
 	}
 }
