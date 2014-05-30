@@ -467,7 +467,7 @@ public class MainActivity extends FragmentActivity implements
 			includeViewed = true;
 			includeLocked = true;
 			includePosted = true;
-			includeFriends = true;
+			includeFriends = false;
 		} else if (option.equals("Viewed")) {
 			includeViewed = true;
 			includeLocked = false;
