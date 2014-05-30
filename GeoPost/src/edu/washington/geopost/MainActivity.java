@@ -471,16 +471,27 @@ public class MainActivity extends FragmentActivity implements
 			includeViewed = true;
 			includeLocked = true;
 			includePosted = true;
+			includeFriends = true;
 		} else if (option.equals("Viewed")) {
 			includeViewed = true;
+			includeLocked = false;
+			includePosted = false;
+			includeFriends = false;
 		} else if (option.equals("Locked")) {
+			includeViewed = false;
 			includeLocked = true;
+			includePosted = false;
+			includeFriends = false;
 		} else if (option.equals("My Posts")) {
+			includeViewed = false;
+			includeLocked = false;
 			includePosted = true;
+			includeFriends = false;
 		} else if (option.equals("Friends")) {
-			includeFriends = true;
-			includeLocked = true;
 			includeViewed = true;
+			includeLocked = true;
+			includePosted = false;
+			includeFriends = true;
 		}
 
 		// refresh the current pins
@@ -976,5 +987,35 @@ public class MainActivity extends FragmentActivity implements
 			}
 		}
 		Log.d("drawMarkers", "drew markers");
+	}
+
+	/* For test */
+	
+	/**
+	 * @return the value of includeViewed
+	 */
+	public boolean isIncludeViewed() {
+		return includeViewed;
+	}
+
+	/**
+	 * @return the value of includeLocked
+	 */
+	public boolean isIncludeLocked() {
+		return includeLocked;
+	}
+
+	/**
+	 * @return the value of includePosted
+	 */
+	public boolean isIncludePosted() {
+		return includePosted;
+	}
+
+	/**
+	 * @return the value of includeFriends
+	 */
+	public boolean isIncludeFriends() {
+		return includeFriends;
 	}
 }

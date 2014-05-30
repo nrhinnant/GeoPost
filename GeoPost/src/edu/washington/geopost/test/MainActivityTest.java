@@ -42,6 +42,11 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 		super.setUp();
 		activity = getActivity();
 		solo = new Solo(getInstrumentation(), activity);
+		
+		assertFalse(activity.isIncludeViewed());
+		assertFalse(activity.isIncludeLocked());
+		assertFalse(activity.isIncludePosted());
+		assertFalse(activity.isIncludeFriends());
 	}
 	
 	@Override
@@ -63,36 +68,55 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 		assertEquals(expected, actual);
 	}
 	
-//	@Test
-//	public void testAllPostsSelected() {
-//		View view = solo.getView(Spinner.class, ALL_POSTS);
-//		solo.clickOnView(view);
-//		assertTrue(MainActivity.isIncludeViewed());
-//	}
-//	
-//	@Test
-//	public void testViewedPostsSelected() {
-//		View view = solo.getView(Spinner.class, VIEWED_POSTS);
-//		solo.clickOnView(view);
-//	}
-//	
-//	@Test 
-//	public void testLockedPostsSelected() {
-//		View view = solo.getView(Spinner.class, LOCKED_POSTS);
-//		solo.clickOnView(view);
-//	}
-//	
-//	@Test
-//	public void testMyPostsSelected() {
-//		View view = solo.getView(Spinner.class, MY_POSTS);
-//		solo.clickOnView(view);
-//	}
-//	
-//	@Test
-//	public void testFriendsPostsSelected() {
-//		View view = solo.getView(Spinner.class, FRIENDS_POSTS);
-//		solo.clickOnView(view);
-//	}
+	@Test
+	public void testAllPostsSelected() {
+		View view = solo.getView(Spinner.class, ALL_POSTS);
+		solo.clickOnView(view);
+		assertTrue(activity.isIncludeViewed());
+		assertTrue(activity.isIncludeLocked());
+		assertTrue(activity.isIncludePosted());
+		assertTrue(activity.isIncludeFriends());
+	}
+	
+	@Test
+	public void testViewedPostsSelected() {
+		View view = solo.getView(Spinner.class, VIEWED_POSTS);
+		solo.clickOnView(view);
+		assertTrue(activity.isIncludeViewed());
+		assertTrue(activity.isIncludeLocked());
+		assertTrue(activity.isIncludePosted());
+		assertTrue(activity.isIncludeFriends());
+	}
+	
+	@Test 
+	public void testLockedPostsSelected() {
+		View view = solo.getView(Spinner.class, LOCKED_POSTS);
+		solo.clickOnView(view);
+		assertFalse(activity.isIncludeViewed());
+		assertTrue(activity.isIncludeLocked());
+		assertFalse(activity.isIncludePosted());
+		assertFalse(activity.isIncludeFriends());
+	}
+	
+	@Test
+	public void testMyPostsSelected() {
+		View view = solo.getView(Spinner.class, MY_POSTS);
+		solo.clickOnView(view);
+		assertFalse(activity.isIncludeViewed());
+		assertFalse(activity.isIncludeLocked());
+		assertTrue(activity.isIncludePosted());
+		assertFalse(activity.isIncludeFriends());
+	}
+	
+	@Test
+	public void testFriendsPostsSelected() {
+		View view = solo.getView(Spinner.class, FRIENDS_POSTS);
+		solo.clickOnView(view);
+		assertTrue(activity.isIncludeViewed());
+		assertTrue(activity.isIncludeLocked());
+		assertTrue(activity.isIncludePosted());
+		assertFalse(activity.isIncludeFriends());
+	}
 	
 	@Test
 	public void testPostButtonClickOpensFragment() {
