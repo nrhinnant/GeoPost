@@ -139,6 +139,7 @@ public class MainActivity extends FragmentActivity implements
 			Toast toast = Toast.makeText(this,
 					"Google Play service is not available", Toast.LENGTH_LONG);
 			toast.show();
+			finish();
 		}
 
 		locationClient = new LocationClient(this, this, this);
@@ -195,6 +196,13 @@ public class MainActivity extends FragmentActivity implements
 		Log.d("DEBUG", "MainActivity - end of onCreate");
 	}
 
+	/**
+	 * 
+	 * @author Matt
+	 * For this given user, starts a background task that queries
+	 * the database for a set of the user's Facebook friends which
+	 * we store for using later
+	 */
 	private class GetFriendsTask extends AsyncTask<Void, Void, Set<String>> {
 		@Override
 		protected Set<String> doInBackground(Void... params) {
@@ -210,6 +218,12 @@ public class MainActivity extends FragmentActivity implements
 		}
 	}
 
+	/**
+	 * 
+	 * @author Matt
+	 * Starts a background task that will query the database for
+	 * information on the current user of this app
+	 */
 	private class GetUserTask extends AsyncTask<Void, Void, User> {
 		@Override
 		protected User doInBackground(Void... params) {
@@ -258,7 +272,8 @@ public class MainActivity extends FragmentActivity implements
 	}
 
 	/**
-	 * Disable the back button
+	 * Sends the app to the top of the background app stack.
+	 * User is brought back to main screen of phone.
 	 */
 	@Override
 	public void onBackPressed() {
@@ -284,6 +299,14 @@ public class MainActivity extends FragmentActivity implements
 		locationClient.disconnect();
 	}
 
+	/**
+	 * Called when the location client is connected. It sets up the location
+	 * request settings, zooms into the current location, and draws the
+	 * unlocking radius around the user's current location.
+	 * 
+	 * @param Bundle of data provided to clients by Google Play services. 
+	 * 		  May be null if no content is provided by the service.
+	 */
 	@Override
 	public void onConnected(Bundle arg0) {
 		Log.d("DEBUG", "onConnected begin");
@@ -319,6 +342,8 @@ public class MainActivity extends FragmentActivity implements
 	/**
 	 * Called when the user clicks to enable the GPS on their phone, opens up
 	 * settings page on phone where they can make this change
+	 * 
+	 * @param dialog The DialogFragment that the button was clicked from
 	 */
 	public void onEnableLocationPositiveClick(DialogFragment dialog) {
 		Intent gpsOptionsIntent = new Intent(
@@ -326,12 +351,19 @@ public class MainActivity extends FragmentActivity implements
 		startActivity(gpsOptionsIntent);
 	}
 
+	/**
+	 * Called whenever the connection to LocationClient fails
+	 * @param arg0 Contains information about what kind of connection error occurred
+	 */
 	@Override
 	public void onConnectionFailed(ConnectionResult arg0) {
 		Log.d("DEBUG", "onConnectedFailed");
 		Toast.makeText(this, "Connection Failed", Toast.LENGTH_LONG).show();
 	}
 
+	/**
+	 * Called whenever the connection to LocationClient is disconnected
+	 */
 	@Override
 	public void onDisconnected() {
 		Log.d("DEBUG", "onDisconnected");
@@ -343,8 +375,7 @@ public class MainActivity extends FragmentActivity implements
 	 * specific pin and adds it to main collection as well as draws it on the
 	 * map.
 	 * 
-	 * @param pin
-	 *            the pin to be added
+	 * @param pin the pin to be added
 	 */
 	private void addPin(Pin pin) {
 		if (friends == null) {
@@ -354,8 +385,10 @@ public class MainActivity extends FragmentActivity implements
 		Log.d("addPin", pin.getUser());
 		if (currentUser == null) {
 			if (!isNetworkAvailable()) {
-				Log.d("DEBUG",
-						"MAJOR ERROR - will crash trying to get current user with no network");
+				Toast toast = Toast.makeText(getApplicationContext(),
+						"Network unavailable", Toast.LENGTH_LONG);
+				toast.show();
+				return;
 			}
 			currentUser = dbq.getCurrentUser();
 		}
@@ -423,8 +456,7 @@ public class MainActivity extends FragmentActivity implements
 	/**
 	 * Handle menu item selections
 	 * 
-	 * @param item
-	 *            the clicked menu item
+	 * @param item the clicked menu item
 	 * @return true if event was handled, false to have default
 	 *         onOptionsItemSelected happen.
 	 */
@@ -445,6 +477,10 @@ public class MainActivity extends FragmentActivity implements
 
 	/**
 	 * Called when the user selects an item from the sorting spinner
+	 * @param parent The AdapterView where the selection happened
+	 * @param view The view within the AdapterView that was clicked
+	 * @param pos The position of the view in the adapter
+	 * @param id The row id of the item that is selected
 	 */
 	public void onItemSelected(AdapterView<?> parent, View view, int pos,
 			long id) {
@@ -518,7 +554,7 @@ public class MainActivity extends FragmentActivity implements
 	 * Called from the sorting spinner when nothing is selected
 	 */
 	public void onNothingSelected(AdapterView<?> parent) {
-		// Another interface callback
+		// Required for interface, but not needed
 	}
 
 	/**
@@ -557,8 +593,7 @@ public class MainActivity extends FragmentActivity implements
 	 * On clicking a marker, show the marker window if there is not already one
 	 * shown. Otherwise, hide the marker window.
 	 * 
-	 * @param marker
-	 *            the clicked marker (or pin)
+	 * @param marker the clicked marker (or pin)
 	 * @return true if event was handled, returning false causes default
 	 *         onMarkerClick to run, which will incorrectly display the window
 	 *         here.
@@ -574,46 +609,64 @@ public class MainActivity extends FragmentActivity implements
 		}
 
 		if (markerWindowShown) { // window is showing, hide it
-			vpw.closePhoto();
-			marker.hideInfoWindow();
-			markerWindowShown = false;
+			hidePinWindow(marker);
 		} else { // window not showing, see if we should show it
 			if (isInRange(marker) && pin.isLocked()) {
 				Log.d("onMarkerClick", "attempting to unlock in-range pin");
+				if (!isNetworkAvailable()) {
+					Toast toast = Toast.makeText(getApplicationContext(),
+							"Network unavailable", Toast.LENGTH_LONG);
+					toast.show();
+					return true;
+				}
 				Pin p = dbs.unlockPin(pin);
 				if (p != null) { // unlocked new pin
 					geoposts.put(marker, p);
-					Bitmap photo = p.getPhoto();
-					if (photo != null) {
-						vpw.setPhoto(photo);
-					}
-					marker.showInfoWindow();
-					markerWindowShown = true;
+					showPinWindow(p, marker);
 				} else { // unlocking failed
-					vpw.closePhoto();
-					marker.hideInfoWindow();
-					markerWindowShown = false;
+					hidePinWindow(marker);
 					Log.d("onMarkerClick", "Failed to unlock pin");
 				}
 			} else if (!pin.isLocked()) { // pin already unlocked
-				Bitmap photo = pin.getPhoto();
-				if (photo != null) {
-					vpw.setPhoto(photo);
-				}
-				marker.showInfoWindow();
-				markerWindowShown = true;
+				showPinWindow(pin, marker);
 				Log.d("onMarkerClick", "viewed previously unlocked pin");
 			} else { // pin is locked
 				Log.d("onMarkerClick", "clicked on locked/out of range pin");
-				vpw.closePhoto();
-				marker.hideInfoWindow();
-				markerWindowShown = false;
+				hidePinWindow(marker);
 				Toast toast = Toast.makeText(getApplicationContext(), "Locked",
 						Toast.LENGTH_SHORT);
 				toast.show();
 			}
 		}
 		return true;
+	}
+	
+	/**
+	 * Brings up the pin window associated with the marker to show
+	 * the pin's message and photo
+	 * 
+	 * @param pin The pin associated with given marker that contains
+	 * 				message, photo, and name
+	 * @param marker The marker the user clicked on
+	 */
+	private void showPinWindow(Pin pin, Marker marker) {
+		Bitmap photo = pin.getPhoto();
+		if (photo != null) {
+			vpw.setPhoto(photo);
+		}
+		marker.showInfoWindow();
+		markerWindowShown = true;
+	}
+	
+	/**
+	 * Closes the pin window associated with the marker
+	 * 
+	 * @param marker The marker the user clicked on
+	 */
+	private void hidePinWindow(Marker marker) {
+		vpw.closePhoto();
+		marker.hideInfoWindow();
+		markerWindowShown = false;
 	}
 
 	/**
@@ -622,8 +675,7 @@ public class MainActivity extends FragmentActivity implements
 	 * in range. If the user's location cannot be found, displays a message
 	 * saying so.
 	 * 
-	 * @param marker
-	 *            the marker to verify
+	 * @param marker the marker to verify
 	 * @return true if the marker is in range, false otherwise
 	 */
 	private boolean isInRange(Marker marker) {
@@ -651,14 +703,10 @@ public class MainActivity extends FragmentActivity implements
 	/**
 	 * Gets distance between two latlng points
 	 * 
-	 * @param startLat
-	 *            The latitude of the initial point
-	 * @param startLng
-	 *            The longitude of the initial point
-	 * @param endLat
-	 *            The latitude of the end point
-	 * @param endLng
-	 *            The latitude of the end point
+	 * @param startLat The latitude of the initial point
+	 * @param startLng The longitude of the initial point
+	 * @param endLat The latitude of the end point
+	 * @param endLng The latitude of the end point
 	 * @return Uses the haversine formula to calculate and return the distance
 	 *         between two lat/lng points on the earth in meters
 	 */
@@ -704,7 +752,16 @@ public class MainActivity extends FragmentActivity implements
 	}
 
 	@Override
-	// Has to override so it gets sent to the correct fragment
+	/**
+	 * This has to be overridden so PostFragment's camera intent is
+	 * sent to the correct activity
+	 * @param requestCode The integer request code originally supplied to 
+	 * 						startActivityForResult(), allowing you to identify 
+	 * 						who this result came from.
+	 * @param resultCode The integer result code returned by the 
+	 * 						child activity through its setResult()
+	 * @param data An Intent, which can return result data to the caller 
+	 */
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		Log.d("DEBUG", "onActivityResult");
 		Log.d("CAM", "Inside main onActivityResult");
@@ -792,9 +849,8 @@ public class MainActivity extends FragmentActivity implements
 	/**
 	 * Draw the unlock range circle on the map
 	 * 
-	 * @param center
-	 *            The coordinate center where the user is located on the map
-	 *            which serves as the epicenter of the circle to draw
+	 * @param center The coordinate center where the user is located on the map
+	 *            	which serves as the epicenter of the circle to draw
 	 */
 	public void drawCircle(LatLng center) {
 		CircleOptions circleOptions = new CircleOptions();
@@ -807,9 +863,10 @@ public class MainActivity extends FragmentActivity implements
 	}
 
 	/**
+	 * Changes the given difference in coordinates to a difference
+	 * in meters
 	 * 
-	 * @param difference
-	 *            The lat/lng difference in distance between two points
+	 * @param difference The lat/lng difference in distance between two points
 	 * @return The same distance in meters
 	 */
 	private double coordToMeters(double difference) {
@@ -834,8 +891,7 @@ public class MainActivity extends FragmentActivity implements
 	 * Activated when camera is changed, panning or zooming. This method will
 	 * trigger a call to updateMap() to redraw the relevant pins
 	 * 
-	 * @param CameraPosition
-	 *            The position of the user's camera
+	 * @param CameraPosition The position of the user's camera
 	 */
 	@Override
 	public void onCameraChange(CameraPosition cp) {

@@ -97,6 +97,10 @@ public class DBQuery {
 										 pin.getLocation().getLongitude());
 			
 			// Get the pin's original poster and their Facebook ID
+			if (pin.getUser() == null) {
+				Log.d("getPins", "pin.getUser() is null");
+				continue;
+			}
 			String poster = pin.getUser().getUsername();
 			String facebookID = pin.getUser().getString("facebookID");
 			
