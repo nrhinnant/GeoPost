@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-
-    <string name="app_name">GeoPostTestTest</string>
-    <string name="facebook_app_id">Your Facebook App ID</string>
-    <string name="parse_app_id">Your Parse App ID</string>
-    <string name="parse_client_id">Your Parse Client ID</string>
-
-</resources>
