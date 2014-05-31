@@ -148,7 +148,7 @@ public class LoginActivity extends Activity {
 						currentUser.put("facebookID", user.getId());
 						currentUser.saveEventually();
 					} else if (response.getError() != null) { // error to display
-						Log.d(MainActivity.TAG, 
+						Log.d("DEBUG", 
 								response.getError().getErrorMessage());
 					}
 				}
@@ -187,7 +187,7 @@ public class LoginActivity extends Activity {
 						try {
 							friendUsers = friendQuery.find();
 						} catch (ParseException e) { // error finding friends
-							Log.d(MainActivity.TAG, "Could not find facebook "
+							Log.d("DEBUG", "Could not find facebook "
 									+ "friends.");
 							return;
 						}
