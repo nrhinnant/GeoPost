@@ -202,6 +202,14 @@ public class MainActivity extends FragmentActivity implements
 		refreshThread = new RefreshMapTask();
 		Log.d("DEBUG", "MainActivity - end of onCreate");
 		
+		// Check for first time users and start help fragment
+		Bundle extras = getIntent().getExtras();
+		if (extras != null) {
+			boolean isNewUser = extras.getBoolean("NewUser");
+			if (isNewUser) {
+				openHelpFragment();
+			}
+		}
 	}
 
 	/**
