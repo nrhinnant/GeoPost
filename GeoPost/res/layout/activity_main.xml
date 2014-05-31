@@ -19,4 +19,12 @@
         android:layout_alignParentBottom="true"
         android:onClick="onPostButtonClick" />
 
+    <ProgressBar
+        android:id="@+id/progressBar1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true" 
+        style="@android:style/Widget.ProgressBar.Inverse"/>
+
 </RelativeLayout>

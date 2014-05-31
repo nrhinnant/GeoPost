@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
-import android.location.LocationListener;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -23,6 +22,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -117,6 +117,8 @@ public class MainActivity extends FragmentActivity implements
 
 	// Window for pin being displayed
 	private ViewPinWindow vpw;
+	
+	private ProgressBar loadingWheel;
 
 	/**
 	 * Called upon opening of the activity. Initializes all of the UI
@@ -156,8 +158,13 @@ public class MainActivity extends FragmentActivity implements
 		// Initialize the database interfaces
 		dbq = new DBQuery();
 		dbs = new DBStore();
-
-		// friends = new HashSet<String>();
+		
+		Log.d("LoadWheel", "Before creating");
+		loadingWheel = (ProgressBar)findViewById(R.id.progressBar1);
+		Log.d("LoadWheel", "findViewById done");
+		loadingWheel.setVisibility(View.GONE);
+		Log.d("LoadWheel", "Initially gone");
+		
 		Log.d("DEBUG", "MainActivity - onCreate, just before network stuff");
 		
 		if (isNetworkAvailable()) {
@@ -194,6 +201,7 @@ public class MainActivity extends FragmentActivity implements
 		// pins on the screen
 		refreshThread = new RefreshMapTask();
 		Log.d("DEBUG", "MainActivity - end of onCreate");
+		
 	}
 
 	/**
@@ -911,7 +919,9 @@ public class MainActivity extends FragmentActivity implements
 			// Create background task that will query the database
 			// and upon return, draw the updated pin/markers on the map
 			refreshThread = new RefreshMapTask();
+			loadingWheel.setVisibility(View.VISIBLE);
 			refreshThread.execute(sw, ne);
+			
 		}
 	}
 
@@ -927,10 +937,8 @@ public class MainActivity extends FragmentActivity implements
 		/**
 		 * Queries the database for pins in view as background task
 		 * 
-		 * @param LatLng
-		 *            sw The southwest corner of the user's view
-		 * @param LatLng
-		 *            ne The northeast corner of the user's view
+		 * @param LatLng sw The southwest corner of the user's view
+		 * @param LatLng ne The northeast corner of the user's view
 		 * @return Set<Pin> The resulting pins from the database that are within
 		 *         the bounding box from the two points
 		 */
@@ -953,13 +961,15 @@ public class MainActivity extends FragmentActivity implements
 		 * This is called after doInBackground returns, with its return value
 		 * Draws the pins onto the map
 		 * 
-		 * @param Set
-		 *            <Pin> The pins from the background task that need to be
+		 * @param Set <Pin> The pins from the background task that need to be
 		 *            drawn onto the map
 		 */
 		protected void onPostExecute(Set<Pin> pins) {
 			Log.d("onPostExecute", "executing, pin drawing");
 			drawMarkers(pins);
+			Log.d("LoadWheel", "onPostExecute setVisible before");
+			loadingWheel.setVisibility(View.GONE);
+			Log.d("LoadWheel", "onPostExecute setVisible before");
 		}
 	}
 
