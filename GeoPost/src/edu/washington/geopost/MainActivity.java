@@ -47,9 +47,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.VisibleRegion;
 
 /**
- * This is the activity of geopost that displays the map of pins to the user. It
+ * This is the activity of GeoPost that displays the map of pins to the user. It
  * also displays controls to them for posting and filtering pins as well as
- * viewing thier profile
+ * viewing their profile
  * 
  * @author Matt, Mike, Ethan
  */
