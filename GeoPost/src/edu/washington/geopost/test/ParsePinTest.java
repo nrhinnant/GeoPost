@@ -19,8 +19,8 @@ import edu.washington.geopost.ParsePin;
  */
 
 public class ParsePinTest extends AndroidTestCase {
-	private static final String APP_ID = "GlrWxWCu5mnGFKUeeQIFg9Upt9AwomBDk3t0OKHa";
-	private static final String CLIENT_KEY = "HRRt6k8GzTclufgMCW8RES8LZgQLTTvKBJAnbD5c";
+	private static final String APP_ID = "<INSERT ACTUAL PARSE APP ID HERE>";
+	private static final String CLIENT_KEY = "<INSERT ACTUAL PARSE CLIENT KEY HERE>";
 	
 	// Sample pins for the test.
 	private ParsePin pin0;
